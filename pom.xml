@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.aprenderSpring</groupId>
-	<artifactId>ecommerceSpring</artifactId>
+	<artifactId>BaseEcommerceSpring</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>ecommerceSpring</name>
 	<description>An e-commerce with Spring Boot for start to learn.</description>

@@ -1,0 +1,30 @@
+/*
+ *  A pasta api é responsável por todos os Responses.
+ *
+ *  Os Requests constam na pasta dto.
+ *
+ *
+ *  O Auth Response é responsável por receber o estado, o token e as informações
+ * relacionadas ao Login efetuado.
+ * */
+
+package com.aprenderSpring.ecommerceSpring.api;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.*;
+
+import java.time.Instant;
+
+@Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class AuthResponse {
+    private boolean success;
+    private String message;
+    private String token;
+    private String role;
+    private Instant expirationTime;
+    private final Instant timestamp = Instant.now();
+}

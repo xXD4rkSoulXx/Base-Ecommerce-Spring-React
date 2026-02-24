@@ -6,8 +6,22 @@ import io.github.cdimascio.dotenv.Dotenv;
 
 @SpringBootApplication
 public class EcommerceSpringApplication {
-
 	public static void main(String[] args) {
+        /*
+        * Instalar as dependências:
+        * - Spring Web
+        * - Lombok
+        * - MySQL Driver ou PostgreSQL Driver
+        * - Spring Data JPA
+        * - Spring Security
+        * - Validation
+        * */
+
+        /*
+        * Meter a dependência do cdimascio para poder usar o .env
+        * */
+
+
 		Dotenv dotenv = Dotenv.load();
 
 		System.setProperty("DB_HOST", dotenv.get("DB_HOST"));
