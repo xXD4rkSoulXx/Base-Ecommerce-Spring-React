@@ -29,7 +29,6 @@ public class Product {
     private Long id;
 
     @Column(nullable = false)
-    @NotBlank
     private String name;
 
     private String description;
@@ -37,7 +36,7 @@ public class Product {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @PositiveOrZero
+    @Builder.Default
     private BigDecimal price = BigDecimal.ZERO;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -49,10 +48,10 @@ public class Product {
     private Discount discount;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private List<OrderItem> orderItemList;
+    private List<CartItem> cartItemList;
 
     @OneToMany(mappedBy = "product")
-    private List<PaymentItem> paymentItemList;
+    private List<OrderItem> orderItemList;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<Review> reviewList;

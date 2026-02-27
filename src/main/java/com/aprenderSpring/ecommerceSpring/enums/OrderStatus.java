@@ -6,5 +6,6 @@
 package com.aprenderSpring.ecommerceSpring.enums;
 
 public enum OrderStatus {
-    PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED, RETURNED
+    // SHIPPED e DELIVERED é para entregas físicas
+    CREATED, CANCELLED, FAILED, PAID, SHIPPED, DELIVERED, REFUNDED
 }

@@ -5,15 +5,13 @@
 
 package com.aprenderSpring.ecommerceSpring.domain;
 
-import com.aprenderSpring.ecommerceSpring.enums.OrderStatus;
+import com.aprenderSpring.ecommerceSpring.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.List;
 
 @Entity
 @Table(name = "payments")
@@ -27,19 +25,15 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "total_price")
-    private BigDecimal totalPrice;
-
     private String method;
 
-    private OrderStatus status;
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private PaymentStatus status = PaymentStatus.PENDING;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @OneToMany(mappedBy = "payment", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<PaymentItem> paymentItemList;
+    @JoinColumn(name = "order_id")
+    private Order order;
 
     @Column(name = "created_at", updatable = false)
     @CreationTimestamp

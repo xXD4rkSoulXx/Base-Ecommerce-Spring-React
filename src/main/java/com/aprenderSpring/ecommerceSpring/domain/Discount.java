@@ -29,17 +29,12 @@ public class Discount {
     private Long id;
 
     @Column(nullable = false)
-    @NotBlank
-    @Min(0)
-    @Max(100)
     private int percentage;
 
     @Column(name = "start_date", nullable = false)
-    @NotBlank
     private LocalDate startDate;
 
     @Column(name = "end_date", nullable = false)
-    @NotBlank
     private LocalDate endDate;
 
     @OneToOne(mappedBy = "discount")

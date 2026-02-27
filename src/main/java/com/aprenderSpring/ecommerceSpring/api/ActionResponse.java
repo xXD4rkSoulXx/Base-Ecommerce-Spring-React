@@ -10,19 +10,24 @@
 package com.aprenderSpring.ecommerceSpring.api;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.time.Instant;
 
-@Getter
-@Builder
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ActionResponse {
     private boolean success;
+
     private String message;
+
     private String action;
+
+    @JsonProperty("resource_id")
     private Long resourceId;
+
     private final Instant timestamp = Instant.now();
 }

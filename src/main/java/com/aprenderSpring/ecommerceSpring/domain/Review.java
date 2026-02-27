@@ -6,9 +6,6 @@
 package com.aprenderSpring.ecommerceSpring.domain;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -29,9 +26,6 @@ public class Review {
     private Long id;
 
     @Column(nullable = false)
-    @NotBlank
-    @Min(0)
-    @Max(10)
     private BigDecimal rating;
 
     private String content;

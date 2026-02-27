@@ -16,8 +16,7 @@ package com.aprenderSpring.ecommerceSpring.repository;
 
 import com.aprenderSpring.ecommerceSpring.domain.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface OrderRepository extends JpaRepository<Order, Long> {
-    Order findByUserId(Long userId);
-
+public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecificationExecutor<Order> {
 }

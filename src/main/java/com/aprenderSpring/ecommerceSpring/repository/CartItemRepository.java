@@ -14,11 +14,12 @@
 
 package com.aprenderSpring.ecommerceSpring.repository;
 
-import com.aprenderSpring.ecommerceSpring.domain.PaymentItem;
+import com.aprenderSpring.ecommerceSpring.domain.CartItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface PaymentItemRepository extends JpaRepository<PaymentItem, Long> {
-    List<PaymentItem> findAllByPaymentId(Long paymentId);
+public interface CartItemRepository extends JpaRepository<CartItem, Long> {
+    Optional<List<CartItem>> findAllByCartId(Long cartId);
 }

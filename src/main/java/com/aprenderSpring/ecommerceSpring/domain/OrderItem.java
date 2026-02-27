@@ -25,9 +25,12 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private int quantity = 1;
+    private int quantity;
 
-    private BigDecimal price;
+    @Column(name = "price_at_moment")
+    private BigDecimal priceAtMoment;
+
+    private int discount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")

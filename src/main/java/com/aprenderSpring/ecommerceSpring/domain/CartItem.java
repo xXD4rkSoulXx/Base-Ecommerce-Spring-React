@@ -14,20 +14,22 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 @Entity
-@Table(name = "payment_items")
+@Table(name = "cart_items")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PaymentItem {
+public class CartItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private int quantity;
+    @Builder.Default
+    private int quantity = 1;
 
-    private BigDecimal price;
+    @Column(name = "price_at_moment")
+    private BigDecimal priceAtMoment;
 
     private int discount;
 
@@ -36,8 +38,8 @@ public class PaymentItem {
     private Product product;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "payment_id")
-    private Payment payment;
+    @JoinColumn(name = "cart_id")
+    private Cart cart;
 
     @Column(name = "created_at", updatable = false)
     @CreationTimestamp

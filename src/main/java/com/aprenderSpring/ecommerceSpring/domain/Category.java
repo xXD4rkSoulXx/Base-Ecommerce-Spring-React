@@ -27,7 +27,6 @@ public class Category {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    @NotBlank
     private String name;
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)

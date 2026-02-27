@@ -28,16 +28,21 @@ public class Order {
     private Long id;
 
     @Column(name = "total_price")
-    private BigDecimal totalPrice = BigDecimal.ZERO;
+    private BigDecimal totalPrice;
 
-    private OrderStatus status;
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private OrderStatus status = OrderStatus.CREATED;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<OrderItem> orderItemList;
+
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Payment> paymentList;
 
     @Column(name = "created_at", updatable = false)
     @CreationTimestamp

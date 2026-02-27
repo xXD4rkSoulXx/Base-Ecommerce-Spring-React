@@ -7,8 +7,6 @@ package com.aprenderSpring.ecommerceSpring.domain;
 
 import com.aprenderSpring.ecommerceSpring.enums.UserRole;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -29,32 +27,30 @@ public class User {
     private Long id;
 
     @Column(nullable = false)
-    @NotBlank
     private String name;
 
     @Column(nullable = false, unique = true)
-    @NotBlank
-    @Email
     private String email;
 
     @Column(nullable = false)
-    @NotBlank
     private String password;
 
     @Column(name = "phone_number", unique = true)
     private String phoneNumber;
 
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private UserRole role = UserRole.USER;
+
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id")
     private Address address;
 
-    private UserRole role = UserRole.USER;
-
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private Order order;
+    private Cart cart;
 
     @OneToMany(mappedBy = "user")
-    private List<Payment> paymentList;
+    private List<Order> orderList;
 
     @OneToMany(mappedBy = "user")
     private List<Review> reviewList;
