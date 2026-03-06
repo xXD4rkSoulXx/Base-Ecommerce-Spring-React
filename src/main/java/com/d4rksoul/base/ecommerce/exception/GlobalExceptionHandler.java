@@ -21,7 +21,7 @@
 
 package com.d4rksoul.base.ecommerce.exception;
 
-import com.d4rksoul.base.ecommerce.api.ApiError;
+import com.d4rksoul.base.ecommerce.dto.response.ApiError;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -42,7 +42,10 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.security.sasl.AuthenticationException;
 import java.nio.file.AccessDeniedException;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice

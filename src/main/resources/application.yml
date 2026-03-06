@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: BaseEcommerceSpring
+  datasource:
+    # Criar ficheiro .env
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?serverTimezone=UTC
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      # Em produção, colocar em validate
+      ddl-auto: update
+  # Colocar throw e add-mappings devido ao handleNoHandlerFound (404)
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mapping: false
