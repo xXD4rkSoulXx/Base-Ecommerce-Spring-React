@@ -1,14 +1,12 @@
-/*
- *  A pasta Mapper serve para interligar o Domain ao DTO
- * */
-
 package com.d4rksoul.base.ecommerce.mapper;
 
 import com.d4rksoul.base.ecommerce.domain.Cart;
-import com.d4rksoul.base.ecommerce.dto.response.CartItemResponseDto;
+import com.d4rksoul.base.ecommerce.dto.request.AddToCartDto;
+import com.d4rksoul.base.ecommerce.dto.response.CartResponseDto;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {CartItemMapper.class})
 public interface CartMapper {
-    CartItemResponseDto toDto(Cart cart);
+    CartResponseDto toDto(Cart cart);
+    Cart toEntity(AddToCartDto dto);
 }

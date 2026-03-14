@@ -1,43 +1,26 @@
-/*
- *  A pasta dto contém todos os requests e responses.
- *
- *  Request seria o que o utilizador envia ou decide, por exemplo, dados como nome, morada,
- * quantidade de produtos comprados, id do produto que deu review, entre outros.
- *
- *  Não se coloca Requests dados que é definido automaticamente como role que já vai ser USER,
- * totalPrice que é a soma de todos os preços; calculado pelo sistema, createdAt que é
- * uma data gerada automaticamente, userID que o sistema vai buscar o id do user logado, entre outros.
- * */
-
 package com.d4rksoul.base.ecommerce.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class DiscountRequestDto {
+public record DiscountRequestDto(
     @NotBlank
     @Min(0)
     @Min(100)
-    private int percentage;
+    int percentage,
 
     @NotBlank
     @JsonProperty("start_date")
-    private LocalDate startDate;
+    LocalDate startDate,
 
     @NotBlank
     @JsonProperty("end_date")
-    private LocalDate endDate;
-}
+    LocalDate endDate
+) {}

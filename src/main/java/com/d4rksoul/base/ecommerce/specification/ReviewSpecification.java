@@ -1,11 +1,3 @@
-/*
- *  A pasta Specification é responsável por conter todos grandes quantidades de métodos, que
- * interagem com a base de dados. Enquanto que o Repository é para pequenas quantidades,
- * este é para muitos métodos, permitindo depois as suas combinações, evitando a necessidade
- * de criar muitos métodos, como por exemplo, 8 campos a serem combinados, 256 métodos no
- * Repository, e ao meter aqui no Specificator evita esse tanto.
- * */
-
 package com.d4rksoul.base.ecommerce.specification;
 
 import com.d4rksoul.base.ecommerce.domain.Product;

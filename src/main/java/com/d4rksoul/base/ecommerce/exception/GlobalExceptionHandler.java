@@ -1,27 +1,6 @@
-/**
- *  A pasta exception contém todos os erros personalizados, de forma a evitar que o
- * website crashe em caso de erro feito pelo utilizador, e invês disso, ele lança só uma
- * mensagem de erro a informar qual erro ocorreu.
- *
- *
- *  O GlobalExceptionHandler contém todos os tipos de exceptions que não precisam ser
- * configurados manualmente, pois já existe import para isso, como por exemplo,
- * AuthenticationException.class.
- *
- *  Cada método comunica com a ApiError, API criada na pasta api para conter todos os
- * detalhes do erro em JSON e comunicar com o servidor.
- *
- *  O handleAllExceptionn é a Exception para apresentar erro desconhecido, que não é
- * nenhum dos definidos.
- *
- *  O handleHandledException é a Exception que vai buscar todas as exceptions que criou-se
- * manualmente, através de heranças.
- */
-
-
 package com.d4rksoul.base.ecommerce.exception;
 
-import com.d4rksoul.base.ecommerce.dto.response.ApiError;
+import com.d4rksoul.base.ecommerce.dto.api.ApiError;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -31,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.web.HttpMediaTypeException;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -40,7 +20,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import javax.security.sasl.AuthenticationException;
 import java.nio.file.AccessDeniedException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -150,8 +129,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ApiError> handleAuthentication(AuthenticationException _exception, HttpServletRequest request) {
+    @ExceptionHandler(AuthenticationServiceException.class)
+    public ResponseEntity<ApiError> handleAuthentication(AuthenticationServiceException _exception, HttpServletRequest request) {
         ApiError error = ApiError.builder()
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error("Unauthorized")

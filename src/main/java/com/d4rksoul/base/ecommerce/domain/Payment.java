@@ -1,8 +1,3 @@
-/*
- *  A pasta Domain, ou conhecida também como Entity, contém as tabelas da base de dados com
- * os seus respetivos campos, e relações.
- * */
-
 package com.d4rksoul.base.ecommerce.domain;
 
 import com.d4rksoul.base.ecommerce.enums.PaymentStatus;
@@ -11,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -39,6 +35,7 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String method;
 
     @Enumerated(EnumType.STRING)
@@ -46,7 +43,7 @@ public class Payment {
     private PaymentStatus status = PaymentStatus.PENDING;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
+    @JoinColumn(name = "order_id", foreignKey = @ForeignKey(name = "fk_payment_order"), nullable = false)
     private Order order;
 
     @Column(name = "created_at", updatable = false)

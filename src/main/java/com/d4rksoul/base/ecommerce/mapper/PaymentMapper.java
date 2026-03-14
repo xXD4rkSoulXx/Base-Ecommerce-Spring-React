@@ -1,7 +1,3 @@
-/*
- *  A pasta Mapper serve para interligar o Domain ao DTO
- * */
-
 package com.d4rksoul.base.ecommerce.mapper;
 
 import com.d4rksoul.base.ecommerce.domain.Payment;

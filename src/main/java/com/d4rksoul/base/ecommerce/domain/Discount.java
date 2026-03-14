@@ -1,8 +1,3 @@
-/*
- *  A pasta Domain, ou conhecida também como Entity, contém as tabelas da base de dados com
- * os seus respetivos campos, e relações.
- * */
-
 package com.d4rksoul.base.ecommerce.domain;
 
 import jakarta.persistence.Column;

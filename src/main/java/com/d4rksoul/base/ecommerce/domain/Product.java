@@ -1,14 +1,10 @@
-/*
- *  A pasta Domain, ou conhecida também como Entity, contém as tabelas da base de dados com
- * os seus respetivos campos, e relações.
- * */
-
 package com.d4rksoul.base.ecommerce.domain;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -47,17 +43,18 @@ public class Product {
     private String description;
 
     @Column(name = "image_url")
-    private String imageUrl;
+    @Builder.Default
+    private String imageUrl = "/images/no-image.png";
 
     @Builder.Default
     private BigDecimal price = BigDecimal.ZERO;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", foreignKey = @ForeignKey(name = "fk_product_category"))
     private Category category;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "discount_id")
+    @JoinColumn(name = "discount_id", foreignKey = @ForeignKey(name = "fk_product_discount"), unique = true)
     private Discount discount;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
