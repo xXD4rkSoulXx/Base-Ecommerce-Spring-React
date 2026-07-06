@@ -1,11 +1,11 @@
-import { useMemo, useState } from "react";
-import { Search as SearchIcon } from "lucide-react";
 import { useProducts } from "@/hooks/useProducts";
-import { ProductCard } from "@/components/product/ProductCard";
+import { useMemo, useState } from "react";
 import Loading from "./Loading";
 import Error from "./Error";
+import { SearchIcon } from "lucide-react";
+import { ProductCard } from "@/components/product/ProductCard";
 
-const Search = () => {
+function Search() {
   const [q, setQ] = useState("");
   const {data: products, isLoading, error} = useProducts();
 
@@ -15,7 +15,7 @@ const Search = () => {
     const term = q.toLowerCase();
 
     return products.filter(
-      (p) =>
+      (p: { name: string; category: string; ref: string; }) =>
         p.name.toLowerCase().includes(term) ||
         p.category.toLowerCase().includes(term) ||
         p.ref.toLowerCase().includes(term)
@@ -61,7 +61,7 @@ const Search = () => {
             {results.length} result{results.length !== 1 && "s"} for "{q}"
           </p>
           <div className="grid grid-cols-2 gap-x-4 gap-y-12 md:grid-cols-4 lg:gap-x-6">
-            {results.map((p, i) => (
+            {results.map((p: { id: number; }, i: number) => (
               <ProductCard key={p.id} product={p} index={i} />
             ))}
           </div>
@@ -71,4 +71,4 @@ const Search = () => {
   );
 };
 
-export default Search;
+export default Search

@@ -1,12 +1,13 @@
-import { Link } from "react-router-dom";
 import { useProducts } from "@/hooks/useProducts";
-import Loading from "@/pages/Loading";
-import Error from "@/pages/Error";
+import Loading from "./Loading";
+import Error from "./Error";
+import { Link } from "react-router-dom";
 import { ProductCard } from "@/components/product/ProductCard";
+import type { Size } from "@/types/Product";
 
-export default function Home() {
+function Home() {
   const {data: products, isLoading, error} = useProducts();
-
+  
   if (isLoading) {
     return <Loading />;
   }
@@ -98,7 +99,7 @@ export default function Home() {
 
       <section className="mx-auto max-w-[1440px] px-6 py-20 md:px-10">
         <div className="grid grid-cols-2 gap-x-4 gap-y-12 md:grid-cols-4 lg:gap-x-6">
-          {newArrivals.map((p, i) => (
+          {newArrivals.map((p: { id: number; }, i: number) => (
             <ProductCard key={p.id} product={p} index={i} />
           ))}
         </div>
@@ -127,7 +128,21 @@ export default function Home() {
           </Link>
         </div>
         <div className="grid grid-cols-2 gap-x-4 gap-y-12 md:grid-cols-4 lg:gap-x-6">
-          {discounts.map((p, i) => (
+          {discounts.map((p: {
+            id: number;
+            ref?: string;
+            name?: string;
+            category?: string;
+            price?: number;
+            image?: string;
+            description?: string;
+            size?: Size;
+            stock?: number;
+            featured?: boolean;
+            discount?: number;
+            createdAt?: string;
+          },
+          i: number) => (
             <ProductCard key={p.id} product={p} index={i} />
           ))}
         </div>
@@ -135,3 +150,5 @@ export default function Home() {
     </>
   )
 }
+
+export default Home

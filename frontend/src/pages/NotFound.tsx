@@ -1,8 +1,8 @@
-import { Link, useLocation } from "react-router-dom";
-import { useEffect } from "react";
-import { ArrowLeft, Radio } from "lucide-react";
+import { ArrowLeft, Radio } from "lucide-react"
+import { useEffect } from "react"
+import { Link, useLocation } from "react-router-dom"
 
-const NotFound = () => {
+function NotFound() {
   const location = useLocation();
 
   useEffect(() => {
@@ -14,16 +14,14 @@ const NotFound = () => {
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.07]"
         style={{
-          backgroundImage:
-            "linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
+          backgroundImage: "linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)",
+          backgroundSize: "48px 48px"
         }}
       />
       <div
         className="pointer-events-none absolute -top-32 left-1/2 h-[420px] w-[420px] -translate-x-1/2 rounded-full opacity-30 blur-3xl"
         style={{ background: "hsl(var(--neon-pink))" }}
       />
-
       <div className="relative z-10 mx-auto max-w-2xl text-center">
         <p className="font-mono text-[10px] uppercase tracking-[0.5em] text-neon-cyan">
           Signal Lost · Node Unreachable
@@ -40,7 +38,6 @@ const NotFound = () => {
           The route you tried to access has been redacted from the grid, or it
           never existed in this timeline.
         </p>
-
         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             to="/"
@@ -57,7 +54,7 @@ const NotFound = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default NotFound;
+export default NotFound

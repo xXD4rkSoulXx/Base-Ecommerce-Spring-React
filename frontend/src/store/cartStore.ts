@@ -1,55 +1,58 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import type { Product } from "@/types/Product";
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
-export type CartItem = {
-  id: string;
+import type { Product } from '@/types/Product'
+
+interface LocalCartItem {
   product: Product;
-  size: string;
-  qty: number;
-};
+  quantity: number;
+}
 
-type CartState = {
-  items: CartItem[];
-  addItem: (product: Product, size: string, qty?: number) => void;
-  removeItem: (key: string) => void;
-  updateQty: (key: string, qty: number) => void;
-  clear: () => void;
-  total: () => number;
-  count: () => number;
-};
+interface CartState {
+  items: LocalCartItem[];
+  addToCart: (product: Product) => void;
+  removeFromCart: (productId: number) => void;
+  updateQuantity: (productId: number, quantity: number) => void;
+  clearCart: () => void;
+}
 
-export const useCart = create<CartState>()(
+export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
-      addItem: (product, size, qty = 1) => {
-        const key = `${product.id}-${size}`;
-        const existing = get().items.find((i) => i.id === key);
-        if (existing) {
+      addToCart: (product) => {
+        if (get().items.find((item) => item.product.id === product.id)) {
           set({
-            items: get().items.map((i) =>
-              i.id === key ? { ...i, qty: i.qty + qty } : i
-            ),
+            items: get().items.map((item) =>
+              item.product.id === product.id
+                ? { ...item, quantity: item.quantity + 1 }
+                : item
+            )
           });
         } else {
-          set({ items: [...get().items, { id: key, product, size, qty }] });
+          set({ items: [...get().items, { product, quantity: 1 }] });
         }
       },
-      removeItem: (key) =>
-        set({ items: get().items.filter((i) => i.id !== key) }),
-      updateQty: (key, qty) =>
+      removeFromCart: (productId) => {
+        set({items: get().items.filter((item) => item.product.id !== productId)});
+      },
+      updateQuantity: (productId, quantity) => {
+        if (quantity <= 0) {
+          get().removeFromCart(productId);
+          return;
+        }
         set({
-          items:
-            qty <= 0
-              ? get().items.filter((i) => i.id !== key)
-              : get().items.map((i) => (i.id === key ? { ...i, qty } : i)),
-        }),
-      clear: () => set({ items: [] }),
-      total: () =>
-        get().items.reduce((sum, i) => sum + i.product.price * i.qty, 0),
-      count: () => get().items.reduce((sum, i) => sum + i.qty, 0),
+          items: get().items.map((item) =>
+            item.product.id === productId
+              ? { ...item, quantity }
+              : item
+          )
+        });
+      },
+      clearCart: () => set({ items: [] })
     }),
-    { name: "velociti-cart" }
+    {
+      name: 'velo-citi',
+    }
   )
 );

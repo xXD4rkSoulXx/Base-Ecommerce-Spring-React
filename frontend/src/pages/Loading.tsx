@@ -1,14 +1,13 @@
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react"
 
-const Loading = () => {
+function Loading() {
   return (
     <div className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-background text-foreground">
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.06]"
         style={{
-          backgroundImage:
-            "linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
+          backgroundImage: "linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)",
+          backgroundSize: "48px 48px"
         }}
       />
       <div className="relative z-10 flex flex-col items-center gap-6 text-center">
@@ -39,7 +38,7 @@ const Loading = () => {
         }
       `}</style>
     </div>
-  );
-};
+  )
+}
 
-export default Loading;
+export default Loading

@@ -1,11 +1,12 @@
-import { Route, Routes } from "react-router-dom";
-import Layout from "./layouts/Layout";
-import Home from "./pages/Home";
-import NotFound from "./pages/NotFound";
-import About from "./pages/About";
-import Search from "./pages/Search";
+import { Route, Routes } from "react-router-dom"
 
-export default function App() {
+import Home from "@/pages/Home"
+import Layout from "@/layouts/Layout"
+import NotFound from "@/pages/NotFound"
+import About from "@/pages/About"
+import Search from "@/pages/Search"
+
+function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
@@ -17,3 +18,5 @@ export default function App() {
     </Routes>
   )
 }
+
+export default App
