@@ -1,28 +1,33 @@
 import { useEffect, useState } from "react"
 import { Link, NavLink } from "react-router-dom"
-import { Menu, Search, ShoppingBag, User, X } from "lucide-react"
+import { Heart, Menu, Search, ShoppingBag, User, X } from "lucide-react"
 
-// import { useCart } from "@/store/cartStore"
+import { useCartStore } from "@/store/useCartStore"
+import { useWishlistStore } from "@/store/useWishlistStore"
+import { hasAnyRole, useAuthStore } from "@/store/useAuthStore"
+
+interface NavItem {
+  to: string;
+  label: string;
+}
 
 function NavBar() {
-  // Menu
-  // --------------------------------
   const [open, setOpen] = useState(false);
 
-  const navItems = [
+  const user = useAuthStore((state) => state.user);
+  const isElevatedOperator = hasAnyRole(user, ['OPERATOR', 'MANAGER', 'ADMIN']);
+
+  const navItems: NavItem[] = [
     { to: "/shop", label: "Shop" },
     { to: "/about", label: "About" },
-    { to: "/admin", label: "Admin" }
-  ];
+    isElevatedOperator && { to: "/admin", label: "Admin" }
+  ].filter((item): item is NavItem => Boolean(item));
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [open]);
-  // --------------------------------
 
-  // Time
-  // --------------------------------
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
@@ -35,15 +40,12 @@ function NavBar() {
       minute: "2-digit",
       second: "2-digit"
   });
-  // --------------------------------
 
-  // Cart
-  // const count = useCart((s) => s.count());
+  const countCart = useCartStore((state) => state.getTotalItems());
+  const countWishlist = useWishlistStore((state) => state.getTotalItems());
 
   return (
     <>
-      {/* Desktop */}
-      {/* -------------------------------- */}
       <nav className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-[1440px] items-center justify-between px-6 py-4 md:px-10">
           <div className="flex items-center gap-3">
@@ -90,26 +92,51 @@ function NavBar() {
               <Search className="h-4 w-4" />
             </Link>
             <Link
-              to="/account"
-              className="text-foreground/70 transition-colors hover:text-neon-cyan"
-              aria-label="Account"
+              to="/wishlist"
+              className="relative text-foreground/70 transition-colors hover:text-neon-pink"
+              aria-label="Wishlist"
             >
-              <User className="h-4 w-4" />
+              <Heart className="h-4 w-4" />
+              {countWishlist > 0 && (
+                <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center bg-neon-pink px-1 font-mono text-[9px] font-black text-primary-foreground">
+                  {countWishlist}
+                </span>
+              )}
             </Link>
+            {user ? (
+              <Link
+                to="/account"
+                className="text-foreground/70 transition-colors hover:text-neon-cyan"
+                aria-label="Account"
+              >
+                <User className="h-4 w-4" />
+              </Link>
+            ) : (
+              <div className="hidden items-center gap-3 md:flex">
+                <Link
+                  to="/login"
+                  className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground/80 transition-colors hover:text-neon-cyan"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/register"
+                  className="border border-neon-pink px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-neon-pink transition-all hover:bg-neon-pink hover:text-primary-foreground"
+                >
+                  Register
+                </Link>
+              </div>
+            )}
             <Link
               to="/cart"
               className="group flex items-center gap-2 border border-neon-cyan px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-neon-cyan transition-all hover:bg-neon-cyan hover:text-primary-foreground"
             >
               <ShoppingBag className="h-3 w-3" />
-              {/* <span>Cart [{String(count).padStart(2, "0")}]</span> */}
+              <span>Cart [{String(countCart).padStart(2, "0")}]</span>
             </Link>
           </div>
         </div>
       </nav>
-      {/* -------------------------------- */}
-
-      {/* Mobile */}
-      {/* -------------------------------- */}
       <div
         className={`fixed inset-0 z-50 xl:hidden ${open ? "" : "pointer-events-none"}`}
         aria-hidden={!open}
@@ -156,14 +183,30 @@ function NavBar() {
               </NavLink>
             ))}
           </nav>
-          <div className="mt-8 flex flex-col gap-3">
-            <Link
-              to="/account"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-foreground/80 hover:text-neon-cyan"
-            >
-              <User className="h-4 w-4" /> Account
-            </Link>
+          <div className="mt-8 flex flex-col gap-4">
+            {user ? (
+              <Link
+                to="/account"
+                className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-foreground/80 hover:text-neon-cyan"
+              >
+                <User className="h-4 w-4" /> Account
+              </Link>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-foreground/80 hover:text-neon-cyan"
+                >
+                  <User className="h-4 w-4" /> Login
+                </Link>
+                <Link
+                  to="/register"
+                  className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-neon-pink hover:text-neon-pink/80"
+                >
+                  <User className="h-4 w-4" /> Register
+                </Link>
+              </>
+            )}
             <Link
               to="/search"
               onClick={() => setOpen(false)}
@@ -177,7 +220,6 @@ function NavBar() {
           </p>
         </aside>
       </div>
-      {/* -------------------------------- */}
     </>
   );
 }

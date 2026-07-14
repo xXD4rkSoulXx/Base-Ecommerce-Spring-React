@@ -1,13 +1,20 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
+
   application:
     name: base.ecommerce.spring.react
+
   datasource:
     url: ${DB_URL}
-    username: ${DB_USER}
+    username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
-  config:
-    import: optional:file:.env[.properties]
+    properties:
+      hibernate:
+        format_sql: true
