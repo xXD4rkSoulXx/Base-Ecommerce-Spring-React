@@ -3,26 +3,23 @@ import { AxiosError } from 'axios';
 import { useMutation } from '@tanstack/react-query'
 
 import { useAuthStore } from '@/store/useAuthStore'
-import { api } from '@/services/api'
+
+import { authService } from '@/services/authService'
 
 export const useLogoutMutation = () => {
   const clearAuth = useAuthStore((state) => state.clearAuth);
   const navigate = useNavigate();
 
   return useMutation<void, AxiosError<{ message: string }>, void>({
-    mutationFn: async () => {
-      await api.post<void>('/api/auth/logout');
-    },
+    mutationFn: authService.logout,
     onSuccess: () => {
       clearAuth();
-      
-      navigate('/login', { replace: true });
+      navigate("/login", { replace: true });
     },
     onError: (error) => {
-      console.error('Falha de comunicação no encerramento da sessão:', error.response?.data?.message || error.message);
-      
+      console.error("Communication failure at session termination: ", error.response?.data?.message || error.message);
       clearAuth();
-      navigate('/login', { replace: true });
+      navigate("/login", { replace: true });
     }
   });
 };

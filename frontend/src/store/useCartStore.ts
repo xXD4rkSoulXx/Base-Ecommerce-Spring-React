@@ -61,7 +61,7 @@ export const useCartStore = create<CartState>()(
       }
     }),
     {
-      name: 'velociti-cart'
+      name: "velociti-cart"
     }
   )
 );

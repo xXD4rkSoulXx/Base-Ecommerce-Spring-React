@@ -1,5 +1,5 @@
-import { ArrowLeft, Lock, ShieldAlert } from "lucide-react"
-import { Link } from "react-router-dom"
+import { Link } from 'react-router-dom'
+import { ArrowLeft, Lock, ShieldAlert } from 'lucide-react'
 
 function NoPermission() {
   return (

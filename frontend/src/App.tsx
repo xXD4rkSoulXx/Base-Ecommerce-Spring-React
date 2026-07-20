@@ -1,40 +1,34 @@
-import { useEffect } from "react"
-import { Route, Routes } from "react-router-dom"
+import { useEffect } from 'react'
+import { Route, Routes } from 'react-router-dom'
 
-import Home from "@/pages/Home"
-import Layout from "@/layouts/Layout"
-// import ProtectedRoute from "@/layouts/ProtectedRoute"
-import PublicRoute from "@/layouts/PublicRoute"
-import Loading from "@/pages/Loading"
-import NotFound from "@/pages/NotFound"
-import NoPermission from "@/pages/NoPermission"
-import Register from "@/pages/Register"
-import Login from "@/pages/Login"
-import Account from "./pages/Account"
-import About from "@/pages/About"
-import { useAuthStore } from "@/store/useAuthStore"
-import type { LoginResponse } from "./types/Auth"
-import axios from "axios"
-import ProtectedRoute from "./layouts/ProtectedRoute"
+import Home from '@/pages/Home'
+import Layout from '@/layouts/Layout'
+import ProtectedRoute from '@/layouts/ProtectedRoute'
+import PublicRoute from '@/layouts/PublicRoute'
+import Loading from '@/pages/Loading'
+import NotFound from '@/pages/NotFound'
+import NoPermission from '@/pages/NoPermission'
+import Register from '@/pages/Register'
+import Login from '@/pages/Login'
+import Account from '@/pages/Account'
+import About from '@/pages/About'
+
+import type { LoginResponse } from '@/types/Auth'
+
+import { api } from '@/services/api'
+import { useAuthStore } from '@/store/useAuthStore'
 
 function App() {
-  const { isHydrated, setAuth, clearAuth, setHydrated } = useAuthStore();
+  const { isHydrated, setHydrated, setAuth, clearAuth } = useAuthStore();
 
   useEffect(() => {
     const checkSessionOnLoad = async () => {
       try {
-        const response = await axios.post<LoginResponse>(
-          `${import.meta.env.VITE_API_URL}/api/auth/refresh`,
-          {},
-          { withCredentials: true }
-        );
+        const response = await api.post<LoginResponse>("/api/auth/refresh", {});
 
-        if (response.status === 204 || !response.data) {
-          clearAuth();
-        } else {
-          setAuth(response.data.accessToken, response.data.user);
-        }
-      } catch {
+        setAuth(response.data.user, response.data.accessToken);
+      } catch (error) {
+        console.error("Refresh session failed: ", error);
         clearAuth();
       } finally {
         setHydrated();
@@ -42,7 +36,7 @@ function App() {
     };
 
     checkSessionOnLoad();
-  }, [setAuth, clearAuth, setHydrated]);
+  }, [setHydrated, setAuth, clearAuth]);
 
   if (!isHydrated) {
     return <Loading />;

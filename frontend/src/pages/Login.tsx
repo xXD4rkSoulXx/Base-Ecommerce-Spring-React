@@ -1,10 +1,11 @@
-import { useState } from "react"
-import { Link } from "react-router-dom"
-import { ArrowRight, Lock, Mail } from "lucide-react"
-import type { AxiosError } from "axios"
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import type { AxiosError } from 'axios'
+import { ArrowRight, Lock, Mail } from 'lucide-react'
 
-import Field from "@/components/ui/Field"
-import { useLoginMutation } from "@/hooks/useLoginMutation"
+import Field from '@/components/ui/Field'
+
+import { useLoginMutation } from '@/hooks/useLoginMutation'
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -82,7 +83,7 @@ function Login() {
           </div>
           <button
             type="submit"
-          disabled={isPending}
+            disabled={isPending}
             className="group flex w-full items-center justify-center gap-3 border border-neon-cyan bg-neon-cyan py-4 text-xs font-bold uppercase tracking-[0.3em] text-primary-foreground transition-all hover:bg-transparent hover:text-neon-cyan disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isPending ? "Authenticating..." : "Authenticate"}

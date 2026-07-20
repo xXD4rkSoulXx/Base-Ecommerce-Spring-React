@@ -6,6 +6,7 @@ import lombok.Builder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 public record LoginResponse(
+
         UserResponse user,
 
         String accessToken

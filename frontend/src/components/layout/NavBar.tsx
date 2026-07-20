@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react"
-import { Link, NavLink } from "react-router-dom"
-import { Heart, Menu, Search, ShoppingBag, User, X } from "lucide-react"
+import { useEffect, useState } from 'react'
+import { Link, NavLink } from 'react-router-dom'
+import { Heart, Menu, Search, ShoppingBag, User, X } from 'lucide-react'
 
-import { useCartStore } from "@/store/useCartStore"
-import { useWishlistStore } from "@/store/useWishlistStore"
-import { hasAnyRole, useAuthStore } from "@/store/useAuthStore"
+import { useCartStore } from '@/store/useCartStore'
+import { useWishlistStore } from '@/store/useWishlistStore'
+import { hasAnyRole, useAuthStore } from '@/store/useAuthStore'
 
 interface NavItem {
   to: string;

@@ -1,4 +1,4 @@
-import type { UserResponse } from "./User";
+import type { UserResponse } from './User';
 
 export interface RegisterRequest {
   email: string;

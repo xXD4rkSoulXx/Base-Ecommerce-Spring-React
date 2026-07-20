@@ -15,6 +15,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,14 +54,12 @@ public class AuthenticationController {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
-                .body(new LoginResponse(
-                        result.user(),
-                        result.accessToken()
-                ));
+                .body(new LoginResponse(result.user(), result.accessToken()));
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<LoginResponse> refresh(@CookieValue(name = "refreshToken") String rawOldRefreshToken) {
+        log.info("HTTP POST Request: Refresh session");
         LoginResult result = authenticationService.refreshSession(rawOldRefreshToken);
 
         ResponseCookie newRefreshTokenCookie = ResponseCookie.from("refreshToken", result.refreshToken())
@@ -73,14 +72,12 @@ public class AuthenticationController {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, newRefreshTokenCookie.toString())
-                .body(new LoginResponse(
-                        result.user(),
-                        result.accessToken()
-                ));
+                .body(new LoginResponse(result.user(), result.accessToken()));
     }
 
-    @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@CookieValue(name = "refreshToken", required = false) String rawRefreshToken) {
+    @DeleteMapping("/logout")
+    public ResponseEntity<Void> logout(@CookieValue(name = "refreshToken") String rawRefreshToken) {
+        log.info("HTTP DELETE Request: Logout session");
         if (rawRefreshToken != null) {
             authenticationService.logoutSession(rawRefreshToken);
         }
@@ -98,8 +95,9 @@ public class AuthenticationController {
                 .build();
     }
 
-    @PostMapping("/logout-all")
+    @DeleteMapping("/logout-all")
     public ResponseEntity<Void> logoutAll(@AuthenticationPrincipal org.springframework.security.oauth2.jwt.Jwt jwt) {
+        log.info("HTTP DELETE Request: Logout all sessions");
         String email = jwt.getSubject();
 
         authenticationService.logoutAllDevices(email);

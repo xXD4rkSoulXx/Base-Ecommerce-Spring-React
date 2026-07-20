@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record LoginRequest(
+
         @NotBlank(message = "Email is required")
         @Email(message = "Invalid email format")
         String email,

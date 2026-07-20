@@ -1,21 +1,30 @@
-import axios from "axios"
+import axios, { type InternalAxiosRequestConfig } from 'axios'
 
-import { useAuthStore } from "@/store/useAuthStore"
-import type { LoginResponse } from "@/types/Auth"
+import type { LoginResponse } from '@/types/Auth'
+
+import { useAuthStore } from '@/store/useAuthStore'
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
+  headers: { "Content-Type": "application/json" },
   withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json'
-  }
+  xsrfCookieName: "XSRF-TOKEN",
+  xsrfHeaderName: "X-XSRF-TOKEN"
 });
 
-api.interceptors.request.use((config) => {
+api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = useAuthStore.getState().accessToken;
-
-  if (token) {
+  const csrfToken = document.cookie
+                      .split("; ")
+                      .find(row => row.startsWith("XSRF-TOKEN="))
+                      ?.split("=")[1];
+  
+  if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  if (csrfToken && config.headers) {
+    config.headers["X-XSRF-TOKEN"] = csrfToken;
   }
 
   return config;
@@ -33,11 +42,14 @@ api.interceptors.response.use(
         const response = await axios.post<LoginResponse>(
           `${import.meta.env.VITE_API_URL}/api/auth/refresh`,
           {},
-          { withCredentials: true }
+          {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true
+          }
         );
-        const { accessToken, user } = response.data;
+        const { user, accessToken } = response.data;
 
-        useAuthStore.getState().setAuth(accessToken, user);
+        useAuthStore.getState().setAuth(user, accessToken);
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 
         return api(originalRequest);
@@ -47,6 +59,7 @@ api.interceptors.response.use(
         return Promise.reject(refreshError);
       }
     }
+
     return Promise.reject(error);
   }
 );

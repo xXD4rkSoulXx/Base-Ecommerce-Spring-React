@@ -1,22 +1,40 @@
-import { useState } from "react"
-import { Link } from "react-router-dom"
-import { AlertTriangle, ArrowRight, Lock, Mail, User } from "lucide-react"
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import { AlertTriangle, ArrowRight, Lock, Mail, User } from 'lucide-react'
 
-import Field from "@/components/ui/Field"
-import Perk from "@/components/ui/Perk"
-import { useRegisterMutation } from "@/hooks/useRegisterMutation"
+import Field from '@/components/ui/Field'
+import Perk from '@/components/ui/Perk'
+
+import { useRegisterMutation } from '@/hooks/useRegisterMutation'
 
 function Register() {
-const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [accept, setAccept] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const { mutate, isPending, isError, error } = useRegisterMutation();
 
   const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    setValidationError(null); 
     
+    if (password !== confirmPassword) {
+      setValidationError("Passwords do not match.");
+
+      return;
+    }
+    
+    if (!accept) {
+      setValidationError("You must accept the Network Protocol to continue.");
+
+      return;
+    }
+
     mutate({
       email,
       password,
@@ -24,6 +42,8 @@ const [email, setEmail] = useState('');
       lastName
     });
   };
+
+  const errorMessage = validationError || error?.response?.data?.message || error?.message;
 
   return (
     <div className="relative mx-auto grid min-h-[calc(100vh-80px)] max-w-[1440px] gap-0 px-6 py-16 md:px-10 lg:grid-cols-2 lg:gap-16">
@@ -34,7 +54,7 @@ const [email, setEmail] = useState('');
         <p className="mt-3 text-sm text-muted-foreground">
           Provision your operator profile and unlock the full archive.
         </p>
-        {isError && (
+        {(validationError || isError) && (
           <div
             role="alert"
             className="mt-8 flex items-start gap-3 border border-destructive/60 bg-destructive/10 px-4 py-3 text-xs text-destructive"
@@ -42,7 +62,7 @@ const [email, setEmail] = useState('');
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
             <div>
               <p className="mt-1 font-mono">
-                {error?.response?.data?.message || error?.message || "An error occurred"}
+                {errorMessage}
               </p>
             </div>
           </div>
@@ -84,8 +104,22 @@ const [email, setEmail] = useState('');
             disabled={isPending}
             placeholder="Min. 8 characters"
           />
+          <Field
+            label="Confirm Password"
+            icon={<Lock className="h-4 w-4" />}
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            disabled={isPending}
+            placeholder="Repeat password"
+          />
           <label className="flex items-start gap-3 text-xs">
-            <input type="checkbox" className="mt-0.5 h-3 w-3 accent-neon-pink" />
+            <input
+              type="checkbox"
+              checked={accept}
+              onChange={(e) => setAccept(e.target.checked)}
+              className="mt-0.5 h-3 w-3 accent-neon-pink"
+            />
             <span className="font-mono uppercase tracking-widest leading-relaxed text-muted-foreground">
               I accept the{" "}
               <Link to="/about" className="text-neon-cyan hover:text-neon-pink">

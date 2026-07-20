@@ -1,11 +1,13 @@
 package com.d4rksoul.base.ecommerce.spring.react.config;
 
+import com.d4rksoul.base.ecommerce.spring.react.security.JwtKeyProvider;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,26 +17,19 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 
 import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
 @Configuration
+@RequiredArgsConstructor
 @Slf4j
 public class JwtConfig {
 
+    private final JwtKeyProvider jwtKeyProvider;
+
     @Bean
     public KeyPair keyPair() {
-        try {
-            log.info("Generating secure RSA 2048 key pair for JWT signing");
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-            keyPairGenerator.initialize(2048);
-
-            return keyPairGenerator.generateKeyPair();
-        } catch (Exception e) {
-            log.error("Failed to generate RSA key pair", e);
-            throw new IllegalStateException("Could not initialize cryptographic keys", e);
-        }
+        return jwtKeyProvider.getOrInitializeKeyPair();
     }
 
     @Bean

@@ -1,12 +1,12 @@
-import { ArrowLeft, Radio } from "lucide-react"
-import { useEffect } from "react"
-import { Link, useLocation } from "react-router-dom"
+import { useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
+import { ArrowLeft, Radio } from 'lucide-react'
 
 function NotFound() {
   const location = useLocation();
 
   useEffect(() => {
-    console.error("404 Error: User attempted to access non-existent route:", location.pathname);
+    console.error("404 Error: User attempted to access non-existent route: ", location.pathname);
   }, [location.pathname]);
 
   return (

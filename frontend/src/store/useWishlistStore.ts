@@ -40,7 +40,7 @@ export const useWishlistStore = create<WishlistState>()(
       }
     }),
     {
-      name: 'velociti-wishlist'
+      name: "velociti-wishlist"
     }
   )
 );

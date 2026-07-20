@@ -33,10 +33,10 @@ public class RefreshToken {
     @Column(updatable = false)
     private Long id;
 
-    @Column(length = 64, nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     private String token;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_refresh_token_user"))
     private User user;
 

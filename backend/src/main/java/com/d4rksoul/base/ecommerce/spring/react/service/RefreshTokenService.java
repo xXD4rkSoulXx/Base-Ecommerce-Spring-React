@@ -2,8 +2,12 @@ package com.d4rksoul.base.ecommerce.spring.react.service;
 
 import com.d4rksoul.base.ecommerce.spring.react.entity.RefreshToken;
 import com.d4rksoul.base.ecommerce.spring.react.entity.User;
+import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidRefreshTokenException;
+import com.d4rksoul.base.ecommerce.spring.react.exception.RefreshTokenExpiredException;
+import com.d4rksoul.base.ecommerce.spring.react.exception.RefreshTokenReuseException;
 import com.d4rksoul.base.ecommerce.spring.react.repository.RefreshTokenRepository;
-import com.d4rksoul.base.ecommerce.spring.react.util.EncryptionUtil;
+import com.d4rksoul.base.ecommerce.spring.react.security.HashService;
+import com.d4rksoul.base.ecommerce.spring.react.security.TokenService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,15 +23,16 @@ public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
     private final TokenService tokenService;
+    private final HashService hashService;
 
     @Transactional
-    public void createRefreshToken(final User user, final String rawToken) {
-        String token = EncryptionUtil.hashToSHA256(rawToken);
+    public void saveRefreshToken(User user, String rawToken) {
+        String hashedToken = hashService.hash(rawToken);
 
         RefreshToken refreshToken = RefreshToken.builder()
                 .user(user)
-                .token(token)
-                .expiresAt(Instant.now().plus(7, ChronoUnit.DAYS))
+                .token(hashedToken)
+                .expiresAt(Instant.now().plus(30, ChronoUnit.DAYS))
                 .revoked(false)
                 .build();
 
@@ -35,35 +40,46 @@ public class RefreshTokenService {
     }
 
     @Transactional
-    public String rotateRefreshToken(final String rawOldToken, final User user) {
-        String oldToken = EncryptionUtil.hashToSHA256(rawOldToken);
+    public String rotateRefreshToken(String rawOldToken, User user) {
+        String hashedOldToken = hashService.hash(rawOldToken);
 
-        RefreshToken storedToken = refreshTokenRepository.findByToken(oldToken)
+        RefreshToken storedToken = refreshTokenRepository.findByToken(hashedOldToken)
                 .orElseThrow(() -> {
                     log.warn("Security Alert: Reused or non-existent refresh token hash attempted!");
-                    refreshTokenRepository.deleteByUser(user);
+                    refreshTokenRepository.deleteAllByUser(user);
 
-                    return new IllegalArgumentException("Invalid session");
+                    return new InvalidRefreshTokenException("Invalid session");
                 });
 
         if (storedToken.isRevoked()) {
             log.error("CRITICAL SECURITY ALERT: Refresh token reuse detected for user: {}! Potential breach.", user.getEmail());
-            refreshTokenRepository.deleteByUser(user);
-            throw new IllegalStateException("Security breach detected. All sessions revoked.");
+            refreshTokenRepository.deleteAllByUser(user);
+            throw new RefreshTokenReuseException("Security breach detected. All sessions revoked.");
         }
 
         if (storedToken.getExpiresAt().isBefore(Instant.now())) {
             refreshTokenRepository.delete(storedToken);
-            throw new IllegalArgumentException("Session expired. Please log in again.");
+            throw new RefreshTokenExpiredException("Session expired. Please log in again.");
         }
 
         storedToken.setRevoked(true);
         refreshTokenRepository.save(storedToken);
 
         String rawNewToken = tokenService.generateRefreshToken(user);
-        this.createRefreshToken(user, rawNewToken);
+        this.saveRefreshToken(user, rawNewToken);
         log.info("Refresh token successfully rotated for user: {}", user.getEmail());
 
         return rawNewToken;
+    }
+
+    @Transactional
+    public void deleteByToken(String rawToken) {
+        String hashedToken = hashService.hash(rawToken);
+        refreshTokenRepository.deleteByToken(hashedToken);
+    }
+
+    @Transactional
+    public void deleteAllByUser(User user) {
+        refreshTokenRepository.deleteAllByUser(user);
     }
 }
