@@ -5,7 +5,7 @@ import { ArrowRight, Lock, Mail } from 'lucide-react'
 
 import Field from '@/components/ui/Field'
 
-import { useLoginMutation } from '@/hooks/useLoginMutation'
+import { useLoginMutation } from '@/hooks/mutations/useLoginMutation'
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -47,7 +47,7 @@ function Login() {
         <form className="mt-10 space-y-6" onSubmit={handleSubmit}>
           {isError && (
             <div className="border border-red-500/30 bg-red-500/10 px-4 py-3 font-mono text-xs text-red-400 uppercase tracking-wider">
-              {(error as AxiosError<{ message: string }>).response?.data?.message || "⚠️ Invalid Credentials"}
+              {(error as AxiosError<{ message: string }>)?.response?.data?.message || "⚠️ Invalid Credentials"}
             </div>
           )}
           <Field
@@ -59,7 +59,6 @@ function Login() {
             onChange={(e) => setEmail(e.target.value)}
             disabled={isPending}
             placeholder="operator@signal.com"
-            required
           />
           <Field
             label="Password"
@@ -70,7 +69,6 @@ function Login() {
             onChange={(e) => setPassword(e.target.value)}
             disabled={isPending}
             placeholder="••••••••••"
-            required
           />
           <div className="flex items-center justify-between text-xs">
             <label className="flex items-center gap-2 font-mono uppercase tracking-widest text-muted-foreground">

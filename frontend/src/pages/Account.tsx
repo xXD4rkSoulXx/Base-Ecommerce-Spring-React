@@ -1,4 +1,4 @@
-import { useLogoutMutation } from '@/hooks/useLogoutMutation'
+import { useLogoutMutation } from '@/hooks/mutations/useLogoutMutation'
 
 function Account() {
   const { mutate: handleLogout, isPending } = useLogoutMutation();
@@ -14,4 +14,4 @@ function Account() {
   )
 }
 
-export default Account;
+export default Account

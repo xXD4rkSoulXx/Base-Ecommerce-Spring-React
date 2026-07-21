@@ -1,0 +1,23 @@
+import { useState } from 'react'
+import { Outlet } from 'react-router-dom'
+
+import AdminSidebar from '@/components/layout/admin/AdminSideBar'
+import AdminHeaderMobile from '@/components/layout/admin/AdminHeaderMobile'
+import AdminMenuMobile from '@/components/layout/admin/AdminMenuMobile'
+
+function AdminLayout() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="flex min-h-dvh w-full bg-background text-foreground">
+      <AdminSidebar />
+      <main className="min-w-0 flex-1 overflow-x-auto">
+        <AdminHeaderMobile onOpenMenu={() => setOpen(true)} />
+        <Outlet />
+      </main>
+      <AdminMenuMobile open={open} onClose={() => setOpen(false)} />
+    </div>
+  )
+}
+
+export default AdminLayout

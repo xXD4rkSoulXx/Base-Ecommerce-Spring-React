@@ -1,17 +1,7 @@
 import { useEffect } from 'react'
-import { Route, Routes } from 'react-router-dom'
 
-import Home from '@/pages/Home'
-import Layout from '@/layouts/Layout'
-import ProtectedRoute from '@/layouts/ProtectedRoute'
-import PublicRoute from '@/layouts/PublicRoute'
+import AppRouter from '@/AppRouter'
 import Loading from '@/pages/Loading'
-import NotFound from '@/pages/NotFound'
-import NoPermission from '@/pages/NoPermission'
-import Register from '@/pages/Register'
-import Login from '@/pages/Login'
-import Account from '@/pages/Account'
-import About from '@/pages/About'
 
 import type { LoginResponse } from '@/types/Auth'
 
@@ -42,24 +32,7 @@ function App() {
     return <Loading />;
   }
 
-  // <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']} />
-  return (
-    <Routes>
-      <Route element={<Layout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route element={<PublicRoute />}>
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-        </Route>
-        <Route element={<ProtectedRoute />}>
-          <Route path="/account" element={<Account />} />
-        </Route>
-      </Route>
-      <Route path="/no-permission" element={<NoPermission />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-  )
+  return <AppRouter />
 }
 
 export default App

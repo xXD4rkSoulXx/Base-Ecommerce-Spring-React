@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import type { AxiosError } from 'axios'
 import { AlertTriangle, ArrowRight, Lock, Mail, User } from 'lucide-react'
 
 import Field from '@/components/ui/Field'
 import Perk from '@/components/ui/Perk'
 
-import { useRegisterMutation } from '@/hooks/useRegisterMutation'
+import { useRegisterMutation } from '@/hooks/mutations/useRegisterMutation'
 
 function Register() {
   const [firstName, setFirstName] = useState('');
@@ -43,7 +44,9 @@ function Register() {
     });
   };
 
-  const errorMessage = validationError || error?.response?.data?.message || error?.message;
+  const errorMessage = validationError
+          || (error as AxiosError<{ message: string }>)?.response?.data?.message
+          || error?.message;
 
   return (
     <div className="relative mx-auto grid min-h-[calc(100vh-80px)] max-w-[1440px] gap-0 px-6 py-16 md:px-10 lg:grid-cols-2 lg:gap-16">

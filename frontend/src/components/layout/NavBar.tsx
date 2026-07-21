@@ -16,25 +16,14 @@ function NavBar() {
 
   const user = useAuthStore((state) => state.user);
   const isElevatedOperator = hasAnyRole(user, ['OPERATOR', 'MANAGER', 'ADMIN']);
-
+  
   const navItems: NavItem[] = [
     { to: "/shop", label: "Shop" },
     { to: "/about", label: "About" },
     isElevatedOperator && { to: "/admin", label: "Admin" }
   ].filter((item): item is NavItem => Boolean(item));
 
-  useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [open]);
-
   const [now, setNow] = useState(new Date());
-
-  useEffect(() => {
-    const t = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(t);
-  }, []);
-
   const time = now.toLocaleTimeString("pt-PT", {
       hour: "2-digit",
       minute: "2-digit",
@@ -43,6 +32,16 @@ function NavBar() {
 
   const countCart = useCartStore((state) => state.getTotalItems());
   const countWishlist = useWishlistStore((state) => state.getTotalItems());
+
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
 
   return (
     <>
