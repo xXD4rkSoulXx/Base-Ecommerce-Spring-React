@@ -1,10 +1,6 @@
 package com.d4rksoul.base.ecommerce.spring.react.security;
 
-import com.d4rksoul.base.ecommerce.spring.react.entity.RefreshToken;
 import com.d4rksoul.base.ecommerce.spring.react.entity.User;
-import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidRefreshTokenException;
-import com.d4rksoul.base.ecommerce.spring.react.exception.RefreshTokenExpiredException;
-import com.d4rksoul.base.ecommerce.spring.react.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,8 +21,6 @@ public class TokenService {
     private final JwtEncoder jwtEncoder;
     @Value("${spring.application.name}")
     private String jwtIssuer;
-    private final HashService hashService;
-    private final RefreshTokenRepository refreshTokenRepository;
 
     public String generateAccessToken(User user) {
         log.debug("Generating Access Token for user: {}", user.getEmail());
@@ -60,18 +54,5 @@ public class TokenService {
                 .build();
 
         return this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
-    }
-
-    public RefreshToken validateRefreshToken(String refreshToken) {
-        String hashedToken = hashService.hash(refreshToken);
-
-        RefreshToken token = refreshTokenRepository.findByToken(hashedToken)
-                .orElseThrow(() -> new InvalidRefreshTokenException("Refresh token invalid or not found."));
-
-        if (token.isRevoked() || token.getExpiresAt().isBefore(Instant.now())) {
-            throw new RefreshTokenExpiredException("Refresh token revoked or expired.");
-        }
-
-        return token;
     }
 }

@@ -1,0 +1,7 @@
+package com.d4rksoul.base.ecommerce.spring.react.repository;
+
+import com.d4rksoul.base.ecommerce.spring.react.entity.Wishlist;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface WishlistRepository extends JpaRepository<Wishlist, Integer> {
+}

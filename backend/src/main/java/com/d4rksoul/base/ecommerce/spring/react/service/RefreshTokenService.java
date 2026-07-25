@@ -1,5 +1,6 @@
 package com.d4rksoul.base.ecommerce.spring.react.service;
 
+import com.d4rksoul.base.ecommerce.spring.react.dto.internal.RotateRefreshTokenResult;
 import com.d4rksoul.base.ecommerce.spring.react.entity.RefreshToken;
 import com.d4rksoul.base.ecommerce.spring.react.entity.User;
 import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidRefreshTokenException;
@@ -40,16 +41,17 @@ public class RefreshTokenService {
     }
 
     @Transactional
-    public String rotateRefreshToken(String rawOldToken, User user) {
+    public RotateRefreshTokenResult rotateRefreshToken(String rawOldToken) {
         String hashedOldToken = hashService.hash(rawOldToken);
 
         RefreshToken storedToken = refreshTokenRepository.findByToken(hashedOldToken)
                 .orElseThrow(() -> {
                     log.warn("Security Alert: Reused or non-existent refresh token hash attempted!");
-                    refreshTokenRepository.deleteAllByUser(user);
 
                     return new InvalidRefreshTokenException("Invalid session");
                 });
+
+        User user = storedToken.getUser();
 
         if (storedToken.isRevoked()) {
             log.error("CRITICAL SECURITY ALERT: Refresh token reuse detected for user: {}! Potential breach.", user.getEmail());
@@ -69,17 +71,17 @@ public class RefreshTokenService {
         this.saveRefreshToken(user, rawNewToken);
         log.info("Refresh token successfully rotated for user: {}", user.getEmail());
 
-        return rawNewToken;
+        return new RotateRefreshTokenResult(user, rawNewToken);
     }
 
     @Transactional
-    public void deleteByToken(String rawToken) {
+    public void deleteRefreshToken(String rawToken) {
         String hashedToken = hashService.hash(rawToken);
         refreshTokenRepository.deleteByToken(hashedToken);
     }
 
     @Transactional
-    public void deleteAllByUser(User user) {
+    public void deleteAllRefreshTokensByUser(User user) {
         refreshTokenRepository.deleteAllByUser(user);
     }
 }

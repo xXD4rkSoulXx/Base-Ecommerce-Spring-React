@@ -1,10 +1,10 @@
 package com.d4rksoul.base.ecommerce.spring.react.service;
 
 import com.d4rksoul.base.ecommerce.spring.react.dto.internal.LoginResult;
+import com.d4rksoul.base.ecommerce.spring.react.dto.internal.RotateRefreshTokenResult;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.LoginRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.RegisterRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.UserResponse;
-import com.d4rksoul.base.ecommerce.spring.react.entity.RefreshToken;
 import com.d4rksoul.base.ecommerce.spring.react.entity.User;
 import com.d4rksoul.base.ecommerce.spring.react.enums.UserRole;
 import com.d4rksoul.base.ecommerce.spring.react.exception.EmailAlreadyExistsException;
@@ -75,22 +75,21 @@ public class AuthenticationService {
 
     public LoginResult refreshSession(String oldRefreshToken) {
         log.info("Processing token refresh request");
-        RefreshToken token = tokenService.validateRefreshToken(oldRefreshToken);
-        User user = token.getUser();
+        RotateRefreshTokenResult result = refreshTokenService.rotateRefreshToken(oldRefreshToken);
 
-        String newRefreshToken = refreshTokenService.rotateRefreshToken(oldRefreshToken, user);
-        String accessToken = tokenService.generateAccessToken(user);
+        String newRefreshToken = result.newRefreshToken();
+        String accessToken = tokenService.generateAccessToken(result.user());
 
-        UserResponse userResponse = userMapper.toDto(user);
+        UserResponse userResponse = userMapper.toDto(result.user());
 
         return new LoginResult(userResponse, accessToken, newRefreshToken);
     }
 
     @Transactional
-    public void logoutSession(String rawRefreshToken) {
+    public void logout(String rawRefreshToken) {
         log.info("Processing single-device logout session");
         try {
-            refreshTokenService.deleteByToken(rawRefreshToken);
+            refreshTokenService.deleteRefreshToken(rawRefreshToken);
             log.info("Successfully deleted current refresh token from database. Other devices remain logged in.");
         } catch (DataAccessException e) {
             log.warn("Logout warning: Could not clear token from DB, clearing browser cookie anyway.", e);
@@ -104,7 +103,7 @@ public class AuthenticationService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        refreshTokenService.deleteAllByUser(user);
+        refreshTokenService.deleteAllRefreshTokensByUser(user);
         log.info("All device sessions revoked successfully for {}", email);
     }
 }

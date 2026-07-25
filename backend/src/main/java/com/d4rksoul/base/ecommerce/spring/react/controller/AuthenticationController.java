@@ -79,7 +79,7 @@ public class AuthenticationController {
     public ResponseEntity<Void> logout(@CookieValue(name = "refreshToken") String rawRefreshToken) {
         log.info("HTTP DELETE Request: Logout session");
         if (rawRefreshToken != null) {
-            authenticationService.logoutSession(rawRefreshToken);
+            authenticationService.logout(rawRefreshToken);
         }
 
         ResponseCookie cleanCookie = ResponseCookie.from("refreshToken", "")
