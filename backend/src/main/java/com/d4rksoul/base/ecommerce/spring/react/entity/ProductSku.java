@@ -29,7 +29,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(
@@ -72,7 +74,8 @@ public class ProductSku {
 
     @Builder.Default
     @OneToMany(mappedBy = "productSku", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductSkuImage> productSkuImages = new ArrayList<>();
+    private Set<ProductSkuImage> productSkuImages = new LinkedHashSet<>();
+
 
     @Builder.Default
     @OneToMany(mappedBy = "productSku", cascade = CascadeType.ALL, orphanRemoval = true)

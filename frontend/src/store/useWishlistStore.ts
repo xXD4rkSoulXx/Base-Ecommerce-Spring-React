@@ -1,11 +1,11 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-import type { Product } from '@/types/Product'
+import type { ProductResponse } from '@/types/Product'
 
 interface WishlistState {
-  items: Product[];
-  addtoWishlist: (product: Product) => void;
+  items: ProductResponse[];
+  addtoWishlist: (product: ProductResponse) => void;
   removeFromWishlist: (productId: number) => void;
   clearWishlist: () => void;
   isInWishlist: (productId: number) => boolean;

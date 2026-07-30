@@ -1,16 +1,16 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-import type { Product } from '@/types/Product'
+import type { ProductResponse } from '@/types/Product'
 
 interface LocalCartItem {
-  product: Product;
+  product: ProductResponse;
   quantity: number;
 }
 
 interface CartState {
   items: LocalCartItem[];
-  addToCart: (product: Product) => void;
+  addToCart: (product: ProductResponse) => void;
   removeFromCart: (productId: number) => void;
   updateQuantity: (productId: number, quantity: number) => void;
   clearCart: () => void;
