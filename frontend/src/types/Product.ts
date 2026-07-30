@@ -1,4 +1,4 @@
-export type ProductCategory = 'OUTERWEAR' | 'TOPS' | 'BOTTOMS' | 'FOOTWEAR' | 'UNDERWEAR' | 'ACCESSORIES';
+export type ProductCategory = "OUTERWEAR" | "TOPS" | "BOTTOMS" | "FOOTWEAR" | "UNDERWEAR" | "ACCESSORIES";
 
 export interface ProductResponse {
   id: number;
@@ -10,12 +10,12 @@ export interface ProductResponse {
   cover: string;
 }
 
-export interface SpringPage<T> {
+export interface PageResponse<T> {
   content: T[];
-  number: number;
+  page: number;
   size: number;
   totalElements: number;
   totalPages: number;
-  last: boolean;
   first: boolean;
+  last: boolean;
 }

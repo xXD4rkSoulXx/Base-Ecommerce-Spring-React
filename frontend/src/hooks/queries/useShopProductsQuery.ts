@@ -9,11 +9,11 @@ import { productService } from '@/services/productService'
 export const useShopProductsQuery = () => {
   const [searchParams] = useSearchParams();
   
-  const category = (searchParams.get('category') || 'ALL') as ProductCategory | 'ALL';
-  const sortBy = searchParams.get('sort') || 'recent';
+  const category = (searchParams.get("category") || "ALL") as ProductCategory | "ALL";
+  const sortBy = searchParams.get("sort") || "recent";
 
   return useInfiniteQuery({
-    queryKey: ['products', { category, sortBy }],
+    queryKey: ["products", { category, sortBy }],
     queryFn: ({ pageParam = 0 }) => productService.fetchShopProducts(category, sortBy, pageParam),
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {
@@ -21,7 +21,7 @@ export const useShopProductsQuery = () => {
         return undefined;
       }
 
-      return lastPage.number + 1;
+      return lastPage.page + 1;
     }
   });
 };

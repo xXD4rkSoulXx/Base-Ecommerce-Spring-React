@@ -5,9 +5,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ProductShopRequest(
+
         ProductCategory category,
+
         Integer page,
+
         Integer size,
+
         String sortBy
 ) {
 
