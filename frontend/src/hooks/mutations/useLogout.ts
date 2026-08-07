@@ -6,7 +6,7 @@ import { useAuthStore } from '@/store/useAuthStore'
 
 import { authService } from '@/services/authService'
 
-export const useLogoutMutation = () => {
+export const useLogout = () => {
   const clearAuth = useAuthStore((state) => state.clearAuth);
   const navigate = useNavigate();
 

@@ -27,7 +27,7 @@ public class RefreshTokenService {
     private final HashService hashService;
 
     @Transactional
-    public void saveRefreshToken(User user, String rawToken) {
+    public void create(User user, String rawToken) {
         String hashedToken = hashService.hash(rawToken);
 
         RefreshToken refreshToken = RefreshToken.builder()
@@ -41,7 +41,7 @@ public class RefreshTokenService {
     }
 
     @Transactional
-    public RotateRefreshTokenResult rotateRefreshToken(String rawOldToken) {
+    public RotateRefreshTokenResult rotate(String rawOldToken) {
         String hashedOldToken = hashService.hash(rawOldToken);
 
         RefreshToken storedToken = refreshTokenRepository.findByToken(hashedOldToken)
@@ -68,20 +68,20 @@ public class RefreshTokenService {
         refreshTokenRepository.save(storedToken);
 
         String rawNewToken = tokenService.generateRefreshToken(user);
-        this.saveRefreshToken(user, rawNewToken);
+        this.create(user, rawNewToken);
         log.info("Refresh token successfully rotated for user: {}", user.getEmail());
 
         return new RotateRefreshTokenResult(user, rawNewToken);
     }
 
     @Transactional
-    public void deleteRefreshToken(String rawToken) {
+    public void delete(String rawToken) {
         String hashedToken = hashService.hash(rawToken);
         refreshTokenRepository.deleteByToken(hashedToken);
     }
 
     @Transactional
-    public void deleteAllRefreshTokensByUser(User user) {
+    public void deleteAllByUser(User user) {
         refreshTokenRepository.deleteAllByUser(user);
     }
 }

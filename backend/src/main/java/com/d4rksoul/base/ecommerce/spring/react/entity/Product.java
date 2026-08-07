@@ -24,9 +24,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "products")
@@ -63,10 +61,11 @@ public class Product {
     @Column(nullable = false)
     private ProductCategory category;
 
+    private boolean featured;
+
     @Builder.Default
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ProductSku> productSkus = new LinkedHashSet<>();
-
+    private List<ProductSku> productSkus = new ArrayList<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)

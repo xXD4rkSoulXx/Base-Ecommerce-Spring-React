@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom'
 import Layout from '@/layouts/Layout'
 import Home from '@/pages/Home'
 import Shop from '@/pages/Shop'
+import Search from '@/pages/Search'
 import About from '@/pages/About'
 import PublicRoute from '@/layouts/PublicRoute'
 import Register from '@/pages/Register'
@@ -24,6 +25,7 @@ function AppRouter() {
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
         <Route path="/shop" element={<Shop />} />
+        <Route path="/search" element={<Search />} />
         <Route path="/about" element={<About />} />
         <Route element={<PublicRoute />}>
           <Route path="/register" element={<Register />} />

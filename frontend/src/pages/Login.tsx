@@ -5,13 +5,13 @@ import { ArrowRight, Lock, Mail } from 'lucide-react'
 
 import Field from '@/components/ui/Field'
 
-import { useLoginMutation } from '@/hooks/mutations/useLoginMutation'
+import { useLogin } from '@/hooks/mutations/useLogin'
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   
-  const { mutate, isPending, isError, error } = useLoginMutation();
+  const { mutate, isPending, isError, error } = useLogin();
 
   const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();

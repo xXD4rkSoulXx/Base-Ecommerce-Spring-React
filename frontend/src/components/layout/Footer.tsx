@@ -36,11 +36,11 @@ function Footer() {
             </h4>
             <ul className="space-y-3 text-sm">
               <li><Link to="/shop" className="hover:text-neon-cyan">All</Link></li>
-              <li><Link to="/shop?category=Outerwear" className="hover:text-neon-cyan">Outerwear</Link></li>
-              <li><Link to="/shop?category=Tops" className="hover:text-neon-cyan">Tops</Link></li>
-              <li><Link to="/shop?category=Bottoms" className="hover:text-neon-cyan">Bottoms</Link></li>
-              <li><Link to="/shop?category=Footwear" className="hover:text-neon-cyan">Footwear</Link></li>
-              <li><Link to="/shop?category=Accessories" className="hover:text-neon-cyan">Accessories</Link></li>
+              <li><Link to="/shop?category=OUTERWEAR" className="hover:text-neon-cyan">Outerwear</Link></li>
+              <li><Link to="/shop?category=TOPS" className="hover:text-neon-cyan">Tops</Link></li>
+              <li><Link to="/shop?category=BOTTOMS" className="hover:text-neon-cyan">Bottoms</Link></li>
+              <li><Link to="/shop?category=FOOTWEAR" className="hover:text-neon-cyan">Footwear</Link></li>
+              <li><Link to="/shop?category=ACCESSORIES" className="hover:text-neon-cyan">Accessories</Link></li>
             </ul>
           </div>
           <div>

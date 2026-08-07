@@ -1,5 +1,6 @@
 package com.d4rksoul.base.ecommerce.spring.react.controller;
 
+import com.d4rksoul.base.ecommerce.spring.react.dto.request.ProductSearchRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.ProductShopRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.PageResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.ProductResponse;
@@ -20,8 +21,15 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<PageResponse<ProductResponse>> getProducts(@ModelAttribute ProductShopRequest filter) {
-        PageResponse<ProductResponse> productsPage = productService.findProducts(filter);
+        PageResponse<ProductResponse> productsPage = productService.getProducts(filter);
 
         return ResponseEntity.ok(productsPage);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<PageResponse<ProductResponse>> search(@ModelAttribute ProductSearchRequest search) {
+        PageResponse<ProductResponse> searchPage = productService.search(search);
+
+        return ResponseEntity.ok(searchPage);
     }
 }

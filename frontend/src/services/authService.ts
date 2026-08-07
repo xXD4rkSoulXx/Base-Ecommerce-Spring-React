@@ -3,18 +3,18 @@ import { api } from './api'
 import type { LoginRequest, LoginResponse, RegisterRequest } from '@/types/Auth'
 
 interface AuthService {
-  register: (userData: RegisterRequest) => Promise<void>;
-  login: (credentials: LoginRequest) => Promise<LoginResponse>;
+  register: (request: RegisterRequest) => Promise<void>;
+  login: (request: LoginRequest) => Promise<LoginResponse>;
   logout: () => Promise<void>;
 }
 
 export const authService: AuthService = {
-  register: async (userData: RegisterRequest) => {
-    await api.post<void>("/api/auth/register", userData);
+  register: async (request: RegisterRequest) => {
+    await api.post<void>("/api/auth/register", request);
   },
 
-  login: async (credentials: LoginRequest): Promise<LoginResponse> => {
-    const response = await api.post<LoginResponse>("/api/auth/login", credentials);
+  login: async (request: LoginRequest): Promise<LoginResponse> => {
+    const response = await api.post<LoginResponse>("/api/auth/login", request);
 
     return response.data;
   },

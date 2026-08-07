@@ -6,7 +6,7 @@ import { AlertTriangle, ArrowRight, Lock, Mail, User } from 'lucide-react'
 import Field from '@/components/ui/Field'
 import Perk from '@/components/ui/Perk'
 
-import { useRegisterMutation } from '@/hooks/mutations/useRegisterMutation'
+import { useRegister } from '@/hooks/mutations/useRegister'
 
 function Register() {
   const [firstName, setFirstName] = useState('');
@@ -17,7 +17,7 @@ function Register() {
   const [accept, setAccept] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  const { mutate, isPending, isError, error } = useRegisterMutation();
+  const { mutate, isPending, isError, error } = useRegister();
 
   const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProductMapper {
 
-    public ProductResponse toDto(Product product, String coverPath) {
+    public ProductResponse toDto(Product product, String cover) {
         if (product == null) {
             return null;
         }
@@ -19,7 +19,7 @@ public class ProductMapper {
                 .price(product.getPrice())
                 .discountPercentage(product.getDiscountPercentage())
                 .category(product.getCategory())
-                .cover(coverPath)
+                .cover(cover)
                 .build();
     }
 }

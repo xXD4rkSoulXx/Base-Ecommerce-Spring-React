@@ -6,7 +6,7 @@ import type { RegisterRequest } from '@/types/Auth'
 
 import { authService } from '@/services/authService'
 
-export const useRegisterMutation = () => {
+export const useRegister = () => {
   const navigate = useNavigate();
 
   return useMutation<void, AxiosError<{ message: string }>, RegisterRequest>({

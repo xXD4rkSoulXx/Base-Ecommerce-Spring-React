@@ -43,8 +43,6 @@ public class ProductSkuImage {
 
     private boolean cover;
 
-    private boolean featured;
-
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

@@ -66,16 +66,16 @@ public class AuthenticationService {
 
         String accessToken = tokenService.generateAccessToken(user);
         String refreshToken = tokenService.generateRefreshToken(user);
-        refreshTokenService.saveRefreshToken(user, refreshToken);
+        refreshTokenService.create(user, refreshToken);
 
         UserResponse userResponse = userMapper.toDto(user);
 
         return new LoginResult(userResponse, accessToken, refreshToken);
     }
 
-    public LoginResult refreshSession(String oldRefreshToken) {
+    public LoginResult refresh(String oldRefreshToken) {
         log.info("Processing token refresh request");
-        RotateRefreshTokenResult result = refreshTokenService.rotateRefreshToken(oldRefreshToken);
+        RotateRefreshTokenResult result = refreshTokenService.rotate(oldRefreshToken);
 
         String newRefreshToken = result.newRefreshToken();
         String accessToken = tokenService.generateAccessToken(result.user());
@@ -89,21 +89,20 @@ public class AuthenticationService {
     public void logout(String rawRefreshToken) {
         log.info("Processing single-device logout session");
         try {
-            refreshTokenService.deleteRefreshToken(rawRefreshToken);
+            refreshTokenService.delete(rawRefreshToken);
             log.info("Successfully deleted current refresh token from database. Other devices remain logged in.");
         } catch (DataAccessException e) {
             log.warn("Logout warning: Could not clear token from DB, clearing browser cookie anyway.", e);
         }
     }
 
-
     @Transactional
-    public void logoutAllDevices(String email) {
+    public void logoutAllByUser(String email) {
         log.info("Processing global logout for user: {}", email);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        refreshTokenService.deleteAllRefreshTokensByUser(user);
+        refreshTokenService.deleteAllByUser(user);
         log.info("All device sessions revoked successfully for {}", email);
     }
 }

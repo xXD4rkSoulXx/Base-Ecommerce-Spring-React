@@ -60,7 +60,7 @@ public class AuthenticationController {
     @PostMapping("/refresh")
     public ResponseEntity<LoginResponse> refresh(@CookieValue(name = "refreshToken") String rawOldRefreshToken) {
         log.info("HTTP POST Request: Refresh session");
-        LoginResult result = authenticationService.refreshSession(rawOldRefreshToken);
+        LoginResult result = authenticationService.refresh(rawOldRefreshToken);
 
         ResponseCookie newRefreshTokenCookie = ResponseCookie.from("refreshToken", result.refreshToken())
                 .httpOnly(true)
@@ -96,11 +96,11 @@ public class AuthenticationController {
     }
 
     @DeleteMapping("/logout-all")
-    public ResponseEntity<Void> logoutAll(@AuthenticationPrincipal org.springframework.security.oauth2.jwt.Jwt jwt) {
+    public ResponseEntity<Void> logoutAllByUser(@AuthenticationPrincipal org.springframework.security.oauth2.jwt.Jwt jwt) {
         log.info("HTTP DELETE Request: Logout all sessions");
         String email = jwt.getSubject();
 
-        authenticationService.logoutAllDevices(email);
+        authenticationService.logoutAllByUser(email);
 
         ResponseCookie cleanCookie = ResponseCookie.from("refreshToken", "")
                 .httpOnly(true)

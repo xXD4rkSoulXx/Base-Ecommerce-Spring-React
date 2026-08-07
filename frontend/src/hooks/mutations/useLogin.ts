@@ -13,7 +13,7 @@ interface LocationState {
   };
 }
 
-export const useLoginMutation = () => {
+export const useLogin = () => {
   const setAuth = useAuthStore((state) => state.setAuth);
   const navigate = useNavigate();
   const location = useLocation();

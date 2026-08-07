@@ -1,13 +1,13 @@
 import { useEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import Error from './Error'
 import Loading from './Loading'
+import Error from './Error'
 import ProductCard from '@/components/card/ProductCard'
 
 import type { ProductCategory } from '@/types/Product'
 
-import { useShopProductsQuery } from '@/hooks/queries/useShopProductsQuery'
+import { useGetInfiniteProducts } from '@/hooks/queries/useGetInfiniteProducts'
 
 function Shop() {
   const [params, setParams] = useSearchParams();
@@ -22,7 +22,7 @@ function Shop() {
     isFetchingNextPage,
     isLoading,
     isError
-  } = useShopProductsQuery();
+  } = useGetInfiniteProducts();
 
   const allProducts = data?.pages.flatMap((page) => page.content) || [];
 
@@ -62,7 +62,7 @@ function Shop() {
     setParams(params);
   };
 
-  const categoriesList: (ProductCategory | "ALL")[] = [
+  const categories: (ProductCategory | "ALL")[] = [
     "ALL", "OUTERWEAR", "TOPS", "BOTTOMS", "FOOTWEAR", "UNDERWEAR", "ACCESSORIES"
   ];
 
@@ -104,16 +104,16 @@ function Shop() {
             Categories
           </h2>
           <ul className="space-y-2">
-            {categoriesList.map((c) => (
-              <li key={c}>
+            {categories.map((category) => (
+              <li key={category}>
                 <button
-                  onClick={() => handleCategoryChange(c)}
+                  onClick={() => handleCategoryChange(category)}
                   className={`block w-full text-left text-sm font-bold uppercase tracking-tight transition-colors ${
-                    currentCategory === c ? "text-neon-cyan" : "hover:text-neon-cyan"
+                    currentCategory === category ? "text-neon-cyan" : "hover:text-neon-cyan"
                   }`}
                 >
-                  {c}
-                  {currentCategory === c && <span className="ml-2 text-neon-pink">●</span>}
+                  {category}
+                  {currentCategory === category && <span className="ml-2 text-neon-pink">●</span>}
                 </button>
               </li>
             ))}
@@ -123,18 +123,17 @@ function Shop() {
           {allProducts.length > 0 && (
             <div className="grid grid-cols-2 gap-x-4 gap-y-12 pb-12 md:grid-cols-3 lg:gap-x-6">
               {allProducts.map((product, index) => (
-                <ProductCard key={product.id} product={product} index={index} />
+                <ProductCard key={`${product.id}-${index}`} product={product} index={index} />
               ))}
             </div>
           )}
           <div ref={observerTarget} className="mt-6 flex h-20 items-center justify-center font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-            {isFetchingNextPage ? (
+            {isFetchingNextPage && (
               <span className="animate-pulse">FETCHING ADDITIONAL OBJECTS...</span>
-            ) : hasNextPage ? (
-              <span>SCROLL FOR MORE</span>
-            ) : allProducts.length > 0 ? (
+            )}
+            {!hasNextPage && allProducts.length > 0 && (
               <span>END OF ARCHIVE</span>
-            ) : null}
+            )}
           </div>
         </div>
       </div>
