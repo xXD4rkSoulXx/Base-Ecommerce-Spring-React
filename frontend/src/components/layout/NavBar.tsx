@@ -1,47 +1,47 @@
-import { useEffect, useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
-import { Heart, Menu, Search, ShoppingBag, User, X } from 'lucide-react'
-
+import { useState, useEffect } from 'react'
+import { NavLink } from 'react-router-dom'
+import { Menu, Search, Heart, User, ShoppingBag, X } from 'lucide-react'
+import { useAuthStore } from '@/store/useAuthStore'
 import { useCartStore } from '@/store/useCartStore'
 import { useWishlistStore } from '@/store/useWishlistStore'
-import { hasAnyRole, useAuthStore } from '@/store/useAuthStore'
 
 interface NavItem {
-  to: string;
-  label: string;
+  to: string
+  label: string
 }
 
-function NavBar() {
-  const [open, setOpen] = useState(false);
-
-  const user = useAuthStore((state) => state.user);
-  const isElevatedOperator = hasAnyRole(user, ['OPERATOR', 'MANAGER', 'ADMIN']);
-  
+export const NavBar = () => {
+  const [open, setOpen] = useState(false)
+  const [now, setNow] = useState(new Date())
+  const hasAnyRole = useAuthStore((state) => state.hasAnyRole)
+  const user = useAuthStore((state) => state.user)
+  const countCart = useCartStore((state) => state.getTotalItems())
+  const countWishlist = useWishlistStore((state) => state.getTotalItems())
+  const isElevatedOperator = hasAnyRole(['OPERATOR', 'MANAGER', 'ADMIN'])
   const navItems: NavItem[] = [
-    { to: "/shop", label: "Shop" },
-    { to: "/about", label: "About" },
-    isElevatedOperator && { to: "/admin", label: "Admin" }
-  ].filter((item): item is NavItem => Boolean(item));
-
-  const [now, setNow] = useState(new Date());
-  const time = now.toLocaleTimeString("pt-PT", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit"
-  });
-
-  const countCart = useCartStore((state) => state.getTotalItems());
-  const countWishlist = useWishlistStore((state) => state.getTotalItems());
+    { to: '/shop', label: 'Shop' },
+    { to: '/about', label: 'About' },
+    ...(isElevatedOperator ? [{ to: '/admin', label: 'Admin' }] : [])
+  ]
+  const time = now.toLocaleTimeString('pt-PT', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+  })
 
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [open]);
+    if (open) {
+      document.body.style.overflow = 'hidden'
+    }
+
+    return () => { document.body.style.overflow = '' }
+  }, [open])
 
   useEffect(() => {
-    const t = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(t);
-  }, []);
+    const t = setInterval(() => setNow(new Date()), 1000)
+
+    return () => clearInterval(t)
+  }, [])
 
   return (
     <>
@@ -55,12 +55,12 @@ function NavBar() {
             >
               <Menu className="h-5 w-5" />
             </button>
-            <Link
+            <NavLink
               to="/"
               className="font-display text-2xl italic tracking-tighter"
             >
               VELO_CITI
-            </Link>
+            </NavLink>
           </div>
           <div className="hidden items-center gap-10 xl:flex">
             {navItems.map((item) => (
@@ -83,14 +83,14 @@ function NavBar() {
             >
               UTC {time}
             </span>
-            <Link
+            <NavLink
               to="/search"
               className="text-foreground/70 transition-colors hover:text-neon-cyan"
               aria-label="Search"
             >
               <Search className="h-4 w-4" />
-            </Link>
-            <Link
+            </NavLink>
+            <NavLink
               to="/wishlist"
               className="relative text-foreground/70 transition-colors hover:text-neon-pink"
               aria-label="Wishlist"
@@ -101,44 +101,44 @@ function NavBar() {
                   {countWishlist}
                 </span>
               )}
-            </Link>
+            </NavLink>
             {user ? (
-              <Link
+              <NavLink
                 to="/account"
                 className="text-foreground/70 transition-colors hover:text-neon-cyan"
                 aria-label="Account"
               >
                 <User className="h-4 w-4" />
-              </Link>
+              </NavLink>
             ) : (
               <div className="hidden items-center gap-3 md:flex">
-                <Link
+                <NavLink
                   to="/login"
                   className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground/80 transition-colors hover:text-neon-cyan"
                 >
                   Login
-                </Link>
-                <Link
+                </NavLink>
+                <NavLink
                   to="/register"
                   className="border border-neon-pink px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-neon-pink transition-all hover:bg-neon-pink hover:text-primary-foreground"
                 >
                   Register
-                </Link>
+                </NavLink>
               </div>
             )}
-            <Link
+            <NavLink
               to="/cart"
               className="group flex items-center gap-2 border border-neon-cyan px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-neon-cyan transition-all hover:bg-neon-cyan hover:text-primary-foreground"
             >
               <ShoppingBag className="h-3 w-3" />
               <span>Cart [{String(countCart).padStart(2, "0")}]</span>
-            </Link>
+            </NavLink>
           </div>
         </div>
       </nav>
       <div
         className={`fixed inset-0 z-50 xl:hidden ${open ? "" : "pointer-events-none"}`}
-        aria-hidden={!open}
+        inert={!open}
       >
         <div
           onClick={() => setOpen(false)}
@@ -184,35 +184,38 @@ function NavBar() {
           </nav>
           <div className="mt-8 flex flex-col gap-4">
             {user ? (
-              <Link
+              <NavLink
                 to="/account"
+                onClick={() => setOpen(false)}
                 className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-foreground/80 hover:text-neon-cyan"
               >
                 <User className="h-4 w-4" /> Account
-              </Link>
+              </NavLink>
             ) : (
               <>
-                <Link
+                <NavLink
                   to="/login"
+                  onClick={() => setOpen(false)}
                   className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-foreground/80 hover:text-neon-cyan"
                 >
                   <User className="h-4 w-4" /> Login
-                </Link>
-                <Link
+                </NavLink>
+                <NavLink
                   to="/register"
+                  onClick={() => setOpen(false)}
                   className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-neon-pink hover:text-neon-pink/80"
                 >
                   <User className="h-4 w-4" /> Register
-                </Link>
+                </NavLink>
               </>
             )}
-            <Link
+            <NavLink
               to="/search"
               onClick={() => setOpen(false)}
               className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-foreground/80 hover:text-neon-cyan"
             >
               <Search className="h-4 w-4" /> Search
-            </Link>
+            </NavLink>
           </div>
           <p className="absolute bottom-6 left-6 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
             UTC {time}
@@ -220,7 +223,5 @@ function NavBar() {
         </aside>
       </div>
     </>
-  );
+  )
 }
-
-export default NavBar

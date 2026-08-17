@@ -1,20 +1,16 @@
 import { useEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { useInfiniteProducts } from '@/hooks/useInfiniteProducts'
+import { ProductCard } from '@/components/card/ProductCard'
+import { Loading } from '@/pages/Loading'
+import { ErrorPage } from '@/pages/ErrorPage'
+import type { ProductCategory } from '@/types/product'
 
-import Loading from './Loading'
-import Error from './Error'
-import ProductCard from '@/components/card/ProductCard'
 
-import type { ProductCategory } from '@/types/Product'
-
-import { useGetInfiniteProducts } from '@/hooks/queries/useGetInfiniteProducts'
-
-function Shop() {
-  const [params, setParams] = useSearchParams();
-  
-  const currentCategory = (params.get("category") || "ALL") as ProductCategory | "ALL";
-  const currentSort = params.get("sort") || "recent";
-
+export const Shop = () => {
+  const [params, setParams] = useSearchParams()
+  const currentCategory = (params.get('category') || 'ALL') as ProductCategory | 'ALL'
+  const currentSort = params.get('sort') || 'recent'
   const {
     data,
     fetchNextPage,
@@ -22,56 +18,56 @@ function Shop() {
     isFetchingNextPage,
     isLoading,
     isError
-  } = useGetInfiniteProducts();
-
-  const allProducts = data?.pages.flatMap((page) => page.content) || [];
-
-  const observerTarget = useRef<HTMLDivElement | null>(null);
+  } = useInfiniteProducts()
+  const allProducts = data?.pages.flatMap((page) => page.content) || []
+  const observerTarget = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    const target = observerTarget.current;
+    const target = observerTarget.current
+
     if (!target) {
-      return;
+      return
     }
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
+          fetchNextPage()
         }
       },
       { threshold: 0.1 }
-    );
+    )
 
-    observer.observe(target);
+    observer.observe(target)
 
-    return () => { observer.unobserve(target); };
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+    return () => { observer.disconnect() }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
-  const handleCategoryChange = (category: ProductCategory | "ALL") => {
-    if (category === "ALL") {
-      params.delete("category");
+  const handleCategoryChange = (category: ProductCategory | 'ALL') => {
+    if (category === 'ALL') {
+      params.delete('category')
     } else {
-      params.set("category", category);
+      params.set('category', category)
     }
-    setParams(params);
+
+    setParams(params)
   };
 
   const handleSortChange = (sortValue: string) => {
-    params.set("sort", sortValue);
-    setParams(params);
-  };
+    params.set('sort', sortValue)
+    setParams(params)
+  }
 
-  const categories: (ProductCategory | "ALL")[] = [
-    "ALL", "OUTERWEAR", "TOPS", "BOTTOMS", "FOOTWEAR", "UNDERWEAR", "ACCESSORIES"
-  ];
+  const categories: (ProductCategory | 'ALL')[] = [
+    'ALL', 'OUTERWEAR', 'TOPS', 'BOTTOMS', 'FOOTWEAR', 'UNDERWEAR', 'ACCESSORIES'
+  ]
 
   if (isLoading) {
-    return <Loading />;
+    return <Loading />
   }
 
   if (isError) {
-    return <Error />;
+    return <ErrorPage />
   }
 
   return (
@@ -82,7 +78,7 @@ function Shop() {
             All Objects
           </h1>
           <p className="mt-2 font-mono text-xs text-muted-foreground">
-            {allProducts.length} item{allProducts.length !== 1 && "s"} loaded from archive
+            {allProducts.length} item{allProducts.length !== 1 && 's'} loaded from archive
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -140,5 +136,3 @@ function Shop() {
     </div>
   )
 }
-
-export default Shop

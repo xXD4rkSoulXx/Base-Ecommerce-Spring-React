@@ -1,7 +1,5 @@
-function AdminDashboard() {
+export const AdminDashboard = () => {
   return (
     <></>
   )
 }
-
-export default AdminDashboard

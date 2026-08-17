@@ -1,41 +1,38 @@
 import { Link } from 'react-router-dom'
 import { Heart } from 'lucide-react'
-
-import type { ProductResponse } from '@/types/Product'
-
 import { useWishlistStore } from '@/store/useWishlistStore'
+import type { ProductResponse } from '@/types/product'
 
-interface ProductCard {
-  product: ProductResponse;
-  index: number;
+interface ProductCardProps {
+  product: ProductResponse
+  index: number
 }
 
-function ProductCard({ product, index }: ProductCard) {
-  const offset = index % 2 === 1 ? "lg:translate-y-12" : "";
-
+export const ProductCard = ({ product, index }: ProductCardProps) => {
+  const items = useWishlistStore((state) => state.items)
+  const addToWishlist = useWishlistStore((state) => state.addToWishlist)
+  const removeFromWishlist = useWishlistStore((state) => state.removeFromWishlist)
+  const isActive = items.some((item) => item.id === product.id)
   const finalPrice = product.discountPercentage > 0 
     ? (product.price * (1 - product.discountPercentage / 100)).toFixed(2)
-    : product.price.toFixed(2);
+    : product.price.toFixed(2)
 
-  const addToWishlist = useWishlistStore((s) => s.addtoWishlist);
-    const removeFromWishlist = useWishlistStore((s) => s.removeFromWishlist);
-    
-    const items = useWishlistStore((s) => s.items);
-    const isActive = items.some((item) => item.id === product.id);
-  
-    const handleToggle = (e: React.MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-  
-      if (isActive) {
-        removeFromWishlist(product.id);
-      } else {
-        addToWishlist(product);
-      }
-    };
+  const handleWishlistToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (isActive) {
+      removeFromWishlist(product.id)
+    } else {
+      addToWishlist(product)
+    }
+  }
 
   return (
-    <Link to={`/product/${product.id}`} className={`group block ${offset}`}>
+    <Link
+      to={`/product/${product.id}`}
+      className={`group block ${index % 2 === 1 ? 'lg:translate-y-12' : ''}`}
+    >
       <div className="relative aspect-[3/4] overflow-hidden border border-border bg-card">
         <img
           src={product.cover}
@@ -53,16 +50,16 @@ function ProductCard({ product, index }: ProductCard) {
             -{product.discountPercentage}%
           </div>
         )}
-        <div className={`absolute ${product.discountPercentage > 0 ? "right-3 top-[4.25rem]" : "right-3 top-3"}`}>
+        <div className={`absolute ${product.discountPercentage > 0 ? 'right-3 top-[4.25rem]' : 'right-3 top-3'}`}>
           <button
             type="button"
-            onClick={handleToggle}
-            aria-label={isActive ? "Remove from wishlist" : "Add to wishlist"}
+            onClick={handleWishlistToggle}
+            aria-label={isActive ? 'Remove from wishlist' : 'Add to wishlist'}
             aria-pressed={isActive}
             className={`flex h-9 w-9 items-center justify-center border backdrop-blur transition-all ${
               isActive
-                ? "border-neon-pink bg-neon-pink/20 text-neon-pink shadow-lg shadow-neon-pink/30"
-                : "border-border bg-background/70 text-foreground/80 hover:border-neon-pink hover:text-neon-pink"
+                ? 'border-neon-pink bg-neon-pink/20 text-neon-pink shadow-lg shadow-neon-pink/30'
+                : 'border-border bg-background/70 text-foreground/80 hover:border-neon-pink hover:text-neon-pink'
             }`}
           >
             <Heart className="h-4 w-4" fill={isActive ? "currentColor" : "none"} strokeWidth={1.5} />
@@ -101,5 +98,3 @@ function ProductCard({ product, index }: ProductCard) {
     </Link>
   )
 }
-
-export default ProductCard

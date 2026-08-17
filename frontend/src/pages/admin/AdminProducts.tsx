@@ -1,7 +1,5 @@
-function AdminProducts () {
+export const AdminProducts = () => {
   return (
     <></>
   )
 }
-
-export default AdminProducts

@@ -1,7 +1,7 @@
-import { useLogout } from '@/hooks/mutations/useLogout'
+import { useLogout } from '@/hooks/useLogout'
 
-function Account() {
-  const { mutate: handleLogout, isPending } = useLogout();
+export const Account = () => {
+  const { mutate: handleLogout, isPending } = useLogout()
   
   return (
     <button
@@ -13,5 +13,3 @@ function Account() {
     </button>
   )
 }
-
-export default Account

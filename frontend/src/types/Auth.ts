@@ -1,18 +1,18 @@
-import type { UserResponse } from './User';
+import type { UserResponse } from '@/types/user'
 
 export interface RegisterRequest {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
+  email: string
+  password: string
+  firstName: string
+  lastName: string
 }
 
 export interface LoginRequest {
-  email: string;
-  password: string;
+  email: string
+  password: string
 }
 
 export interface LoginResponse {
-  user: UserResponse;
-  accessToken: string;
+  user: UserResponse
+  accessToken: string
 }

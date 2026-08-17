@@ -1,7 +1,5 @@
-function AdminUsers() {
+export const AdminUsers = () => {
   return (
     <></>
   )
 }
-
-export default AdminUsers

@@ -1,46 +1,68 @@
 import { useEffect } from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { ArrowLeft, LayoutDashboard, Package, ShoppingCart, Tag, Users, X, type LucideIcon } from 'lucide-react'
+import { NavLink, useNavigate } from 'react-router-dom'
+import { X, ArrowLeft, LayoutDashboard, Package, Tag, ShoppingCart, Users, type LucideIcon } from 'lucide-react'
+import { useAuthStore } from '@/store/useAuthStore'
 
-import { hasAnyRole, useAuthStore } from '@/store/useAuthStore'
-
-interface AdminNavItem {
-  to: string;
-  label: string;
-  icon: LucideIcon;
-  end?: boolean;
+interface AdminMenuMobileProps {
+  open: boolean
+  onClose: () => void
 }
 
-function AdminMenuMobile({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const navigate = useNavigate();
+interface AdminNavItem {
+  to: string
+  label: string
+  icon: LucideIcon
+  end?: boolean
+}
 
-  const user = useAuthStore((state) => state.user);
-  const isManagerOrAdmin = hasAnyRole(user, ['MANAGER', 'ADMIN']);
-  const isAdminOnly = hasAnyRole(user, ['ADMIN']);
-  
+export const AdminMenuMobile = ({ open, onClose }: AdminMenuMobileProps) => {
+  const navigate = useNavigate()
+  const hasAnyRole = useAuthStore((state) => state.hasAnyRole)
+  const isManagerOrAdmin = hasAnyRole(['MANAGER', 'ADMIN'])
+  const isAdminOnly = hasAnyRole(['ADMIN'])
   const adminNavItems: AdminNavItem[] = [
-    { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
-    { to: "/admin/products", label: "Products", icon: Package },
-    isManagerOrAdmin && { to: "/admin/discounts", label: "Discounts", icon: Tag },
-    { to: "/admin/orders", label: "Orders", icon: ShoppingCart },
-    isAdminOnly && { to: "/admin/users", label: "Users", icon: Users }
-  ].filter((item): item is AdminNavItem => Boolean(item));
+    { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
+    { to: '/admin/products', label: 'Products', icon: Package },
+    ...(isManagerOrAdmin ? [{ to: '/admin/discounts', label: 'Discounts', icon: Tag }] : []),
+    { to: '/admin/orders', label: 'Orders', icon: ShoppingCart },
+    ...(isAdminOnly ? [{ to: '/admin/users', label: 'Users', icon: Users }] : [])
+  ]
 
   useEffect(() => {
-      document.body.style.overflow = open ? "hidden" : "";
-      return () => { document.body.style.overflow = ""; };
-    }, [open]);
+    if (open) {
+      document.body.style.overflow = 'hidden'
+    }
+
+    return () => { document.body.style.overflow = '' }
+  }, [open])
+
+  const handleBackToStore = () => {
+    onClose()
+    navigate('/')
+  }
 
   return (
-    <div className={`fixed inset-0 z-50 lg:hidden ${open ? "" : "pointer-events-none"}`} aria-hidden={!open}>
-      <div onClick={onClose} className={`absolute inset-0 bg-background/80 backdrop-blur-sm transition-opacity ${open ? "opacity-100" : "opacity-0"}`} />
-      <aside className={`absolute left-0 top-0 h-full w-[85%] max-w-sm border-r border-neon-cyan/30 bg-card p-6 shadow-2xl shadow-neon-cyan/10 transition-transform duration-300 ${open ? "translate-x-0" : "-translate-x-full"}`}>
+    <div className={`fixed inset-0 z-50 lg:hidden ${open ? '' : 'pointer-events-none'}`} aria-hidden={!open}>
+      <div onClick={onClose} className={`absolute inset-0 bg-background/80 backdrop-blur-sm transition-opacity ${open ? 'opacity-100' : 'opacity-0'}`} />
+      <aside className={`absolute left-0 top-0 h-full w-[85%] max-w-sm border-r border-neon-cyan/30 bg-card p-6 shadow-2xl shadow-neon-cyan/10 transition-transform duration-300 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between">
           <div>
-            <Link to="/admin" onClick={onClose} className="font-display text-xl italic tracking-tighter">VELO_CITI</Link>
+            <NavLink
+              to="/admin"
+              onClick={onClose}
+              className="font-display text-xl italic tracking-tighter"
+            >
+              VELO_CITI
+            </NavLink>
             <p className="mt-1 font-mono text-[10px] uppercase tracking-widest text-neon-cyan">Admin Console</p>
           </div>
-          <button onClick={onClose} className="text-foreground/70 hover:text-neon-cyan" aria-label="Close menu"><X className="h-5 w-5" /></button>
+          <button
+            onClick={onClose}
+            className="text-foreground/70 hover:text-neon-cyan"
+            aria-label="Close menu"
+          >
+            <X className="h-5 w-5" />
+          </button>
         </div>
         <nav className="mt-8">
           {adminNavItems.map((item) => (
@@ -51,7 +73,7 @@ function AdminMenuMobile({ open, onClose }: { open: boolean; onClose: () => void
               onClick={onClose}
               className={({ isActive }) =>
                 `mb-1 flex items-center gap-3 px-4 py-3 text-xs font-bold uppercase tracking-widest transition-colors ${
-                  isActive ? "bg-neon-cyan text-primary-foreground" : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  isActive ? 'bg-neon-cyan text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
                 }`
               }
             >
@@ -61,7 +83,7 @@ function AdminMenuMobile({ open, onClose }: { open: boolean; onClose: () => void
           ))}
         </nav>
         <button
-          onClick={() => { onClose(); navigate("/"); }}
+          onClick={handleBackToStore}
           className="absolute bottom-6 left-6 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-neon-cyan"
         >
           <ArrowLeft className="h-3 w-3" /> Back to Store
@@ -70,5 +92,3 @@ function AdminMenuMobile({ open, onClose }: { open: boolean; onClose: () => void
     </div>
   )
 }
-
-export default AdminMenuMobile

@@ -1,9 +1,12 @@
-interface FieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label: string;
-  icon: React.ReactNode;
+import type { InputHTMLAttributes, ReactNode, Ref } from 'react'
+
+interface FieldProps extends InputHTMLAttributes<HTMLInputElement> {
+  label: string
+  icon: ReactNode
+  ref?: Ref<HTMLInputElement>
 }
 
-function Field({ label, icon, type, placeholder, ...rest }: FieldProps) {
+export const Field = ({ label, icon, ...rest }: FieldProps) => {
   return (
     <div>
       <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
@@ -12,8 +15,6 @@ function Field({ label, icon, type, placeholder, ...rest }: FieldProps) {
       <div className="mt-2 flex items-center gap-3 border border-border bg-card px-4 py-3 transition-colors focus-within:border-neon-pink">
         <span className="text-muted-foreground">{icon}</span>
         <input
-          type={type}
-          placeholder={placeholder}
           className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
           {...rest}
         />
@@ -21,5 +22,3 @@ function Field({ label, icon, type, placeholder, ...rest }: FieldProps) {
     </div>
   )
 }
-
-export default Field

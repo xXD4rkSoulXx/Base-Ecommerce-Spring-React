@@ -1,39 +1,36 @@
 import { useState } from 'react'
+import type { SubmitEvent } from 'react'
 import { Link } from 'react-router-dom'
-import type { AxiosError } from 'axios'
 import { AlertTriangle, ArrowRight, Lock, Mail, User } from 'lucide-react'
+import type { AxiosError } from 'axios'
+import { useRegister } from '@/hooks/useRegister'
+import { Field } from '@/components/ui/Field'
+import { Perk } from '@/components/ui/Perk'
 
-import Field from '@/components/ui/Field'
-import Perk from '@/components/ui/Perk'
+export const Register = () => {
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [accept, setAccept] = useState(false)
+  const [validationError, setValidationError] = useState<string | null>(null)
+  const { mutate, isPending, isError, error } = useRegister()
 
-import { useRegister } from '@/hooks/mutations/useRegister'
-
-function Register() {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [accept, setAccept] = useState(false);
-  const [validationError, setValidationError] = useState<string | null>(null);
-
-  const { mutate, isPending, isError, error } = useRegister();
-
-  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    setValidationError(null); 
+  const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setValidationError(null)
     
     if (password !== confirmPassword) {
-      setValidationError("Passwords do not match.");
+      setValidationError('Passwords do not match.')
 
-      return;
+      return
     }
     
     if (!accept) {
-      setValidationError("You must accept the Network Protocol to continue.");
+      setValidationError('You must accept the Network Protocol to continue.')
 
-      return;
+      return
     }
 
     mutate({
@@ -41,12 +38,12 @@ function Register() {
       password,
       firstName,
       lastName
-    });
-  };
+    })
+  }
 
   const errorMessage = validationError
-          || (error as AxiosError<{ message: string }>)?.response?.data?.message
-          || error?.message;
+    || (error as AxiosError<{ message: string }>)?.response?.data?.message
+    || error?.message
 
   return (
     <div className="relative mx-auto grid min-h-[calc(100vh-80px)] max-w-[1440px] gap-0 px-6 py-16 md:px-10 lg:grid-cols-2 lg:gap-16">
@@ -184,5 +181,3 @@ function Register() {
     </div>
   )
 }
-
-export default Register

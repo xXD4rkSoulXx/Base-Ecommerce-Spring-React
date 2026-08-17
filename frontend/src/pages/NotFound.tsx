@@ -1,13 +1,8 @@
-import { useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { ArrowLeft, Radio } from 'lucide-react'
 
-function NotFound() {
-  const location = useLocation();
-
-  useEffect(() => {
-    console.error("404 Error: User attempted to access non-existent route: ", location.pathname);
-  }, [location.pathname]);
+export const NotFound = () => {
+  const location = useLocation()
 
   return (
     <div className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-background px-6 text-foreground">
@@ -56,5 +51,3 @@ function NotFound() {
     </div>
   )
 }
-
-export default NotFound

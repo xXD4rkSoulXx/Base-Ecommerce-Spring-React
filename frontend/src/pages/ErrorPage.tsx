@@ -1,8 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { AlertTriangle, ArrowLeft, RefreshCw } from 'lucide-react'
 
-function Error() {
-  const navigate = useNavigate();
+export const ErrorPage = () => {
+  const navigate = useNavigate()
 
   return (
     <div className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-background px-6 text-foreground">
@@ -65,5 +65,3 @@ function Error() {
     </div>
   )
 }
-
-export default Error

@@ -1,69 +1,74 @@
 import { useEffect, useState } from 'react'
+import type { SubmitEvent } from 'react' 
 import { useSearchParams } from 'react-router-dom'
 import { SearchIcon } from 'lucide-react'
+import { useSearchProducts } from '@/hooks/useSearchProducts'
+import { ProductCard } from '@/components/card/ProductCard'
+import { Loading } from '@/pages//Loading'
+import { ErrorPage } from '@/pages/ErrorPage'
 
-import Loading from './Loading'
-import Error from './Error'
-import ProductCard from '@/components/card/ProductCard'
+export const Search = () => {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const queryFromUrl = searchParams.get('q') || ''
+  const urlPage = searchParams.get('page') !== null ? Number(searchParams.get('page')) : 1
+  const [inputValue, setInputValue] = useState(queryFromUrl)
+  const { data, isLoading, isError } = useSearchProducts()
+  const products = data?.content || []
+  const totalPages = data?.totalPages || 0
+  const totalElements = data?.totalElements || 0
+  let currentPage = urlPage < 1 ? 1 : urlPage
 
-import { useSearchProducts } from '@/hooks/queries/useSearchProducts'
-
-function Search() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  
-  const queryFromUrl = searchParams.get("q") || "";
-  const urlPage = searchParams.get("page") !== null ? Number(searchParams.get("page")) : 1;
-
-  const [inputValue, setInputValue] = useState(queryFromUrl);
-
-  const { data, isLoading, isError } = useSearchProducts();
-
-  const products = data?.content || [];
-  const totalPages = data?.totalPages || 0;
-  const totalElements = data?.totalElements || 0;
-
-  let currentPage = urlPage < 1 ? 1 : urlPage;
   if (totalPages > 0 && currentPage > totalPages) {
-    currentPage = totalPages;
+    currentPage = totalPages
   }
 
   useEffect(() => {
     if (totalPages > 0) {
       if (urlPage < 1) {
-        searchParams.set("page", "1");
-        setSearchParams(searchParams, { replace: true });
+        searchParams.set('page', '1')
+        setSearchParams(searchParams, { replace: true })
       } else if (urlPage > totalPages) {
-        searchParams.set("page", totalPages.toString());
-        setSearchParams(searchParams, { replace: true });
+        searchParams.set('page', totalPages.toString())
+        setSearchParams(searchParams, { replace: true })
       }
     }
-  }, [urlPage, totalPages, searchParams, setSearchParams]);
+  }, [urlPage, totalPages, searchParams, setSearchParams])
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [currentPage]);
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [currentPage])
 
   const handleSearchSubmit = (searchTerm: string) => {
     if (!searchTerm.trim()) {
-      setSearchParams({});
+      setSearchParams({})
     } else {
-      setSearchParams({ q: searchTerm, page: "1" });
+      setSearchParams({ q: searchTerm, page: '1' })
     }
-  };
+  }
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
-      searchParams.set("page", newPage.toString());
-      setSearchParams(searchParams);
+      searchParams.set('page', newPage.toString())
+      setSearchParams(searchParams)
     }
-  };
+  }
+
+  const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    handleSearchSubmit(inputValue)
+  }
+
+  const handleClear = () => {
+    setInputValue('')
+    handleSearchSubmit('')
+  }
 
   if (isLoading) {
-    return <Loading />;
+    return <Loading />
   }
 
   if (isError) {
-    return <Error />;
+    return <ErrorPage />
   }
 
   return (
@@ -72,7 +77,7 @@ function Search() {
         Locate
       </h1>
       <form 
-        onSubmit={(e) => { e.preventDefault(); handleSearchSubmit(inputValue); }}
+        onSubmit={handleSubmit}
         className="mt-10 flex items-center gap-3 border-b-2 border-foreground pb-3"
       >
         <SearchIcon className="h-5 w-5 text-neon-cyan" />
@@ -87,10 +92,7 @@ function Search() {
         {inputValue && (
           <button 
             type="button"
-            onClick={() => { 
-              setInputValue("");
-              handleSearchSubmit("");
-            }}
+            onClick={handleClear}
             className="text-xs uppercase text-muted-foreground hover:text-foreground"
           >
             Clear
@@ -100,7 +102,7 @@ function Search() {
       {queryFromUrl && (
         <div className="mt-12">
           <p className="mb-8 font-mono text-xs text-muted-foreground">
-            {totalElements} result{totalElements !== 1 && "s"} for "{queryFromUrl}"
+            {totalElements} result{totalElements !== 1 && 's'} for "{queryFromUrl}"
           </p>
           {products.length > 0 && (
             <div className="grid grid-cols-2 gap-x-4 gap-y-12 md:grid-cols-4 lg:gap-x-6">
@@ -135,5 +137,3 @@ function Search() {
     </div>
   )
 }
-
-export default Search

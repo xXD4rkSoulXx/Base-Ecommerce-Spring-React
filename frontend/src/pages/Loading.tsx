@@ -1,6 +1,6 @@
 import { Loader2 } from 'lucide-react'
 
-function Loading() {
+export const Loading = () => {
   return (
     <div className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-background text-foreground">
       <div
@@ -31,14 +31,6 @@ function Loading() {
           <div className="h-full w-1/2 animate-[loadbar_1.4s_ease-in-out_infinite] bg-neon-cyan" />
         </div>
       </div>
-      <style>{`
-        @keyframes loadbar {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(220%); }
-        }
-      `}</style>
     </div>
   )
 }
-
-export default Loading

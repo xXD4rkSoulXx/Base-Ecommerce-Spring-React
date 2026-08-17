@@ -1,7 +1,5 @@
-function AdminDiscounts() {
+export const AdminDiscounts = () => {
   return (
     <></>
   )
 }
-
-export default AdminDiscounts

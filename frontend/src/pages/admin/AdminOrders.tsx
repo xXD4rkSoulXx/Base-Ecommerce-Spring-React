@@ -1,7 +1,5 @@
-function AdminOrders() {
+export const AdminOrders = () => {
   return (
     <></>
   )
 }
-
-export default AdminOrders

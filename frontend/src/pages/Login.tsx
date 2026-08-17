@@ -1,23 +1,21 @@
 import { useState } from 'react'
+import type { SubmitEvent } from 'react'
 import { Link } from 'react-router-dom'
-import type { AxiosError } from 'axios'
 import { ArrowRight, Lock, Mail } from 'lucide-react'
+import type { AxiosError } from 'axios'
+import { useLogin } from '@/hooks/useLogin'
+import { Field } from '@/components/ui/Field'
 
-import Field from '@/components/ui/Field'
+export const Login = () => {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const { mutate, isPending, isError, error } = useLogin()
 
-import { useLogin } from '@/hooks/mutations/useLogin'
-
-function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  
-  const { mutate, isPending, isError, error } = useLogin();
-
-  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault()
     
-    mutate({ email, password });
-  };
+    mutate({ email, password })
+  }
 
   return (
     <div className="relative mx-auto grid min-h-[calc(100vh-80px)] max-w-[1440px] gap-0 px-6 py-16 md:px-10 lg:grid-cols-2 lg:gap-16">
@@ -111,5 +109,3 @@ function Login() {
     </div>
   )
 }
-
-export default Login

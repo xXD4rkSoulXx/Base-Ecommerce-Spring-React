@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { ArrowLeft, Lock, ShieldAlert } from 'lucide-react'
 
-function NoPermission() {
+export const NoPermission = () => {
   return (
     <div className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-background px-6 text-foreground">
       <div
@@ -63,5 +63,3 @@ function NoPermission() {
     </div>
   )
 }
-
-export default NoPermission
