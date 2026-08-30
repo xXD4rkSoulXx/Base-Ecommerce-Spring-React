@@ -43,18 +43,18 @@ export const Shop = () => {
     return () => { observer.disconnect() }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
-  const handleCategoryChange = (category: ProductCategory | 'ALL') => {
+  const handleChangeSort = (sortValue: string) => {
+    params.set('sort', sortValue)
+    setParams(params)
+  }
+
+  const handleChangeCategory = (category: ProductCategory | 'ALL') => {
     if (category === 'ALL') {
       params.delete('category')
     } else {
       params.set('category', category)
     }
 
-    setParams(params)
-  };
-
-  const handleSortChange = (sortValue: string) => {
-    params.set('sort', sortValue)
     setParams(params)
   }
 
@@ -85,7 +85,7 @@ export const Shop = () => {
           <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Sort</span>
           <select
             value={currentSort}
-            onChange={(e) => handleSortChange(e.target.value)}
+            onChange={(e) => handleChangeSort(e.target.value)}
             className="border border-border bg-background px-3 py-2 text-xs font-bold uppercase tracking-widest focus:border-neon-cyan focus:outline-none cursor-pointer"
           >
             <option value="recent">Latest</option>
@@ -103,7 +103,7 @@ export const Shop = () => {
             {categories.map((category) => (
               <li key={category}>
                 <button
-                  onClick={() => handleCategoryChange(category)}
+                  onClick={() => handleChangeCategory(category)}
                   className={`block w-full text-left text-sm font-bold uppercase tracking-tight transition-colors ${
                     currentCategory === category ? "text-neon-cyan" : "hover:text-neon-cyan"
                   }`}

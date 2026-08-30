@@ -5,6 +5,7 @@ import { PublicRoute } from '@/layouts/PublicRoute'
 import { ProtectedRoute } from '@/layouts/ProtectedRoute'
 import { Home } from '@/pages/Home'
 import { Shop } from '@/pages/Shop'
+import { ProductDetails } from '@/pages/ProductDetails'
 import { Search } from '@/pages/Search'
 import { About } from '@/pages/About'
 import { Register } from '@/pages/Register'
@@ -24,6 +25,7 @@ export const router = createBrowserRouter([
     children: [
       { path: '/', element: <Home /> },
       { path: '/shop', element: <Shop /> },
+      { path: '/product/:id', element: <ProductDetails /> },
       { path: '/search', element: <Search /> },
       { path: '/about', element: <About />},
       {

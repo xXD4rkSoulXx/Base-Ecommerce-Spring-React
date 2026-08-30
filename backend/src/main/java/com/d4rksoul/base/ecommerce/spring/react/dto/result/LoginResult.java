@@ -1,4 +1,4 @@
-package com.d4rksoul.base.ecommerce.spring.react.dto.internal;
+package com.d4rksoul.base.ecommerce.spring.react.dto.result;
 
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.UserResponse;
 

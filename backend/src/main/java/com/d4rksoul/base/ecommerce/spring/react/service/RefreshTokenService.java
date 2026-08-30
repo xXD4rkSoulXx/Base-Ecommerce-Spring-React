@@ -1,6 +1,6 @@
 package com.d4rksoul.base.ecommerce.spring.react.service;
 
-import com.d4rksoul.base.ecommerce.spring.react.dto.internal.RotateRefreshTokenResult;
+import com.d4rksoul.base.ecommerce.spring.react.dto.result.RotateRefreshTokenResult;
 import com.d4rksoul.base.ecommerce.spring.react.entity.RefreshToken;
 import com.d4rksoul.base.ecommerce.spring.react.entity.User;
 import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidRefreshTokenException;
@@ -11,7 +11,6 @@ import com.d4rksoul.base.ecommerce.spring.react.security.HashService;
 import com.d4rksoul.base.ecommerce.spring.react.security.TokenService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -19,7 +18,6 @@ import java.time.temporal.ChronoUnit;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
@@ -45,16 +43,11 @@ public class RefreshTokenService {
         String hashedOldToken = hashService.hash(rawOldToken);
 
         RefreshToken storedToken = refreshTokenRepository.findByToken(hashedOldToken)
-                .orElseThrow(() -> {
-                    log.warn("Security Alert: Reused or non-existent refresh token hash attempted!");
-
-                    return new InvalidRefreshTokenException("Invalid session");
-                });
+                .orElseThrow(() -> new InvalidRefreshTokenException("Invalid session"));
 
         User user = storedToken.getUser();
 
         if (storedToken.isRevoked()) {
-            log.error("CRITICAL SECURITY ALERT: Refresh token reuse detected for user: {}! Potential breach.", user.getEmail());
             refreshTokenRepository.deleteAllByUser(user);
             throw new RefreshTokenReuseException("Security breach detected. All sessions revoked.");
         }
@@ -69,7 +62,6 @@ public class RefreshTokenService {
 
         String rawNewToken = tokenService.generateRefreshToken(user);
         this.create(user, rawNewToken);
-        log.info("Refresh token successfully rotated for user: {}", user.getEmail());
 
         return new RotateRefreshTokenResult(user, rawNewToken);
     }
@@ -77,6 +69,7 @@ public class RefreshTokenService {
     @Transactional
     public void delete(String rawToken) {
         String hashedToken = hashService.hash(rawToken);
+
         refreshTokenRepository.deleteByToken(hashedToken);
     }
 

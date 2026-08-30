@@ -1,7 +1,6 @@
 package com.d4rksoul.base.ecommerce.spring.react.security;
 
 import com.d4rksoul.base.ecommerce.spring.react.exception.KeyInitializationException;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -19,7 +18,6 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
 @Component
-@Slf4j
 public class JwtKeyProvider {
 
     private final Path keysPath;
@@ -35,17 +33,12 @@ public class JwtKeyProvider {
     public KeyPair getOrInitializeKeyPair() {
         try {
             if (Files.exists(publicKeyPath) && Files.exists(privateKeyPath)) {
-                log.info("🔑 Found static PEM keys in '{}'. Loading cryptographic keys...", keysPath.toAbsolutePath());
-
                 return loadKeysFromDisk();
             }
 
-            log.warn("⚠️ JWT keys not found in '{}'. Generating new persistent PEM keys...", keysPath.toAbsolutePath());
-
             return generateAndSaveKeysToDisk();
         } catch (GeneralSecurityException | IOException e) {
-            log.error("❌ Critical failure while initializing RSA key pair", e);
-            throw new KeyInitializationException("Could not configure cryptographic keys due to an internal security error", e);
+            throw new KeyInitializationException("Could not configure cryptographic keys due to an projection security error", e);
         }
     }
 
@@ -89,8 +82,6 @@ public class JwtKeyProvider {
         String encodedPrivate = encoder.encodeToString(keyPair.getPrivate().getEncoded());
         String privatePem = "-----BEGIN PRIVATE KEY-----\n" + encodedPrivate + "\n-----END PRIVATE KEY-----\n";
         Files.writeString(privateKeyPath, privatePem);
-
-        log.info("✅ New cryptographic PEM keys generated and successfully saved to '{}'!", keysPath.toAbsolutePath());
 
         return keyPair;
     }

@@ -40,7 +40,7 @@ public class DiscountCode {
 
     @Min(0)
     @Max(100)
-    @Column(nullable = false)
+    @Column(name = "discount_percentage", nullable = false)
     private int discountPercentage;
 
     @Builder.Default

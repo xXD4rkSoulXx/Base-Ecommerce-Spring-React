@@ -17,6 +17,7 @@ export const AdminHeaderMobile = ({ onOpenMenu }: AdminHeaderMobileProps) => {
       </button>
       <NavLink
         to="/admin"
+        end
         className="font-display text-lg italic tracking-tighter"
       >
         VELO_CITI

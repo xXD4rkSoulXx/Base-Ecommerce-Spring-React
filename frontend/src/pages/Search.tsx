@@ -38,7 +38,7 @@ export const Search = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [currentPage])
 
-  const handleSearchSubmit = (searchTerm: string) => {
+  const handleSearch = (searchTerm: string) => {
     if (!searchTerm.trim()) {
       setSearchParams({})
     } else {
@@ -46,21 +46,21 @@ export const Search = () => {
     }
   }
 
-  const handlePageChange = (newPage: number) => {
+  const handleChangePage = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
       searchParams.set('page', newPage.toString())
       setSearchParams(searchParams)
     }
   }
 
-  const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
+  const handleSubmitSearch = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
-    handleSearchSubmit(inputValue)
+    handleSearch(inputValue)
   }
 
-  const handleClear = () => {
+  const handleClearInput = () => {
     setInputValue('')
-    handleSearchSubmit('')
+    handleSearch('')
   }
 
   if (isLoading) {
@@ -77,7 +77,7 @@ export const Search = () => {
         Locate
       </h1>
       <form 
-        onSubmit={handleSubmit}
+        onSubmit={handleSubmitSearch}
         className="mt-10 flex items-center gap-3 border-b-2 border-foreground pb-3"
       >
         <SearchIcon className="h-5 w-5 text-neon-cyan" />
@@ -86,13 +86,13 @@ export const Search = () => {
           autoFocus
           defaultValue={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          placeholder="Search by name, REF, or category… (Press Enter)"
+          placeholder="Search by name or REF… (Press Enter)"
           className="w-full bg-transparent text-2xl placeholder:text-muted-foreground focus:outline-none md:text-3xl"
         />
         {inputValue && (
           <button 
             type="button"
-            onClick={handleClear}
+            onClick={handleClearInput}
             className="text-xs uppercase text-muted-foreground hover:text-foreground"
           >
             Clear
@@ -115,7 +115,7 @@ export const Search = () => {
             <div className="mt-16 flex items-center justify-center gap-4 border-t border-border pt-8 font-mono text-xs">
               <button
                 disabled={currentPage === 1}
-                onClick={() => handlePageChange(currentPage - 1)}
+                onClick={() => handleChangePage(currentPage - 1)}
                 className="border border-border px-4 py-2 uppercase tracking-widest transition-colors hover:border-neon-cyan hover:text-neon-cyan disabled:opacity-30 disabled:hover:border-border disabled:hover:text-muted-foreground"
               >
                 PREV
@@ -125,7 +125,7 @@ export const Search = () => {
               </span>
               <button
                 disabled={currentPage === totalPages}
-                onClick={() => handlePageChange(currentPage + 1)}
+                onClick={() => handleChangePage(currentPage + 1)}
                 className="border border-border px-4 py-2 uppercase tracking-widest transition-colors hover:border-neon-cyan hover:text-neon-cyan disabled:opacity-30 disabled:hover:border-border disabled:hover:text-muted-foreground"
               >
                 NEXT

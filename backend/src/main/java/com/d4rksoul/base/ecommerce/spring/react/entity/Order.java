@@ -53,6 +53,7 @@ public class Order {
 
     @Min(0)
     @Max(100)
+    @Column(name = "discount_percentage")
     private int discountPercentage;
 
     @ManyToOne(fetch = FetchType.LAZY)

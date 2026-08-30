@@ -1,13 +1,12 @@
 package com.d4rksoul.base.ecommerce.spring.react.controller;
 
-import com.d4rksoul.base.ecommerce.spring.react.dto.internal.LoginResult;
+import com.d4rksoul.base.ecommerce.spring.react.dto.result.LoginResult;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.LoginResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.LoginRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.RegisterRequest;
 import com.d4rksoul.base.ecommerce.spring.react.service.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -24,7 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@Slf4j
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
@@ -33,7 +31,6 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequest request) {
-        log.info("HTTP POST Request: Registering new user with email: {}", request.email());
         authenticationService.register(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -41,7 +38,6 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
-        log.info("HTTP POST Request: User login attempt for email: {}", request.email());
         LoginResult result = authenticationService.login(request);
 
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", result.refreshToken())
@@ -59,7 +55,6 @@ public class AuthenticationController {
 
     @PostMapping("/refresh")
     public ResponseEntity<LoginResponse> refresh(@CookieValue(name = "refreshToken") String rawOldRefreshToken) {
-        log.info("HTTP POST Request: Refresh session");
         LoginResult result = authenticationService.refresh(rawOldRefreshToken);
 
         ResponseCookie newRefreshTokenCookie = ResponseCookie.from("refreshToken", result.refreshToken())
@@ -77,7 +72,6 @@ public class AuthenticationController {
 
     @DeleteMapping("/logout")
     public ResponseEntity<Void> logout(@CookieValue(name = "refreshToken") String rawRefreshToken) {
-        log.info("HTTP DELETE Request: Logout session");
         if (rawRefreshToken != null) {
             authenticationService.logout(rawRefreshToken);
         }
@@ -97,7 +91,6 @@ public class AuthenticationController {
 
     @DeleteMapping("/logout-all")
     public ResponseEntity<Void> logoutAllByUser(@AuthenticationPrincipal org.springframework.security.oauth2.jwt.Jwt jwt) {
-        log.info("HTTP DELETE Request: Logout all sessions");
         String email = jwt.getSubject();
 
         authenticationService.logoutAllByUser(email);

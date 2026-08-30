@@ -2,20 +2,18 @@ package com.d4rksoul.base.ecommerce.spring.react.security;
 
 import com.d4rksoul.base.ecommerce.spring.react.entity.User;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
-@Component
+@Service
 @RequiredArgsConstructor
-@Slf4j
 public class TokenService {
 
     private final JwtEncoder jwtEncoder;
@@ -23,8 +21,6 @@ public class TokenService {
     private String jwtIssuer;
 
     public String generateAccessToken(User user) {
-        log.debug("Generating Access Token for user: {}", user.getEmail());
-
         Instant now = Instant.now();
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
@@ -41,8 +37,6 @@ public class TokenService {
     }
 
     public String generateRefreshToken(User user) {
-        log.debug("Generating Refresh Token for user: {}", user.getEmail());
-
         Instant now = Instant.now();
 
         JwtClaimsSet claims = JwtClaimsSet.builder()

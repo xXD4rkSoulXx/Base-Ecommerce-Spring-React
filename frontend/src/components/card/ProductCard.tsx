@@ -17,7 +17,7 @@ export const ProductCard = ({ product, index }: ProductCardProps) => {
     ? (product.price * (1 - product.discountPercentage / 100)).toFixed(2)
     : product.price.toFixed(2)
 
-  const handleWishlistToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleToggleWishlist = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     e.stopPropagation()
 
@@ -53,7 +53,7 @@ export const ProductCard = ({ product, index }: ProductCardProps) => {
         <div className={`absolute ${product.discountPercentage > 0 ? 'right-3 top-[4.25rem]' : 'right-3 top-3'}`}>
           <button
             type="button"
-            onClick={handleWishlistToggle}
+            onClick={handleToggleWishlist}
             aria-label={isActive ? 'Remove from wishlist' : 'Add to wishlist'}
             aria-pressed={isActive}
             className={`flex h-9 w-9 items-center justify-center border backdrop-blur transition-all ${

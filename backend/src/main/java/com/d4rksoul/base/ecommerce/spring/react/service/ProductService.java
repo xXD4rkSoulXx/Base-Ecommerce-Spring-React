@@ -1,11 +1,13 @@
 package com.d4rksoul.base.ecommerce.spring.react.service;
 
-import com.d4rksoul.base.ecommerce.spring.react.dto.internal.ProductCoverResult;
+import com.d4rksoul.base.ecommerce.spring.react.dto.projection.ProductCoverProjection;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.ProductSearchRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.ProductShopRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.PageResponse;
+import com.d4rksoul.base.ecommerce.spring.react.dto.response.ProductDetailsResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.ProductResponse;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Product;
+import com.d4rksoul.base.ecommerce.spring.react.exception.ProductNotFoundException;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.ProductMapper;
 import com.d4rksoul.base.ecommerce.spring.react.repository.ProductRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.ProductSkuImageRepository;
@@ -52,9 +54,15 @@ public class ProductService {
 
         Map<Long, String> covers = productSkuImageRepository.findCoverByProductIds(productIds)
                 .stream()
-                .collect(Collectors.toMap(ProductCoverResult::productId, ProductCoverResult::path));
+                .collect(Collectors.toMap(
+                        ProductCoverProjection::productId,
+                        ProductCoverProjection::path,
+                        (existing, _) -> existing
+                ));
 
-        Page<ProductResponse> responsePage = productPage.map(product -> productMapper.toDto(product, covers.get(product.getId())));
+        Page<ProductResponse> responsePage = productPage.map(product ->
+                productMapper.toDto(product, covers.get(product.getId()))
+        );
 
         return PageResponse.<ProductResponse>builder()
                 .content(responsePage.getContent())
@@ -65,6 +73,60 @@ public class ProductService {
                 .first(responsePage.isFirst())
                 .last(responsePage.isLast())
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public ProductDetailsResponse getProductDetails(Long productId) {
+        Product product = productRepository.findDetailsById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + productId));
+
+        if (product.getProductSkus() != null) {
+            product.getProductSkus().forEach(sku -> {
+                if (sku.getProductSkuImages() != null) {
+                    org.hibernate.Hibernate.initialize(sku.getProductSkuImages());
+                }
+            });
+        }
+
+        List<Object[]> ratingStats = productRepository.getRatingStatsByProductId(productId);
+
+        double averageRating = 0.0;
+        long totalReviews = 0L;
+
+        if (ratingStats != null && !ratingStats.isEmpty() && ratingStats.getFirst() != null) {
+            averageRating = ratingStats.getFirst()[0] != null ? (Double) ratingStats.getFirst()[0] : 0.0;
+            totalReviews = ratingStats.getFirst()[1] != null ? (Long) ratingStats.getFirst()[1] : 0L;
+        }
+
+        return productMapper.toDetailsDto(product, averageRating, totalReviews);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductResponse> getRelatedProducts(Long productId) {
+        Product currentProduct = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " +  productId));
+
+        List<Product> relatedProducts = productRepository.findByCategoryAndIdNot(
+                currentProduct.getCategory(),
+                productId,
+                PageRequest.of(0, 4)
+        );
+
+        List<Long> productIds = relatedProducts.stream()
+                .map(Product::getId)
+                .toList();
+
+        Map<Long, String> covers = productSkuImageRepository.findCoverByProductIds(productIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        ProductCoverProjection::productId,
+                        ProductCoverProjection::path,
+                        (existing, _) -> existing
+                ));
+
+        return relatedProducts.stream()
+                .map(product -> productMapper.toDto(product, covers.get(product.getId())))
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -83,7 +145,11 @@ public class ProductService {
 
         Map<Long, String> covers = productSkuImageRepository.findCoverByProductIds(productIds)
                 .stream()
-                .collect(Collectors.toMap(ProductCoverResult::productId, ProductCoverResult::path));
+                .collect(Collectors.toMap(
+                        ProductCoverProjection::productId,
+                        ProductCoverProjection::path,
+                        (existing, _) -> existing
+                ));
 
         Page<ProductResponse> responsePage = productPage.map(product ->
                 productMapper.toDto(product, covers.get(product.getId()))

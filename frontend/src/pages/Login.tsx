@@ -11,7 +11,7 @@ export const Login = () => {
   const [password, setPassword] = useState('')
   const { mutate, isPending, isError, error } = useLogin()
 
-  const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
+  const handleLogin = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
     
     mutate({ email, password })
@@ -42,7 +42,7 @@ export const Login = () => {
         <p className="mt-3 text-sm text-muted-foreground">
           Welcome back. Authenticate to resume your session.
         </p>
-        <form className="mt-10 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-10 space-y-6" onSubmit={handleLogin}>
           {isError && (
             <div className="border border-red-500/30 bg-red-500/10 px-4 py-3 font-mono text-xs text-red-400 uppercase tracking-wider">
               {(error as AxiosError<{ message: string }>)?.response?.data?.message || "⚠️ Invalid Credentials"}

@@ -1,6 +1,6 @@
 import axios, { type InternalAxiosRequestConfig, AxiosError  } from 'axios'
+import { refreshAuth } from '@/lib/refreshAuth'
 import { useAuthStore } from '@/store/useAuthStore'
-import type { LoginResponse } from '@/types/auth'
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -29,26 +29,19 @@ api.interceptors.request.use(
   return config
 }, (error: AxiosError) => Promise.reject(error))
 
+const AUTH_ENDPOINTS = ['/api/auth/login', '/api/auth/register', '/api/auth/refresh', '/api/auth/logout']
+
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
+    const isAuthEndpoint = AUTH_ENDPOINTS.some((path) => originalRequest.url?.includes(path))
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       originalRequest._retry = true
 
       try {
-        const response = await axios.post<LoginResponse>(
-          `${import.meta.env.VITE_API_URL}/api/auth/refresh`,
-          {},
-          {
-            headers: { 'Content-Type': 'application/json' },
-            withCredentials: true
-          }
-        )
-        const { user, accessToken } = response.data
-
-        useAuthStore.getState().setAuth(user, accessToken)
+        const { accessToken } = await refreshAuth()
 
         if (originalRequest.headers) {
           originalRequest.headers.Authorization = `Bearer ${accessToken}`

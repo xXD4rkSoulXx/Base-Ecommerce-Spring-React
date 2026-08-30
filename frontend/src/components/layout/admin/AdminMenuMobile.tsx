@@ -49,6 +49,7 @@ export const AdminMenuMobile = ({ open, onClose }: AdminMenuMobileProps) => {
           <div>
             <NavLink
               to="/admin"
+              end
               onClick={onClose}
               className="font-display text-xl italic tracking-tighter"
             >

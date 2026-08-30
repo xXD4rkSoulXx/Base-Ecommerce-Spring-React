@@ -1,5 +1,6 @@
 import { api } from '@/lib/api'
-import type { ProductShopRequest, ProductSearchRequest, ProductResponse, PageResponse } from '@/types/product'
+import type { ProductShopRequest, ProductSearchRequest, ProductResponse, PageResponse, ProductDetailsResponse, ProductReviewsRequest } from '@/types/product'
+import type { ReviewResponse } from '@/types/review'
 
 export const productService = {
   getProducts: async (request: ProductShopRequest) => {
@@ -11,6 +12,26 @@ export const productService = {
         category: categoryParam,
         ...restParams
       }
+    })
+    
+    return response.data
+  },
+
+  getProductDetails: async (id: number | string) => {
+    const response = await api.get<ProductDetailsResponse>(`/api/products/${id}`)
+
+    return response.data
+  },
+
+  getRelatedProducts: async (id: number | string) => {
+    const response = await api.get<ProductResponse[]>(`/api/products/${id}/related`)
+
+    return response.data
+  },
+
+  getProductReviews: async (id: number | string, request: ProductReviewsRequest) => {
+    const response = await api.get<PageResponse<ReviewResponse>>(`/api/products/${id}/reviews`, {
+      params: request
     })
     
     return response.data

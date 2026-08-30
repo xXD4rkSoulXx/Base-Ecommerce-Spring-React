@@ -57,6 +57,7 @@ export const NavBar = () => {
             </button>
             <NavLink
               to="/"
+              end
               className="font-display text-2xl italic tracking-tighter"
             >
               VELO_CITI
@@ -67,6 +68,7 @@ export const NavBar = () => {
               <NavLink
                 key={item.to}
                 to={item.to}
+                end
                 className={({ isActive }) =>
                   `text-xs font-bold uppercase tracking-[0.2em] transition-colors ${
                     isActive ? "text-neon-cyan" : "text-foreground hover:text-neon-cyan"
@@ -85,6 +87,7 @@ export const NavBar = () => {
             </span>
             <NavLink
               to="/search"
+              end
               className="text-foreground/70 transition-colors hover:text-neon-cyan"
               aria-label="Search"
             >
@@ -92,6 +95,7 @@ export const NavBar = () => {
             </NavLink>
             <NavLink
               to="/wishlist"
+              end
               className="relative text-foreground/70 transition-colors hover:text-neon-pink"
               aria-label="Wishlist"
             >
@@ -105,6 +109,7 @@ export const NavBar = () => {
             {user ? (
               <NavLink
                 to="/account"
+                end
                 className="text-foreground/70 transition-colors hover:text-neon-cyan"
                 aria-label="Account"
               >
@@ -114,12 +119,14 @@ export const NavBar = () => {
               <div className="hidden items-center gap-3 md:flex">
                 <NavLink
                   to="/login"
+                  end
                   className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground/80 transition-colors hover:text-neon-cyan"
                 >
                   Login
                 </NavLink>
                 <NavLink
                   to="/register"
+                  end
                   className="border border-neon-pink px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-neon-pink transition-all hover:bg-neon-pink hover:text-primary-foreground"
                 >
                   Register
@@ -128,6 +135,7 @@ export const NavBar = () => {
             )}
             <NavLink
               to="/cart"
+              end
               className="group flex items-center gap-2 border border-neon-cyan px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-neon-cyan transition-all hover:bg-neon-cyan hover:text-primary-foreground"
             >
               <ShoppingBag className="h-3 w-3" />
@@ -171,6 +179,7 @@ export const NavBar = () => {
               <NavLink
                 key={item.to}
                 to={item.to}
+                end
                 onClick={() => setOpen(false)}
                 className={({ isActive }) =>
                   `border-b border-border py-4 text-sm font-bold uppercase tracking-[0.2em] transition-colors ${
@@ -186,6 +195,7 @@ export const NavBar = () => {
             {user ? (
               <NavLink
                 to="/account"
+                end
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-foreground/80 hover:text-neon-cyan"
               >
@@ -195,6 +205,7 @@ export const NavBar = () => {
               <>
                 <NavLink
                   to="/login"
+                  end
                   onClick={() => setOpen(false)}
                   className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-foreground/80 hover:text-neon-cyan"
                 >
@@ -202,6 +213,7 @@ export const NavBar = () => {
                 </NavLink>
                 <NavLink
                   to="/register"
+                  end
                   onClick={() => setOpen(false)}
                   className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-neon-pink hover:text-neon-pink/80"
                 >
@@ -211,6 +223,7 @@ export const NavBar = () => {
             )}
             <NavLink
               to="/search"
+              end
               onClick={() => setOpen(false)}
               className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-foreground/80 hover:text-neon-cyan"
             >

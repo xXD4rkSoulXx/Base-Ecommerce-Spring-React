@@ -74,7 +74,6 @@ public class ProductSku {
     @OneToMany(mappedBy = "productSku", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductSkuImage> productSkuImages = new ArrayList<>();
 
-
     @Builder.Default
     @OneToMany(mappedBy = "productSku", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> cartItems = new ArrayList<>();

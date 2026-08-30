@@ -17,7 +17,7 @@ export const Register = () => {
   const [validationError, setValidationError] = useState<string | null>(null)
   const { mutate, isPending, isError, error } = useRegister()
 
-  const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
+  const handleRegister = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
     setValidationError(null)
     
@@ -67,7 +67,7 @@ export const Register = () => {
             </div>
           </div>
         )}
-        <form className="mt-10 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-10 space-y-6" onSubmit={handleRegister}>
           <Field
             label="First name"
             icon={<User className="h-4 w-4" />}

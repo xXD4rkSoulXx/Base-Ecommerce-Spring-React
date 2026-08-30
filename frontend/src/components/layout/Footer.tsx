@@ -52,12 +52,12 @@ export const Footer = () => {
               Shop
             </h4>
             <ul className="space-y-3 text-sm">
-              <li><NavLink to="/shop" className="hover:text-neon-cyan">All</NavLink></li>
-              <li><NavLink to="/shop?category=OUTERWEAR" className="hover:text-neon-cyan">Outerwear</NavLink></li>
-              <li><NavLink to="/shop?category=TOPS" className="hover:text-neon-cyan">Tops</NavLink></li>
-              <li><NavLink to="/shop?category=BOTTOMS" className="hover:text-neon-cyan">Bottoms</NavLink></li>
-              <li><NavLink to="/shop?category=FOOTWEAR" className="hover:text-neon-cyan">Footwear</NavLink></li>
-              <li><NavLink to="/shop?category=ACCESSORIES" className="hover:text-neon-cyan">Accessories</NavLink></li>
+              <li><NavLink to="/shop" end className="hover:text-neon-cyan">All</NavLink></li>
+              <li><NavLink to="/shop?category=OUTERWEAR" end className="hover:text-neon-cyan">Outerwear</NavLink></li>
+              <li><NavLink to="/shop?category=TOPS" end className="hover:text-neon-cyan">Tops</NavLink></li>
+              <li><NavLink to="/shop?category=BOTTOMS" end className="hover:text-neon-cyan">Bottoms</NavLink></li>
+              <li><NavLink to="/shop?category=FOOTWEAR" end className="hover:text-neon-cyan">Footwear</NavLink></li>
+              <li><NavLink to="/shop?category=ACCESSORIES" end className="hover:text-neon-cyan">Accessories</NavLink></li>
             </ul>
           </div>
           <div>
@@ -65,9 +65,9 @@ export const Footer = () => {
               Network
             </h4>
             <ul className="space-y-3 text-sm">
-              <li><NavLink to="/about" className="hover:text-neon-cyan">About</NavLink></li>
-              <li><NavLink to="/account" className="hover:text-neon-cyan">Account</NavLink></li>
-              <li><NavLink to="/admin" className="hover:text-neon-cyan">Admin</NavLink></li>
+              <li><NavLink to="/about" end className="hover:text-neon-cyan">About</NavLink></li>
+              <li><NavLink to="/account" end className="hover:text-neon-cyan">Account</NavLink></li>
+              <li><NavLink to="/admin" end className="hover:text-neon-cyan">Admin</NavLink></li>
             </ul>
           </div>
         </div>

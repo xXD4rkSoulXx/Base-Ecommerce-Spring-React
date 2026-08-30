@@ -27,6 +27,7 @@ export const AdminSidebar = () => {
       <div className="border-b border-border p-6">
         <NavLink
           to="/"
+          end
           className="font-display text-xl italic tracking-tighter"
         >
           VELO_CITI
