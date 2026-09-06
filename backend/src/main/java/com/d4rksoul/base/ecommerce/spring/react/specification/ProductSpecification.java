@@ -49,6 +49,18 @@ public class ProductSpecification {
         };
     }
 
+    public static Specification<Product> hasDiscount() {
+        return (root, _, cb) -> cb.greaterThan(root.get("discountPercentage"), 0);
+    }
+
+    public static Specification<Product> orderByDiscountDesc() {
+        return (root, query, cb) -> {
+            query.orderBy(cb.desc(root.get("discountPercentage")), cb.asc(root.get("id")));
+
+            return cb.conjunction();
+        };
+    }
+
     public static Specification<Product> orderByRecentDesc() {
         return (root, query, cb) -> {
             query.orderBy(cb.desc(root.get("createdAt")), cb.asc(root.get("id")));

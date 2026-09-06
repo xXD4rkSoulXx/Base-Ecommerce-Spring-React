@@ -45,8 +45,12 @@ public class SecurityConfig {
                                 "/api/products",
                                 "/api/products/{id}",
                                 "/api/products/{id}/related",
-                                "/api/products/search",
-                                "/api/products/{id}/reviews"
+                                "/api/products/{id}/reviews",
+                                "/api/products/featured",
+                                "/api/products/deals",
+                                "/api/products/best-sellers",
+                                "/api/products/top-rated",
+                                "/api/products/search"
                         ).permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated()

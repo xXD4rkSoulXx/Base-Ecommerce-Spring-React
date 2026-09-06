@@ -41,13 +41,6 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/{id}/review/eligibility")
-    public ResponseEntity<ReviewEligibilityResponse> getReviewEligibility(@PathVariable Long id) {
-        ReviewEligibility eligibility = reviewService.getReviewEligibility(id);
-
-        return ResponseEntity.ok(ReviewEligibilityResponse.builder().status(eligibility).build());
-    }
-
     @GetMapping
     public ResponseEntity<PageResponse<ProductResponse>> getProducts(@ModelAttribute ProductShopRequest filter) {
         PageResponse<ProductResponse> productsPage = productService.getProducts(filter);
@@ -69,11 +62,46 @@ public class ProductController {
         return ResponseEntity.ok(related);
     }
 
+    @GetMapping("/{id}/review/eligibility")
+    public ResponseEntity<ReviewEligibilityResponse> getReviewEligibility(@PathVariable Long id) {
+        ReviewEligibility eligibility = reviewService.getReviewEligibility(id);
+
+        return ResponseEntity.ok(ReviewEligibilityResponse.builder().status(eligibility).build());
+    }
+
     @GetMapping("/{id}/reviews")
     public ResponseEntity<PageResponse<ReviewResponse>> getProductReviews(@PathVariable Long id, ProductReviewsRequest filter) {
         PageResponse<ReviewResponse> reviews = reviewService.getProductReviews(id, filter);
 
         return ResponseEntity.ok(reviews);
+    }
+
+    @GetMapping("/featured")
+    public ResponseEntity<List<ProductResponse>> getFeaturedProducts() {
+        List<ProductResponse> featured = productService.getFeaturedProducts();
+
+        return ResponseEntity.ok(featured);
+    }
+
+    @GetMapping("/deals")
+    public ResponseEntity<List<ProductResponse>> getDealProducts() {
+        List<ProductResponse> deals = productService.getDealProducts();
+
+        return ResponseEntity.ok(deals);
+    }
+
+    @GetMapping("/best-sellers")
+    public ResponseEntity<List<ProductResponse>> getBestSellers() {
+        List<ProductResponse> deals = productService.getBestSellers();
+
+        return ResponseEntity.ok(deals);
+    }
+
+    @GetMapping("/top-rated")
+    public ResponseEntity<List<ProductResponse>> getTopRatedProducts() {
+        List<ProductResponse> deals = productService.getTopRatedProducts();
+
+        return ResponseEntity.ok(deals);
     }
 
     @GetMapping("/search")

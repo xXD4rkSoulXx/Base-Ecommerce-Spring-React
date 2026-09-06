@@ -37,6 +37,30 @@ export const productService = {
     return response.data
   },
 
+  getFeaturedProducts: async () => {
+    const response = await api.get<ProductResponse[]>('/api/products/featured')
+    
+    return response.data
+  },
+
+  getDealProducts: async () => {
+    const response = await api.get<ProductResponse[]>('/api/products/deals')
+
+    return response.data
+  },
+
+  getBestSellers: async () => {
+    const response = await api.get<ProductResponse[]>('/api/products/best-sellers')
+
+    return response.data
+  },
+
+  getTopRatedProducts: async () => {
+    const response = await api.get<ProductResponse[]>('/api/products/top-rated')
+
+    return response.data
+  },
+
   searchProducts: async (request: ProductSearchRequest) => {
     const response = await api.get<PageResponse<ProductResponse>>('/api/products/search', {
       params: request

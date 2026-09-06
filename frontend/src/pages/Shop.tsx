@@ -91,6 +91,9 @@ export const Shop = () => {
             <option value="recent">Latest</option>
             <option value="price_asc">Price ↑</option>
             <option value="price_desc">Price ↓</option>
+            <option value="discount">On Sale</option>
+            <option value="best_sellers">Most Wanted</option>
+            <option value="top_rated">Top Rated</option>
           </select>
         </div>
       </header>
