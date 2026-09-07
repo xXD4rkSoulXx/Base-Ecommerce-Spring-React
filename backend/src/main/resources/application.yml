@@ -15,6 +15,7 @@ spring:
     hibernate:
       ddl-auto: update
 
+# Talvez depois remover 
 springdoc:
   api-docs:
     enabled: true
