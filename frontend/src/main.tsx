@@ -5,6 +5,7 @@ import { queryClient } from '@/lib/queryClient'
 import { App } from '@/App'
 import '@/styles/index.css'
 
+// Testar CI do Frontend
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
