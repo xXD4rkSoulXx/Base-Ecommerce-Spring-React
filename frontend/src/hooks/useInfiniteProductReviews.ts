@@ -1,9 +1,7 @@
-import { useParams } from 'react-router-dom'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { productService } from '@/services/product.service'
 
-export const useInfiniteProductReviews = () => {
-  const { id } = useParams<{ id: string }>()
+export const useInfiniteProductReviews = (id: string | undefined) => {
   const size = 5
 
   return useInfiniteQuery({

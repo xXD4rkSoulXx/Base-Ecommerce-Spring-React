@@ -82,10 +82,6 @@ public class ProductSku {
     @OneToMany(mappedBy = "productSku")
     private List<OrderItem> orderItems = new ArrayList<>();
 
-    @Builder.Default
-    @OneToMany(mappedBy = "productSku", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<WishlistItem> wishlistItems = new ArrayList<>();
-
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

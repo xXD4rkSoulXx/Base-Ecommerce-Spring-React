@@ -18,7 +18,6 @@ public class RefreshRequestHeaderFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-
         boolean isRefreshRequest = "/api/auth/refresh".equals(request.getRequestURI())
                 && "POST".equalsIgnoreCase(request.getMethod());
 

@@ -1,6 +1,7 @@
 package com.d4rksoul.base.ecommerce.spring.react.service;
 
 import com.d4rksoul.base.ecommerce.spring.react.dto.projection.ProductCoverProjection;
+import com.d4rksoul.base.ecommerce.spring.react.dto.projection.RatingStatsProjection;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.ProductSearchRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.ProductShopRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.PageResponse;
@@ -39,7 +40,11 @@ public class ProductService {
         Pageable pageable = PageRequest.of(filter.page(), filter.size());
 
         Page<Product> productPage = switch (filter.sortBy()) {
-            case "best_sellers" -> productRepository.findBestSellersPage(OrderStatus.DELIVERED, filter.category(), pageable);
+            case "best_sellers" -> productRepository.findBestSellersPage(
+                    OrderStatus.DELIVERED,
+                    filter.category(),
+                    pageable
+            );
             case "top_rated" -> productRepository.findTopRatedPage(3, filter.category(), pageable);
             case "discount" -> {
                 Specification<Product> specification = Specification
@@ -62,32 +67,7 @@ public class ProductService {
             }
         };
 
-        List<Long> productIds = productPage.getContent()
-                .stream()
-                .map(Product::getId)
-                .toList();
-
-        Map<Long, String> covers = productSkuImageRepository.findCoverByProductIds(productIds)
-                .stream()
-                .collect(Collectors.toMap(
-                        ProductCoverProjection::productId,
-                        ProductCoverProjection::path,
-                        (existing, _) -> existing
-                ));
-
-        Page<ProductResponse> responsePage = productPage.map(product ->
-                productMapper.toDto(product, covers.get(product.getId()))
-        );
-
-        return PageResponse.<ProductResponse>builder()
-                .content(responsePage.getContent())
-                .page(responsePage.getNumber())
-                .size(responsePage.getSize())
-                .totalElements(responsePage.getTotalElements())
-                .totalPages(responsePage.getTotalPages())
-                .first(responsePage.isFirst())
-                .last(responsePage.isLast())
-                .build();
+        return mapProductPageToDto(productPage);
     }
 
     @Transactional(readOnly = true)
@@ -103,15 +83,11 @@ public class ProductService {
             });
         }
 
-        List<Object[]> ratingStats = productRepository.getRatingStatsByProductId(productId);
+        RatingStatsProjection stats = productRepository.getRatingStatsByProductId(productId)
+                .orElse(new RatingStatsProjection(0.0, 0L));
 
-        double averageRating = 0.0;
-        long totalReviews = 0L;
-
-        if (ratingStats != null && !ratingStats.isEmpty() && ratingStats.getFirst() != null) {
-            averageRating = ratingStats.getFirst()[0] != null ? (Double) ratingStats.getFirst()[0] : 0.0;
-            totalReviews = ratingStats.getFirst()[1] != null ? (Long) ratingStats.getFirst()[1] : 0L;
-        }
+        double averageRating = stats.averageRating();
+        long totalReviews = stats.totalReviews();
 
         return productMapper.toDetailsDto(product, averageRating, totalReviews);
     }
@@ -127,108 +103,49 @@ public class ProductService {
                 PageRequest.of(0, 4)
         );
 
-        List<Long> productIds = relatedProducts.stream()
-                .map(Product::getId)
-                .toList();
-
-        Map<Long, String> covers = productSkuImageRepository.findCoverByProductIds(productIds)
-                .stream()
-                .collect(Collectors.toMap(
-                        ProductCoverProjection::productId,
-                        ProductCoverProjection::path,
-                        (existing, _) -> existing
-                ));
-
-        return relatedProducts.stream()
-                .map(product -> productMapper.toDto(product, covers.get(product.getId())))
-                .toList();
+        return mapProductsToDto(relatedProducts);
     }
 
     @Transactional(readOnly = true)
     public List<ProductResponse> getFeaturedProducts() {
         List<Product> featuredProducts = productRepository.findByFeaturedTrue(PageRequest.of(0, 2));
 
-        List<Long> productIds = featuredProducts.stream()
-                .map(Product::getId)
-                .toList();
-
-        Map<Long, String> covers = productSkuImageRepository.findCoverByProductIds(productIds)
-                .stream()
-                .collect(Collectors.toMap(
-                        ProductCoverProjection::productId,
-                        ProductCoverProjection::path,
-                        (existing, _) -> existing
-                ));
-
-        return featuredProducts.stream()
-                .map(product -> productMapper.toDto(product, covers.get(product.getId())))
-                .toList();
+        return mapProductsToDto(featuredProducts);
     }
 
     @Transactional(readOnly = true)
     public List<ProductResponse> getDealProducts() {
-        Pageable pageable = PageRequest.of(0, 8, Sort.by(Sort.Direction.DESC, "discountPercentage"));
+        Pageable pageable = PageRequest.of(0, 8, Sort.by(
+                Sort.Direction.DESC,
+                "discountPercentage"
+        ));
         List<Product> dealProducts = productRepository.findByDiscountPercentageGreaterThan(0, pageable);
 
-        List<Long> productIds = dealProducts.stream()
-                .map(Product::getId)
-                .toList();
-
-        Map<Long, String> covers = productSkuImageRepository.findCoverByProductIds(productIds)
-                .stream()
-                .collect(Collectors.toMap(
-                        ProductCoverProjection::productId,
-                        ProductCoverProjection::path,
-                        (existing, _) -> existing
-                ));
-
-        return dealProducts.stream()
-                .map(product -> productMapper.toDto(product, covers.get(product.getId())))
-                .toList();
+        return mapProductsToDto(dealProducts);
     }
 
     @Transactional(readOnly = true)
     public List<ProductResponse> getBestSellers() {
         Pageable pageable = PageRequest.of(0, 8);
-        List<Product> bestSellers = productRepository.findBestSellersPage(OrderStatus.DELIVERED, null, pageable).getContent();
+        List<Product> bestSellers = productRepository.findBestSellersPage(
+                OrderStatus.DELIVERED,
+                null,
+                pageable
+        ).getContent();
 
-        List<Long> productIds = bestSellers.stream()
-                .map(Product::getId)
-                .toList();
-
-        Map<Long, String> covers = productSkuImageRepository.findCoverByProductIds(productIds)
-                .stream()
-                .collect(Collectors.toMap(
-                        ProductCoverProjection::productId,
-                        ProductCoverProjection::path,
-                        (existing, _) -> existing
-                ));
-
-        return bestSellers.stream()
-                .map(product -> productMapper.toDto(product, covers.get(product.getId())))
-                .toList();
+        return mapProductsToDto(bestSellers);
     }
 
     @Transactional(readOnly = true)
     public List<ProductResponse> getTopRatedProducts() {
         Pageable pageable = PageRequest.of(0, 8);
-        List<Product> topRated = productRepository.findTopRatedPage(3, null, pageable).getContent();
+        List<Product> topRated = productRepository.findTopRatedPage(
+                3,
+                null,
+                pageable
+        ).getContent();
 
-        List<Long> productIds = topRated.stream()
-                .map(Product::getId)
-                .toList();
-
-        Map<Long, String> covers = productSkuImageRepository.findCoverByProductIds(productIds)
-                .stream()
-                .collect(Collectors.toMap(
-                        ProductCoverProjection::productId,
-                        ProductCoverProjection::path,
-                        (existing, _) -> existing
-                ));
-
-        return topRated.stream()
-                .map(product -> productMapper.toDto(product, covers.get(product.getId())))
-                .toList();
+        return mapProductsToDto(topRated);
     }
 
     @Transactional(readOnly = true)
@@ -240,8 +157,29 @@ public class ProductService {
         Pageable pageable = PageRequest.of(filter.page(), filter.size());
         Page<Product> productPage = productRepository.findAll(specification, pageable);
 
-        List<Long> productIds = productPage.getContent()
+        return mapProductPageToDto(productPage);
+    }
+
+    private List<ProductResponse> mapProductsToDto(List<Product> products) {
+        List<Long> productIds = products.stream()
+                .map(Product::getId)
+                .toList();
+
+        Map<Long, String> covers = productSkuImageRepository.findCoverByProductIds(productIds)
                 .stream()
+                .collect(Collectors.toMap(
+                        ProductCoverProjection::productId,
+                        ProductCoverProjection::path,
+                        (existing, _) -> existing
+                ));
+
+        return products.stream()
+                .map(product -> productMapper.toDto(product, covers.get(product.getId())))
+                .toList();
+    }
+
+    private PageResponse<ProductResponse> mapProductPageToDto(Page<Product> productPage) {
+        List<Long> productIds = productPage.getContent().stream()
                 .map(Product::getId)
                 .toList();
 

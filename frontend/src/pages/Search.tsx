@@ -11,8 +11,11 @@ export const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const queryFromUrl = searchParams.get('q') || ''
   const urlPage = searchParams.get('page') !== null ? Number(searchParams.get('page')) : 1
+
   const [inputValue, setInputValue] = useState(queryFromUrl)
+
   const { data, isLoading, isError } = useSearchProducts()
+  
   const products = data?.content || []
   const totalPages = data?.totalPages || 0
   const totalElements = data?.totalElements || 0

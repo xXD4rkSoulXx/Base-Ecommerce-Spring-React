@@ -38,7 +38,7 @@ public class JwtKeyProvider {
 
             return generateAndSaveKeysToDisk();
         } catch (GeneralSecurityException | IOException e) {
-            throw new KeyInitializationException("Could not configure cryptographic keys due to an projection security error", e);
+            throw new KeyInitializationException("Could not configure cryptographic keys due to a security error", e);
         }
     }
 

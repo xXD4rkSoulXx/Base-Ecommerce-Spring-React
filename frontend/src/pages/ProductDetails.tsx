@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type SubmitEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, MessageSquarePlus, Star } from 'lucide-react'
 import { Loading } from '@/pages/Loading'
 import { ErrorPage } from '@/pages/ErrorPage'
@@ -11,20 +11,22 @@ import { useInfiniteProductReviews } from '@/hooks/useInfiniteProductReviews'
 import { useReviewEligibility } from '@/hooks/useReviewEligibility'
 import { useCreateReview } from '@/hooks/useCreateReview'
 import { useCartStore } from '@/store/useCartStore'
-import { useWishlistStore } from '@/store/useWishlistStore'
+import { useWishlist } from '@/hooks/useWishlist'
 import { useAuthStore } from '@/store/useAuthStore'
 import type { ProductResponse } from '@/types/product'
 
 export const ProductDetails = () => {
   const navigate = useNavigate()
-  const { data: product, isLoading, isError } = useProductDetails()
-  const { data: relatedProducts } = useRelatedProducts()
+  const { id } = useParams<{ id: string }>()
+  const { data: product, isLoading, isError } = useProductDetails(id)
+  const { data: relatedProducts } = useRelatedProducts(id)
   const addToCart = useCartStore((state) => state.addToCart)
-  const { items: wishlistItems, addToWishlist, removeFromWishlist } = useWishlistStore()
+  const { isInWishlist, toggleWishlist } = useWishlist()
 
   const user = useAuthStore((state) => state.user)
   const isUserAuthenticated = !!user
 
+  const [prevProductId, setPrevProductId] = useState<number | undefined>(undefined)
   const [activeColor, setActiveColor] = useState<string>()
   const [activeSize, setActiveSize] = useState<string>('')
   const [activeImgIndex, setActiveImgIndex] = useState<number>(0)
@@ -40,14 +42,12 @@ export const ProductDetails = () => {
     hasNextPage,
     isFetchingNextPage,
     status: reviewsStatus
-  } = useInfiniteProductReviews()
+  } = useInfiniteProductReviews(id)
 
-  const { data: reviewEligibility } = useReviewEligibility()
-  const createReviewMutation = useCreateReview()
+  const { data: reviewEligibility } = useReviewEligibility(id)
+  const createReviewMutation = useCreateReview(id)
 
-  const isFavorite = useMemo(() => {
-    return product ? wishlistItems.some((item) => item.id === product.id) : false
-  }, [product, wishlistItems])
+  const isFavorite = product ? isInWishlist(product.id) : false
 
   const availableColors = useMemo(() => {
     if (!product?.productSkus) {
@@ -106,8 +106,9 @@ export const ProductDetails = () => {
     return <ErrorPage />
   }
 
-  if (product.productSkus && product.productSkus.length > 0 && !activeColor) {
-    setActiveColor(product.productSkus[0].color)
+  if (product.id !== prevProductId) {
+    setPrevProductId(product.id)
+    setActiveColor(product.productSkus?.[0]?.color)
   }
 
   const reviewsList = reviewsData?.pages.flatMap((page) => page.content) || []
@@ -154,11 +155,7 @@ export const ProductDetails = () => {
       cover: productFirstImg || galleryImages[0] || ''
     }
 
-    if (isFavorite) {
-      removeFromWishlist(product.id)
-    } else {
-      addToWishlist(productDto)
-    }
+    toggleWishlist(productDto)
   }
 
   const handleSubmitReview = (e: SubmitEvent<HTMLFormElement>) => {

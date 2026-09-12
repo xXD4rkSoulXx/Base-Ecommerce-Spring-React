@@ -21,7 +21,13 @@ public class CorsConfig {
 
         configuration.setAllowedOrigins(List.of(allowedOrigins));
         configuration.setAllowedMethods(List.of("POST", "GET", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-XSRF-TOKEN", "X-Requested-With", "Cache-Control"));
+        configuration.setAllowedHeaders(List.of(
+                "Authorization",
+                "Content-Type",
+                "X-XSRF-TOKEN",
+                "X-Requested-With",
+                "Cache-Control"
+        ));
         configuration.setExposedHeaders(List.of("Authorization", "Set-Cookie"));
         configuration.setAllowCredentials(true);
 

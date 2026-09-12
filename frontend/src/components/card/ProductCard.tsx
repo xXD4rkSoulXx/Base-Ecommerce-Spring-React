@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Heart } from 'lucide-react'
-import { useWishlistStore } from '@/store/useWishlistStore'
+import { useWishlist } from '@/hooks/useWishlist'
 import type { ProductResponse } from '@/types/product'
 
 interface ProductCardProps {
@@ -9,10 +9,10 @@ interface ProductCardProps {
 }
 
 export const ProductCard = ({ product, index }: ProductCardProps) => {
-  const items = useWishlistStore((state) => state.items)
-  const addToWishlist = useWishlistStore((state) => state.addToWishlist)
-  const removeFromWishlist = useWishlistStore((state) => state.removeFromWishlist)
-  const isActive = items.some((item) => item.id === product.id)
+  const { isInWishlist, toggleWishlist } = useWishlist()
+
+  const isActive = isInWishlist(product.id)
+  
   const finalPrice = product.discountPercentage > 0 
     ? (product.price * (1 - product.discountPercentage / 100)).toFixed(2)
     : product.price.toFixed(2)
@@ -21,11 +21,7 @@ export const ProductCard = ({ product, index }: ProductCardProps) => {
     e.preventDefault()
     e.stopPropagation()
 
-    if (isActive) {
-      removeFromWishlist(product.id)
-    } else {
-      addToWishlist(product)
-    }
+    toggleWishlist(product)
   }
 
   return (

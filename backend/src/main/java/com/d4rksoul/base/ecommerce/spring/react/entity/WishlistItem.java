@@ -25,7 +25,7 @@ import java.time.Instant;
 @Table(
         name = "wishlist_items",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_wishlist_product", columnNames = {"wishlist_id", "product_sku_id"})
+                @UniqueConstraint(name = "uk_wishlist_product", columnNames = {"wishlist_id", "product_id"})
         }
 )
 @Getter
@@ -44,8 +44,8 @@ public class WishlistItem {
     private Wishlist wishlist;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "product_sku_id", nullable = false, foreignKey = @ForeignKey(name = "fk_wishlist_item_product_sku"))
-    private ProductSku productSku;
+    @JoinColumn(name = "product_id", nullable = false, foreignKey = @ForeignKey(name = "fk_wishlist_item_product"))
+    private Product product;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

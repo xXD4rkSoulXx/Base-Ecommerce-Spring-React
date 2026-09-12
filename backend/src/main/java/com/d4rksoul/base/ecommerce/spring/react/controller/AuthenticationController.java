@@ -4,6 +4,7 @@ import com.d4rksoul.base.ecommerce.spring.react.dto.result.LoginResult;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.LoginResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.LoginRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.RegisterRequest;
+import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidRefreshTokenException;
 import com.d4rksoul.base.ecommerce.spring.react.service.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +26,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthenticationController {
 
-    private final AuthenticationService authenticationService;
     @Value("${IS_PROD}")
     private boolean isProd;
+    private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
     public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequest request) {
@@ -40,13 +41,10 @@ public class AuthenticationController {
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         LoginResult result = authenticationService.login(request);
 
-        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", result.refreshToken())
-                .httpOnly(true)
-                .secure(isProd)
-                .path("/api/auth")
-                .maxAge(30L * 24 * 60 * 60)
-                .sameSite(isProd ? "None" : "Lax")
-                .build();
+        ResponseCookie refreshTokenCookie = buildRefreshTokenCookie(
+                result.refreshToken(),
+                30L * 24 * 60 * 60
+        );
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
@@ -54,16 +52,19 @@ public class AuthenticationController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<LoginResponse> refresh(@CookieValue(name = "refreshToken") String rawOldRefreshToken) {
+    public ResponseEntity<LoginResponse> refresh(
+            @CookieValue(name = "refreshToken", required = false) String rawOldRefreshToken
+    ) {
+        if (rawOldRefreshToken == null) {
+            throw new InvalidRefreshTokenException("No active session");
+        }
+
         LoginResult result = authenticationService.refresh(rawOldRefreshToken);
 
-        ResponseCookie newRefreshTokenCookie = ResponseCookie.from("refreshToken", result.refreshToken())
-                .httpOnly(true)
-                .secure(isProd)
-                .path("/api/auth")
-                .maxAge(30L * 24 * 60 * 60)
-                .sameSite(isProd ? "None" : "Lax")
-                .build();
+        ResponseCookie newRefreshTokenCookie = buildRefreshTokenCookie(
+                result.refreshToken(),
+                30L * 24 * 60 * 60
+        );
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, newRefreshTokenCookie.toString())
@@ -71,18 +72,14 @@ public class AuthenticationController {
     }
 
     @DeleteMapping("/logout")
-    public ResponseEntity<Void> logout(@CookieValue(name = "refreshToken") String rawRefreshToken) {
+    public ResponseEntity<Void> logout(
+            @CookieValue(name = "refreshToken", required = false) String rawRefreshToken
+    ) {
         if (rawRefreshToken != null) {
             authenticationService.logout(rawRefreshToken);
         }
 
-        ResponseCookie cleanCookie = ResponseCookie.from("refreshToken", "")
-                .httpOnly(true)
-                .secure(isProd)
-                .path("/api/auth")
-                .maxAge(0)
-                .sameSite(isProd ? "None" : "Lax")
-                .build();
+        ResponseCookie cleanCookie = buildRefreshTokenCookie("", 0);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cleanCookie.toString())
@@ -95,16 +92,20 @@ public class AuthenticationController {
 
         authenticationService.logoutAllByUser(email);
 
-        ResponseCookie cleanCookie = ResponseCookie.from("refreshToken", "")
-                .httpOnly(true)
-                .secure(isProd)
-                .path("/api/auth")
-                .maxAge(0)
-                .sameSite(isProd ? "None" : "Lax")
-                .build();
+        ResponseCookie cleanCookie = buildRefreshTokenCookie("", 0);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cleanCookie.toString())
+                .build();
+    }
+
+    private ResponseCookie buildRefreshTokenCookie(String value, long maxAgeSeconds) {
+        return ResponseCookie.from("refreshToken", value)
+                .httpOnly(true)
+                .secure(isProd)
+                .path("/api/auth")
+                .maxAge(maxAgeSeconds)
+                .sameSite(isProd ? "None" : "Lax")
                 .build();
     }
 }

@@ -6,11 +6,16 @@ import { Loading } from '@/pages/Loading'
 import { ErrorPage } from '@/pages/ErrorPage'
 import type { ProductCategory } from '@/types/product'
 
+const categories: (ProductCategory | 'ALL')[] = [
+  'ALL', 'OUTERWEAR', 'TOPS', 'BOTTOMS', 'FOOTWEAR', 'UNDERWEAR', 'ACCESSORIES'
+]
 
 export const Shop = () => {
   const [params, setParams] = useSearchParams()
+
   const currentCategory = (params.get('category') || 'ALL') as ProductCategory | 'ALL'
   const currentSort = params.get('sort') || 'recent'
+
   const {
     data,
     fetchNextPage,
@@ -19,7 +24,9 @@ export const Shop = () => {
     isLoading,
     isError
   } = useInfiniteProducts()
+
   const allProducts = data?.pages.flatMap((page) => page.content) || []
+  
   const observerTarget = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
@@ -57,10 +64,6 @@ export const Shop = () => {
 
     setParams(params)
   }
-
-  const categories: (ProductCategory | 'ALL')[] = [
-    'ALL', 'OUTERWEAR', 'TOPS', 'BOTTOMS', 'FOOTWEAR', 'UNDERWEAR', 'ACCESSORIES'
-  ]
 
   if (isLoading) {
     return <Loading />

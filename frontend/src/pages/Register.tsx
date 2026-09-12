@@ -15,7 +15,12 @@ export const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [accept, setAccept] = useState(false)
   const [validationError, setValidationError] = useState<string | null>(null)
+  
   const { mutate, isPending, isError, error } = useRegister()
+
+  const errorMessage = validationError
+    || (error as AxiosError<{ message: string }>)?.response?.data?.message
+    || error?.message
 
   const handleRegister = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -33,17 +38,8 @@ export const Register = () => {
       return
     }
 
-    mutate({
-      email,
-      password,
-      firstName,
-      lastName
-    })
+    mutate({ email, password, firstName, lastName })
   }
-
-  const errorMessage = validationError
-    || (error as AxiosError<{ message: string }>)?.response?.data?.message
-    || error?.message
 
   return (
     <div className="relative mx-auto grid min-h-[calc(100vh-80px)] max-w-[1440px] gap-0 px-6 py-16 md:px-10 lg:grid-cols-2 lg:gap-16">

@@ -42,13 +42,7 @@ public class ReviewService {
 
     @Transactional
     public ReviewResponse createReview(Long productId, ReviewRequest request) {
-        Jwt jwt = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-                .map(auth -> (Jwt) auth.getPrincipal())
-                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
-
-        User currentUser = userRepository.findByEmail(jwt.getSubject())
-                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
-
+        User currentUser = getCurrentUser();
         Long userId = currentUser.getId();
 
         Product product = productRepository.findById(productId)
@@ -72,13 +66,7 @@ public class ReviewService {
 
     @Transactional(readOnly = true)
     public ReviewEligibility getReviewEligibility(Long productId) {
-        Jwt jwt = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-                .map(auth -> (Jwt) auth.getPrincipal())
-                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
-
-        User currentUser = userRepository.findByEmail(jwt.getSubject())
-                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
-
+        User currentUser = getCurrentUser();
         Long userId = currentUser.getId();
 
         boolean hasPurchased = orderRepository.hasUserPurchasedProduct(userId, productId, OrderStatus.DELIVERED);
@@ -114,5 +102,14 @@ public class ReviewService {
                 .first(responsePage.isFirst())
                 .last(responsePage.isLast())
                 .build();
+    }
+
+    private User getCurrentUser() {
+        Jwt jwt = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
+                .map(auth -> (Jwt) auth.getPrincipal())
+                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
+
+        return userRepository.findByEmail(jwt.getSubject())
+                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
     }
 }

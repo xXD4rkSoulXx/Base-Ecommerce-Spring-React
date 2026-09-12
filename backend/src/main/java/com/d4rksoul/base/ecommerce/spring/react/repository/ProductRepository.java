@@ -1,5 +1,6 @@
 package com.d4rksoul.base.ecommerce.spring.react.repository;
 
+import com.d4rksoul.base.ecommerce.spring.react.dto.projection.RatingStatsProjection;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Product;
 import com.d4rksoul.base.ecommerce.spring.react.enums.OrderStatus;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ProductCategory;
@@ -20,11 +21,14 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     Optional<Product> findDetailsById(Long id);
 
     @Query("""
-        SELECT COALESCE(AVG(r.rating), 0.0), COUNT(r)
+        SELECT new com.d4rksoul.base.ecommerce.spring.react.dto.projection.RatingStatsProjection(
+            COALESCE(AVG(r.rating), 0.0),
+            COUNT(r)
+        )
         FROM Review r
         WHERE r.product.id = :productId
     """)
-    List<Object[]> getRatingStatsByProductId(@Param("productId") Long productId);
+    Optional<RatingStatsProjection> getRatingStatsByProductId(@Param("productId") Long productId);
 
     List<Product> findByCategoryAndIdNot(ProductCategory category, Long id, Pageable pageable);
 

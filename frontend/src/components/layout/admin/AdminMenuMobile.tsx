@@ -17,9 +17,12 @@ interface AdminNavItem {
 
 export const AdminMenuMobile = ({ open, onClose }: AdminMenuMobileProps) => {
   const navigate = useNavigate()
+
   const hasAnyRole = useAuthStore((state) => state.hasAnyRole)
+
   const isManagerOrAdmin = hasAnyRole(['MANAGER', 'ADMIN'])
   const isAdminOnly = hasAnyRole(['ADMIN'])
+  
   const adminNavItems: AdminNavItem[] = [
     { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
     { to: '/admin/products', label: 'Products', icon: Package },

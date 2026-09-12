@@ -8,6 +8,7 @@ import { Shop } from '@/pages/Shop'
 import { ProductDetails } from '@/pages/ProductDetails'
 import { Search } from '@/pages/Search'
 import { About } from '@/pages/About'
+import { Wishlist } from '@/pages/Wishlist'
 import { Register } from '@/pages/Register'
 import { Login } from '@/pages/Login'
 import { Account } from '@/pages/Account'
@@ -28,6 +29,7 @@ export const router = createBrowserRouter([
       { path: '/product/:id', element: <ProductDetails /> },
       { path: '/search', element: <Search /> },
       { path: '/about', element: <About />},
+      { path: '/wishlist', element: <Wishlist /> },
       {
         element: <PublicRoute />,
         children: [

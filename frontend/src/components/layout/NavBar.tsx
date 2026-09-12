@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom'
 import { Menu, Search, Heart, User, ShoppingBag, X } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useCartStore } from '@/store/useCartStore'
-import { useWishlistStore } from '@/store/useWishlistStore'
+import { useWishlist } from '@/hooks/useWishlist'
 
 interface NavItem {
   to: string
@@ -13,16 +13,22 @@ interface NavItem {
 export const NavBar = () => {
   const [open, setOpen] = useState(false)
   const [now, setNow] = useState(new Date())
+
   const hasAnyRole = useAuthStore((state) => state.hasAnyRole)
   const user = useAuthStore((state) => state.user)
+  
   const countCart = useCartStore((state) => state.getTotalItems())
-  const countWishlist = useWishlistStore((state) => state.getTotalItems())
+
+  const countWishlist = useWishlist().totalItems
+
   const isElevatedOperator = hasAnyRole(['OPERATOR', 'MANAGER', 'ADMIN'])
+
   const navItems: NavItem[] = [
     { to: '/shop', label: 'Shop' },
     { to: '/about', label: 'About' },
     ...(isElevatedOperator ? [{ to: '/admin', label: 'Admin' }] : [])
   ]
+
   const time = now.toLocaleTimeString('pt-PT', {
       hour: '2-digit',
       minute: '2-digit',

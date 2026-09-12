@@ -24,7 +24,11 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                         .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
-                        .ignoringRequestMatchers("/api/auth/refresh")
+                        .ignoringRequestMatchers(
+                                "/api/auth/register",
+                                "/api/auth/login",
+                                "/api/auth/refresh"
+                        )
                 )
                 .addFilterBefore(new RefreshRequestHeaderFilter(), CsrfFilter.class)
                 .sessionManagement(session -> session

@@ -50,7 +50,8 @@ public class ProductSpecification {
     }
 
     public static Specification<Product> hasDiscount() {
-        return (root, _, cb) -> cb.greaterThan(root.get("discountPercentage"), 0);
+        return (root, _, cb) ->
+                cb.greaterThan(root.get("discountPercentage"), 0);
     }
 
     public static Specification<Product> orderByDiscountDesc() {
