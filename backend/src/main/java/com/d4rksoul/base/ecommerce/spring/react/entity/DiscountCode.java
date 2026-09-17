@@ -48,6 +48,10 @@ public class DiscountCode {
 
     @Builder.Default
     @OneToMany(mappedBy = "discountCode")
+    private List<Cart> carts = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "discountCode")
     private List<Order> orders = new ArrayList<>();
 
     @CreationTimestamp

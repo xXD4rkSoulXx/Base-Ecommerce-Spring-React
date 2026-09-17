@@ -6,6 +6,5 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record MergeWishlistRequest(
-
         List<Long> productIds
 ) {}

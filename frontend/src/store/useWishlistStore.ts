@@ -40,5 +40,3 @@ export const useWishlistStore = create<WishlistState>()(
     }
   )
 )
-
-useWishlistStore.persist.rehydrate()

@@ -8,7 +8,6 @@ import jakarta.validation.constraints.Size;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record RegisterRequest(
-
         @NotBlank(message = "Email is required")
         @Email(message = "Invalid email format")
         String email,

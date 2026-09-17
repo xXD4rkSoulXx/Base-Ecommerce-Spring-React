@@ -42,7 +42,7 @@ public class Review {
     @Column(updatable = false)
     private Long id;
 
-    @Min(0)
+    @Min(1)
     @Max(5)
     @Column(nullable = false)
     private int rating;

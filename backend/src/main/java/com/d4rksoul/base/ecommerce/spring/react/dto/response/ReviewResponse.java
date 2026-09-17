@@ -5,10 +5,9 @@ import lombok.Builder;
 
 import java.time.Instant;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public record ReviewResponse(
-
         Long id,
 
         String title,

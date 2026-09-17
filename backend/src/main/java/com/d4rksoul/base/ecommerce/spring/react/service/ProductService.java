@@ -10,6 +10,7 @@ import com.d4rksoul.base.ecommerce.spring.react.dto.response.ProductResponse;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Product;
 import com.d4rksoul.base.ecommerce.spring.react.enums.OrderStatus;
 import com.d4rksoul.base.ecommerce.spring.react.exception.ProductNotFoundException;
+import com.d4rksoul.base.ecommerce.spring.react.mapper.PageMapper;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.ProductMapper;
 import com.d4rksoul.base.ecommerce.spring.react.repository.ProductRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.ProductSkuImageRepository;
@@ -34,6 +35,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductSkuImageRepository productSkuImageRepository;
     private final ProductMapper productMapper;
+    private final PageMapper pageMapper;
 
     @Transactional(readOnly = true)
     public PageResponse<ProductResponse> getProducts(ProductShopRequest filter) {
@@ -108,7 +110,9 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public List<ProductResponse> getFeaturedProducts() {
-        List<Product> featuredProducts = productRepository.findByFeaturedTrue(PageRequest.of(0, 2));
+        List<Product> featuredProducts = productRepository.findByFeaturedTrue(
+                PageRequest.of(0, 2)
+        );
 
         return mapProductsToDto(featuredProducts);
     }
@@ -119,7 +123,10 @@ public class ProductService {
                 Sort.Direction.DESC,
                 "discountPercentage"
         ));
-        List<Product> dealProducts = productRepository.findByDiscountPercentageGreaterThan(0, pageable);
+        List<Product> dealProducts = productRepository.findByDiscountPercentageGreaterThan(
+                0,
+                pageable
+        );
 
         return mapProductsToDto(dealProducts);
     }
@@ -195,14 +202,6 @@ public class ProductService {
                 productMapper.toDto(product, covers.get(product.getId()))
         );
 
-        return PageResponse.<ProductResponse>builder()
-                .content(responsePage.getContent())
-                .page(responsePage.getNumber())
-                .size(responsePage.getSize())
-                .totalElements(responsePage.getTotalElements())
-                .totalPages(responsePage.getTotalPages())
-                .first(responsePage.isFirst())
-                .last(responsePage.isLast())
-                .build();
+        return pageMapper.toDto(responsePage);
     }
 }

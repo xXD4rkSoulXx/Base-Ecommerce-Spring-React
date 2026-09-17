@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Menu, Search, Heart, User, ShoppingBag, X } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
-import { useCartStore } from '@/store/useCartStore'
 import { useWishlist } from '@/hooks/useWishlist'
+import { useCart } from '@/hooks/useCart'
 
 interface NavItem {
   to: string
@@ -17,7 +17,7 @@ export const NavBar = () => {
   const hasAnyRole = useAuthStore((state) => state.hasAnyRole)
   const user = useAuthStore((state) => state.user)
   
-  const countCart = useCartStore((state) => state.getTotalItems())
+  const countCart = useCart().totalItems
 
   const countWishlist = useWishlist().totalItems
 

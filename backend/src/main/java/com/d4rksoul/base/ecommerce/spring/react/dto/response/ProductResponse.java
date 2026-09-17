@@ -6,8 +6,8 @@ import lombok.Builder;
 
 import java.math.BigDecimal;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public record ProductResponse(
 
         Long id,

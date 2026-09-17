@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type SubmitEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, MessageSquarePlus, Star } from 'lucide-react'
+import { toast } from 'sonner'
 import { Loading } from '@/pages/Loading'
 import { ErrorPage } from '@/pages/ErrorPage'
 import { ReviewLockedNotice } from '@/components/ui/ReviewLockedNotice'
@@ -10,17 +11,18 @@ import { useRelatedProducts } from '@/hooks/useRelatedProducts'
 import { useInfiniteProductReviews } from '@/hooks/useInfiniteProductReviews'
 import { useReviewEligibility } from '@/hooks/useReviewEligibility'
 import { useCreateReview } from '@/hooks/useCreateReview'
-import { useCartStore } from '@/store/useCartStore'
 import { useWishlist } from '@/hooks/useWishlist'
+import { type GuestCartItem } from '@/store/useCartStore'
 import { useAuthStore } from '@/store/useAuthStore'
 import type { ProductResponse } from '@/types/product'
+import { useCart } from '@/hooks/useCart'
 
 export const ProductDetails = () => {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const { data: product, isLoading, isError } = useProductDetails(id)
   const { data: relatedProducts } = useRelatedProducts(id)
-  const addToCart = useCartStore((state) => state.addToCart)
+  const { addToCart } = useCart()
   const { isInWishlist, toggleWishlist } = useWishlist()
 
   const user = useAuthStore((state) => state.user)
@@ -137,6 +139,10 @@ export const ProductDetails = () => {
   const finalPrice = hasDiscount
     ? (product.price * (1 - effectiveDiscountPercentage / 100)).toFixed(2)
     : product.price.toFixed(2)
+
+  const isOutOfStock = selectedSku ? selectedSku.stock === 0 : false
+  const canAddToCart = !!selectedSku && !isOutOfStock
+  const addToCartLabel = !selectedSku ? 'Select a Size' : isOutOfStock ? 'Out of Stock' : 'Add to Cart'
   
   const handleToggleWishlist = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -179,22 +185,26 @@ export const ProductDetails = () => {
   }
 
   const handleAddToCart = () => {
-    const firstSkuWithImage = product.productSkus?.find(sku => sku.paths && sku.paths.length > 0)
-    const fallbackImg = firstSkuWithImage && firstSkuWithImage.paths.length > 0 
-      ? firstSkuWithImage.paths[0] 
-      : ''
-
-    const productDto: ProductResponse = {
-      id: product.id,
-      ref: product.ref,
-      name: product.name,
-      price: Number(product.price),
-      discountPercentage: effectiveDiscountPercentage,
-      category: product.category,
-      cover: fallbackImg
+    if (!selectedSku || selectedSku.stock === 0) {
+      return
     }
 
-    addToCart(productDto)
+    const item: GuestCartItem = {
+      productSkuId: selectedSku.id,
+      productId: product.id,
+      productName: product.name,
+      productRef: product.ref,
+      size: selectedSku.size,
+      color: selectedSku.color,
+      cover: currentImg,
+      price: Number(product.price),
+      discountPercentage: effectiveDiscountPercentage,
+      stock: selectedSku.stock,
+      quantity: 1
+    }
+
+    addToCart(item)
+    toast.success(`${product.name} added to cart`)
   }
 
   const handleSelectColor = (color: string) => {
@@ -383,9 +393,10 @@ export const ProductDetails = () => {
             <div className="mt-12 flex flex-col gap-3 sm:flex-row">
               <button
                 onClick={handleAddToCart}
-                className="flex-1 bg-neon-cyan px-8 py-5 text-sm font-black uppercase tracking-widest text-primary-foreground transition-opacity hover:opacity-80"
+                disabled={!canAddToCart}
+                className="flex-1 bg-neon-cyan px-8 py-5 text-sm font-black uppercase tracking-widest text-primary-foreground transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:opacity-40"
               >
-                Add to Cart
+                {addToCartLabel}
               </button>
             </div>
           </div>

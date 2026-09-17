@@ -75,6 +75,16 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.UNAUTHORIZED, exception.getMessage());
     }
 
+    @ExceptionHandler(ProductSkuNotFoundException.class)
+    public ResponseEntity<ApiError> handleProductSkuNotFoundException(ProductSkuNotFoundException exception) {
+        return buildResponse(HttpStatus.NOT_FOUND, exception.getMessage());
+    }
+
+    @ExceptionHandler(InvalidDiscountCodeException.class)
+    public ResponseEntity<ApiError> handleInvalidDiscountCodeException(InvalidDiscountCodeException exception) {
+        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneralException() {
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred on the server.");

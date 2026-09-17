@@ -5,8 +5,8 @@ import lombok.Builder;
 
 import java.util.List;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public record ProductSkuDetailsResponse(
 
         Long id,

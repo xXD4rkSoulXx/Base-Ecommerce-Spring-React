@@ -7,6 +7,7 @@ public record ProductReviewsRequest(
         Integer page,
         Integer size
 ) {
+
     public ProductReviewsRequest {
         page = (page == null) ? 0 : page;
         size = (size == null) ? 5 : size;

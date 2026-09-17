@@ -1,19 +1,16 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { ProductResponse } from '@/types/product'
+import type { CartItemResponse } from '@/types/cart'
 
-interface LocalCartItem {
-  product: ProductResponse
-  quantity: number
-}
+export type GuestCartItem = Omit<CartItemResponse, 'id'>
 
 interface CartState {
-  items: LocalCartItem[]
-  addToCart: (product: ProductResponse) => void
-  removeFromCart: (productId: number) => void
-  updateQuantity: (productId: number, quantity: number) => void
-  clearCart: () => void
+  items: GuestCartItem[]
+  addToCart: (item: GuestCartItem) => void
   getTotalItems: () => number
+  updateQuantity: (productSkuId: number, quantity: number) => void
+  removeFromCart: (productSkuId: number) => void
+  clearCart: () => void
 }
 
 export const useCartStore = create<CartState>()(
@@ -21,47 +18,48 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       items: [],
 
-      addToCart: (product) => set((state) => {
-        const itemExists = state.items.some((item) => item.product.id === product.id)
-        const newItems = itemExists
-          ? state.items.map((item) =>
-              item.product.id === product.id
-                ? { ...item, quantity: item.quantity + 1 }
-                : item
-            )
-          : [...state.items, { product, quantity: 1 }]
+      addToCart: (item) => set((state) => {
+        const existingItem = state.items.find((i) => i.productSkuId === item.productSkuId)
 
-        return { items: newItems }
+        if (existingItem) {
+          return {
+            items: state.items.map((i) =>
+              i.productSkuId === item.productSkuId
+                ? { ...i, quantity: i.quantity + item.quantity }
+                : i
+            )
+          }
+        }
+
+        return { items: [...state.items, item] }
       }),
 
-      removeFromCart: (productId) => set((state) => ({
-        items: state.items.filter((item) => item.product.id !== productId)
-      })),
+      getTotalItems: () => {
+        return get().items.reduce((total, item) => total + item.quantity, 0)
+      },
 
-      updateQuantity: (productId, quantity) => set((state) => {
+      updateQuantity: (productSkuId, quantity) => set((state) => {
         if (quantity <= 0) {
-          return { items: state.items.filter((item) => item.product.id !== productId) }
+          return { items: state.items.filter((item) => item.productSkuId !== productSkuId) }
         }
-        
+
         return {
           items: state.items.map((item) =>
-            item.product.id === productId
+            item.productSkuId === productSkuId
               ? { ...item, quantity }
               : item
           )
         }
       }),
-      
-      clearCart: () => set({ items: [] }),
 
-      getTotalItems: () => {
-        return get().items.reduce((total, item) => total + item.quantity, 0)
-      }
+      removeFromCart: (productSkuId) => set((state) => ({
+        items: state.items.filter((item) => item.productSkuId !== productSkuId)
+      })),
+
+      clearCart: () => set({ items: [] })
     }),
     {
       name: 'velociti-cart'
     }
   )
 )
-
-useCartStore.persist.rehydrate()

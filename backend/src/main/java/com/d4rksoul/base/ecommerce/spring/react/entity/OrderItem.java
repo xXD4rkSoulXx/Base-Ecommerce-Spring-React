@@ -47,7 +47,7 @@ public class OrderItem {
     @JoinColumn(name = "product_sku_id", nullable = false, foreignKey = @ForeignKey(name = "fk_order_item_product_sku"))
     private ProductSku productSku;
 
-    @Min(0)
+    @Min(1)
     @Column(nullable = false)
     private int quantity;
 
