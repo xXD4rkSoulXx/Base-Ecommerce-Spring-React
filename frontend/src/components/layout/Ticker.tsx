@@ -1,10 +1,9 @@
 export const Ticker = () => {
   const items = [
-    'Next Discounts in 04:12:09:44',
-    'Global Logistics Operational',
-    'Berlin HQ Online',
-    'Limited Edition Series V01–V04',
-    'Free shipping over 200€'
+    'Shipping to selected countries in Europe and worldwide',
+    'Live carrier rates at checkout',
+    'Secure payments by Stripe',
+    'Discount codes at checkout'
   ]
   const list = [...items, ...items]
 

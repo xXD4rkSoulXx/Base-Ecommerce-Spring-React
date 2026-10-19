@@ -33,14 +33,14 @@ public class CartController {
     }
 
     @PostMapping("/merge")
-    public ResponseEntity<Void> mergeCart(@RequestBody MergeCartRequest request) {
+    public ResponseEntity<Void> mergeCart(@Valid @RequestBody MergeCartRequest request) {
         cartService.mergeCart(request.items());
 
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/discount")
-    public ResponseEntity<CartResponse> applyDiscountCode(@RequestBody ApplyDiscountCodeRequest request) {
+    public ResponseEntity<CartResponse> applyDiscountCode(@Valid @RequestBody ApplyDiscountCodeRequest request) {
         CartResponse cart = cartService.applyDiscountCode(request.code());
 
         return ResponseEntity.ok(cart);

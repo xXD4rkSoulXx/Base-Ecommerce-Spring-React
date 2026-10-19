@@ -85,7 +85,7 @@ public class ProductService {
             });
         }
 
-        RatingStatsProjection stats = productRepository.getRatingStatsByProductId(productId)
+        RatingStatsProjection stats = productRepository.findRatingStatsByProductId(productId)
                 .orElse(new RatingStatsProjection(0.0, 0L));
 
         double averageRating = stats.averageRating();

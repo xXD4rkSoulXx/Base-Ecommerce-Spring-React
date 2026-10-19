@@ -17,8 +17,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -62,12 +60,21 @@ public class ProductSku {
     @Column(nullable = false)
     private ProductColor color;
 
-    @Min(0)
     @Column(nullable = false)
     private int stock;
 
-    @Min(0)
-    @Max(100)
+    @Column(nullable = false)
+    private int weight;
+
+    @Column(nullable = false)
+    private int length;
+
+    @Column(nullable = false)
+    private int width;
+
+    @Column(nullable = false)
+    private int height;
+
     private int discountPercentage;
 
     @Builder.Default
@@ -83,10 +90,9 @@ public class ProductSku {
     private List<OrderItem> orderItems = new ArrayList<>();
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
     private Instant updatedAt;
 }

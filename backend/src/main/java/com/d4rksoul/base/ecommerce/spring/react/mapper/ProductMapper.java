@@ -16,10 +16,6 @@ public class ProductMapper {
     private final ProductSkuMapper productSkuMapper;
 
     public ProductResponse toDto(Product product, String cover) {
-        if (product == null) {
-            return null;
-        }
-
         return ProductResponse.builder()
                 .id(product.getId())
                 .ref(product.getRef())
@@ -32,10 +28,6 @@ public class ProductMapper {
     }
 
     public ProductDetailsResponse toDetailsDto(Product product, Double averageRating, Long totalReviews) {
-        if (product == null) {
-            return null;
-        }
-
         List<ProductSkuDetailsResponse> productSkusDto = product.getProductSkus().stream()
                 .map(productSkuMapper::toDetailsDto)
                 .toList();

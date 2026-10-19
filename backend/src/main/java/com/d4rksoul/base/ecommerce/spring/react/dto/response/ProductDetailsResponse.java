@@ -10,7 +10,6 @@ import java.util.List;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ProductDetailsResponse(
-
         Long id,
 
         String ref,

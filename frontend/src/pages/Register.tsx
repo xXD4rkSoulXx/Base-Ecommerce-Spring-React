@@ -168,9 +168,9 @@ export const Register = () => {
             </p>
           </div>
           <div className="space-y-3 border-t border-border pt-6">
-            <Perk label="01" text="Early-access drops 48h before public" />
-            <Perk label="02" text="Free priority transit on orders 250$+" />
-            <Perk label="03" text="Operator-tier resale & repair" />
+            <Perk label="01" text="Cart synced across all your devices" />
+            <Perk label="02" text="Discount codes unlocked at checkout" />
+            <Perk label="03" text="Reviews on products you've received" />
           </div>
         </div>
       </aside>

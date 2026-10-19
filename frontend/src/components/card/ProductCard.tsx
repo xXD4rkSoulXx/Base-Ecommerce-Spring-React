@@ -8,14 +8,15 @@ interface ProductCardProps {
   index: number
 }
 
+const priceFormatter = new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' })
+const formatPrice = (amount: number) => priceFormatter.format(amount)
+
 export const ProductCard = ({ product, index }: ProductCardProps) => {
   const { isInWishlist, toggleWishlist } = useWishlist()
 
   const isActive = isInWishlist(product.id)
-  
-  const finalPrice = product.discountPercentage > 0 
-    ? (product.price * (1 - product.discountPercentage / 100)).toFixed(2)
-    : product.price.toFixed(2)
+
+  const finalPrice = Math.round((Math.round(product.price * 100) * (100 - product.discountPercentage)) / 100) / 100
 
   const handleToggleWishlist = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -78,15 +79,15 @@ export const ProductCard = ({ product, index }: ProductCardProps) => {
           {product.discountPercentage > 0 ? (
             <>
               <span className="font-mono text-sm tracking-tighter text-neon-pink">
-                ${finalPrice}
+                {formatPrice(finalPrice)}
               </span>
               <span className="font-mono text-[10px] text-muted-foreground line-through">
-                ${product.price.toFixed(2)}
+                {formatPrice(product.price)}
               </span>
             </>
           ) : (
             <span className="font-mono text-sm tracking-tighter text-neon-cyan">
-              ${finalPrice}
+              {formatPrice(finalPrice)}
             </span>
           )}
         </div>

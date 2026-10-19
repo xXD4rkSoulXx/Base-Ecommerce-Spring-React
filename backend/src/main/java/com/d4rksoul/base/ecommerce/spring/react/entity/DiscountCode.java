@@ -7,8 +7,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,9 +36,7 @@ public class DiscountCode {
     @Column(nullable = false, unique = true)
     private String code;
 
-    @Min(0)
-    @Max(100)
-    @Column(name = "discount_percentage", nullable = false)
+    @Column(nullable = false)
     private int discountPercentage;
 
     @Builder.Default
@@ -55,10 +51,9 @@ public class DiscountCode {
     private List<Order> orders = new ArrayList<>();
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
     private Instant updatedAt;
 }

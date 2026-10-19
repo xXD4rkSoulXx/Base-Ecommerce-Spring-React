@@ -23,10 +23,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthenticationService {
 
+    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final AuthenticationMapper authenticationMapper;
     private final UserMapper userMapper;
-    private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
     private final RefreshTokenService refreshTokenService;
 
@@ -52,7 +52,7 @@ public class AuthenticationService {
         }
 
         String accessToken = tokenService.generateAccessToken(user);
-        String refreshToken = tokenService.generateRefreshToken(user);
+        String refreshToken = tokenService.generateRefreshToken();
         refreshTokenService.create(user, refreshToken);
 
         UserResponse userResponse = userMapper.toDto(user);

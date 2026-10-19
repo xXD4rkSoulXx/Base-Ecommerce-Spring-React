@@ -1,7 +1,5 @@
 package com.d4rksoul.base.ecommerce.spring.react.service;
 
-import com.d4rksoul.base.ecommerce.spring.react.dto.projection.ProductCoverProjection;
-import com.d4rksoul.base.ecommerce.spring.react.dto.projection.ProductSkuCoverProjection;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.MergeCartItemRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.CartItemResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.CartResponse;
@@ -10,14 +8,15 @@ import com.d4rksoul.base.ecommerce.spring.react.entity.CartItem;
 import com.d4rksoul.base.ecommerce.spring.react.entity.DiscountCode;
 import com.d4rksoul.base.ecommerce.spring.react.entity.ProductSku;
 import com.d4rksoul.base.ecommerce.spring.react.entity.User;
+import com.d4rksoul.base.ecommerce.spring.react.exception.CartLimitException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidDiscountCodeException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.ProductSkuNotFoundException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.UserNotAuthenticatedException;
+import com.d4rksoul.base.ecommerce.spring.react.mapper.CartItemMapper;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.CartMapper;
 import com.d4rksoul.base.ecommerce.spring.react.repository.CartItemRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.CartRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.DiscountCodeRepository;
-import com.d4rksoul.base.ecommerce.spring.react.repository.ProductSkuImageRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.ProductSkuRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,10 +36,12 @@ public class CartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ProductSkuRepository productSkuRepository;
-    private final ProductSkuImageRepository productSkuImageRepository;
+    private final ProductImageService productImageService;
     private final DiscountCodeRepository discountCodeRepository;
     private final UserRepository userRepository;
     private final CartMapper cartMapper;
+    private final CartItemMapper cartItemMapper;
+    private final OrderService orderService;
 
     @Transactional
     public CartResponse addToCart(Long productSkuId, int quantity) {
@@ -58,10 +58,14 @@ public class CartService {
                 .orElse(null);
 
         if (existingItem != null) {
-            existingItem.setQuantity(existingItem.getQuantity() + quantity);
+            existingItem.setQuantity(Math.min(existingItem.getQuantity() + quantity, 10));
             cartItemRepository.save(existingItem);
         } else {
-            CartItem item = cartMapper.toEntity(cart, sku, quantity);
+            if (cartItemRepository.countByCartId(cart.getId()) >= 20) {
+                throw new CartLimitException("Cart cannot have more than 20 different items.");
+            }
+
+            CartItem item = cartItemMapper.toEntity(cart, sku, quantity);
             cartItemRepository.save(item);
         }
 
@@ -78,22 +82,24 @@ public class CartService {
         Cart cart = cartRepository.findByUserId(currentUser.getId())
                 .orElseGet(() -> cartRepository.save(cartMapper.toEntity(currentUser)));
 
+        long lines = cartItemRepository.countByCartId(cart.getId());
+
         for (MergeCartItemRequest guestItem : guestItems) {
             CartItem existingItem = cartItemRepository
                     .findByCartIdAndProductSkuId(cart.getId(), guestItem.productSkuId())
                     .orElse(null);
 
             if (existingItem != null) {
-                existingItem.setQuantity(existingItem.getQuantity() + guestItem.quantity());
+                existingItem.setQuantity(Math.min(existingItem.getQuantity() + guestItem.quantity(), 10));
                 cartItemRepository.save(existingItem);
-                continue;
+            } else if (lines < 20) {
+                Optional<ProductSku> sku = productSkuRepository.findById(guestItem.productSkuId());
+
+                if (sku.isPresent()) {
+                    cartItemRepository.save(cartItemMapper.toEntity(cart, sku.get(), guestItem.quantity()));
+                    lines++;
+                }
             }
-
-            productSkuRepository.findById(guestItem.productSkuId()).ifPresent(sku -> {
-                CartItem item = cartMapper.toEntity(cart, sku, guestItem.quantity());
-
-                cartItemRepository.save(item);
-            });
         }
     }
 
@@ -107,6 +113,10 @@ public class CartService {
                 .filter(DiscountCode::isActive)
                 .orElseThrow(() -> new InvalidDiscountCodeException("Invalid or inactive discount code."));
 
+        if (orderService.existsUserUsedDiscountCode(currentUser.getId(), discountCode.getId())) {
+            throw new InvalidDiscountCodeException("You have already used this discount code.");
+        }
+
         cart.setDiscountCode(discountCode);
         cartRepository.save(cart);
 
@@ -119,7 +129,7 @@ public class CartService {
         Cart cart = cartRepository.findByUserId(currentUser.getId()).orElse(null);
 
         if (cart == null) {
-            return cartMapper.toCartDto(List.of(), null);
+            return cartMapper.toDto(List.of(), null);
         }
 
         return buildCartResponse(cart);
@@ -131,18 +141,14 @@ public class CartService {
         Cart cart = cartRepository.findByUserId(currentUser.getId()).orElse(null);
 
         if (cart == null) {
-            return cartMapper.toCartDto(List.of(), null);
+            return cartMapper.toDto(List.of(), null);
         }
 
-        if (quantity <= 0) {
-            cartItemRepository.deleteByCartIdAndProductSkuId(cart.getId(), productSkuId);
-        } else {
-            cartItemRepository.findByCartIdAndProductSkuId(cart.getId(), productSkuId)
-                    .ifPresent(item -> {
-                        item.setQuantity(quantity);
-                        cartItemRepository.save(item);
-                    });
-        }
+        cartItemRepository.findByCartIdAndProductSkuId(cart.getId(), productSkuId)
+                .ifPresent(item -> {
+                    item.setQuantity(quantity);
+                    cartItemRepository.save(item);
+                });
 
         return buildCartResponse(cart);
     }
@@ -153,7 +159,7 @@ public class CartService {
         Cart cart = cartRepository.findByUserId(currentUser.getId()).orElse(null);
 
         if (cart == null) {
-            return cartMapper.toCartDto(List.of(), null);
+            return cartMapper.toDto(List.of(), null);
         }
 
         cartItemRepository.deleteByCartIdAndProductSkuId(cart.getId(), productSkuId);
@@ -167,7 +173,7 @@ public class CartService {
         Cart cart = cartRepository.findByUserId(currentUser.getId()).orElse(null);
 
         if (cart == null) {
-            return cartMapper.toCartDto(List.of(), null);
+            return cartMapper.toDto(List.of(), null);
         }
 
         cart.setDiscountCode(null);
@@ -191,49 +197,15 @@ public class CartService {
     private CartResponse buildCartResponse(Cart cart) {
         List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
 
-        List<Long> productSkuIds = items.stream()
-                .map(item -> item.getProductSku().getId())
-                .distinct()
-                .toList();
-
-        Map<Long, String> skuCovers = productSkuImageRepository.findImagesByProductSkuIds(productSkuIds)
-                .stream()
-                .collect(Collectors.toMap(
-                        ProductSkuCoverProjection::productSkuId,
-                        ProductSkuCoverProjection::path,
-                        (existing, _) -> existing
-                ));
-
-        List<Long> productIds = items.stream()
-                .map(item -> item.getProductSku().getProduct().getId())
-                .distinct()
-                .toList();
-
-        Map<Long, String> productCovers = productSkuImageRepository.findCoverByProductIds(productIds)
-                .stream()
-                .collect(Collectors.toMap(
-                        ProductCoverProjection::productId,
-                        ProductCoverProjection::path,
-                        (existing, _) -> existing
-                ));
+        Map<Long, String> covers = productImageService.findCoversBySkuId(
+                items.stream().map(CartItem::getProductSku).toList()
+        );
 
         List<CartItemResponse> itemResponses = items.stream()
-                .map(item -> {
-                    Long skuId = item.getProductSku().getId();
-                    Long productId = item.getProductSku().getProduct().getId();
-                    String cover = skuCovers.getOrDefault(skuId, productCovers.get(productId));
-
-                    return cartMapper.toDto(item, cover);
-                })
+                .map(item -> cartItemMapper.toDto(item, covers.get(item.getProductSku().getId())))
                 .toList();
 
-        DiscountCode discountCode = cart.getDiscountCode();
-
-        return CartResponse.builder()
-                .items(itemResponses)
-                .discountCode(discountCode != null ? discountCode.getCode() : null)
-                .discountPercentage(discountCode != null ? discountCode.getDiscountPercentage() : 0)
-                .build();
+        return cartMapper.toDto(itemResponses, cart.getDiscountCode());
     }
 
     private User getCurrentUser() {

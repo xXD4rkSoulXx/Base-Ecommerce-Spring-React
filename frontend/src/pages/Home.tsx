@@ -7,6 +7,9 @@ import { useBestSellers } from '@/hooks/useBestSellers'
 import { useNewArrivals } from '@/hooks/useNewArrivals'
 import { useTopRatedProducts } from '@/hooks/useTopRatedProducts'
 
+const priceFormatter = new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' })
+const formatPrice = (amount: number) => priceFormatter.format(amount)
+
 export const Home = () => {
   const { data: featured } = useFeaturedProducts()
   const { data: deals } = useDealProducts()
@@ -73,7 +76,7 @@ export const Home = () => {
                   </div>
                   <div className="mt-4 flex justify-between text-xs">
                     <span className="font-bold uppercase">{slotB.name}</span>
-                    <span className="font-mono text-neon-cyan">${slotB.price.toFixed(2)}</span>
+                    <span className="font-mono text-neon-cyan">{formatPrice(slotB.price)}</span>
                   </div>
                 </Link>
               )}

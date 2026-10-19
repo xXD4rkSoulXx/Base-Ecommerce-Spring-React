@@ -3,12 +3,12 @@ package com.d4rksoul.base.ecommerce.spring.react.exception;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.ApiError;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.nio.file.AccessDeniedException;
 import java.time.Instant;
 
 @RestControllerAdvice
@@ -82,6 +82,51 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidDiscountCodeException.class)
     public ResponseEntity<ApiError> handleInvalidDiscountCodeException(InvalidDiscountCodeException exception) {
+        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(UnpackableCartException.class)
+    public ResponseEntity<ApiError> handleUnpackableCartException(UnpackableCartException exception) {
+        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(EmptyCartException.class)
+    public ResponseEntity<ApiError> handleEmptyCartException(EmptyCartException exception) {
+        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(ShippoApiException.class)
+    public ResponseEntity<ApiError> handleShippoApiException(ShippoApiException exception) {
+        return buildResponse(HttpStatus.BAD_GATEWAY, exception.getMessage());
+    }
+
+    @ExceptionHandler(NoUnifiedCarrierException.class)
+    public ResponseEntity<ApiError> handleNoUnifiedCarrierException(NoUnifiedCarrierException exception) {
+        return buildResponse(HttpStatus.UNPROCESSABLE_CONTENT, exception.getMessage());
+    }
+
+    @ExceptionHandler(InsufficientStockException.class)
+    public ResponseEntity<ApiError> handleInsufficientStock(InsufficientStockException ex) {
+        return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidShippingRateException.class)
+    public ResponseEntity<ApiError> handleInvalidShippingRate(InvalidShippingRateException ex) {
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(StripeApiException.class)
+    public ResponseEntity<ApiError> handleStripeApi(StripeApiException ex) {
+        return buildResponse(HttpStatus.BAD_GATEWAY, ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidWebhookSignatureException.class)
+    public ResponseEntity<ApiError> handleInvalidWebhookSignature(InvalidWebhookSignatureException exception) {
+        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(CartLimitException.class)
+    public ResponseEntity<ApiError> handleCartLimitException(CartLimitException exception) {
         return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 

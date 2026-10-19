@@ -17,9 +17,6 @@ import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
 
-    @EntityGraph(attributePaths = {"productSkus"})
-    Optional<Product> findDetailsById(Long id);
-
     @Query("""
         SELECT new com.d4rksoul.base.ecommerce.spring.react.dto.projection.RatingStatsProjection(
             COALESCE(AVG(r.rating), 0.0),
@@ -28,13 +25,16 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
         FROM Review r
         WHERE r.product.id = :productId
     """)
-    Optional<RatingStatsProjection> getRatingStatsByProductId(@Param("productId") Long productId);
+    Optional<RatingStatsProjection> findRatingStatsByProductId(@Param("productId") Long productId);
 
-    List<Product> findByCategoryAndIdNot(ProductCategory category, Long id, Pageable pageable);
+    @EntityGraph(attributePaths = {"productSkus"})
+    Optional<Product> findDetailsById(Long id);
 
     List<Product> findByFeaturedTrue(Pageable pageable);
 
     List<Product> findByDiscountPercentageGreaterThan(int discountPercentage, Pageable pageable);
+
+    List<Product> findByCategoryAndIdNot(ProductCategory category, Long id, Pageable pageable);
 
     @Query(
             value = """

@@ -13,6 +13,8 @@ import { Cart } from '@/pages/Cart'
 import { Register } from '@/pages/Register'
 import { Login } from '@/pages/Login'
 import { Account } from '@/pages/Account'
+import { Checkout } from '@/pages/Checkout'
+import { CheckoutSuccess } from '@/pages/CheckoutSucess'
 import { AdminDashboard } from '@/pages/admin/AdminDashboard'
 import { AdminProducts } from '@/pages/admin/AdminProducts'
 import { AdminOrders } from '@/pages/admin/AdminOrders'
@@ -41,8 +43,10 @@ export const router = createBrowserRouter([
       },
       {
         element: <ProtectedRoute />,
-        children: [
-          { path: '/account', element: <Account /> }
+                children: [
+          { path: '/account', element: <Account /> },
+          { path: '/checkout', element: <Checkout /> },
+          { path: '/checkout/success', element: <CheckoutSuccess /> }
         ]
       }
     ]

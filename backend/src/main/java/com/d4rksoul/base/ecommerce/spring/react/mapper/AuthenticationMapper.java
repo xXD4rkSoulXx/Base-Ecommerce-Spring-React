@@ -8,10 +8,6 @@ import org.springframework.stereotype.Component;
 public class AuthenticationMapper {
 
     public User toEntity(RegisterRequest request) {
-        if (request == null) {
-            return null;
-        }
-
         return User.builder()
                 .email(request.email())
                 .password(request.password())

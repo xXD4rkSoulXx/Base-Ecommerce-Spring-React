@@ -25,13 +25,13 @@ export const useCartStore = create<CartState>()(
           return {
             items: state.items.map((i) =>
               i.productSkuId === item.productSkuId
-                ? { ...i, quantity: i.quantity + item.quantity }
+                ? { ...i, quantity: Math.min(i.quantity + item.quantity, 10) }
                 : i
             )
           }
         }
 
-        return { items: [...state.items, item] }
+        return { items: [...state.items, { ...item, quantity: Math.min(item.quantity, 10) }] }
       }),
 
       getTotalItems: () => {
@@ -46,7 +46,7 @@ export const useCartStore = create<CartState>()(
         return {
           items: state.items.map((item) =>
             item.productSkuId === productSkuId
-              ? { ...item, quantity }
+              ? { ...item, quantity: Math.min(quantity, 10) }
               : item
           )
         }

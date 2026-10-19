@@ -17,6 +17,9 @@ import { useAuthStore } from '@/store/useAuthStore'
 import type { ProductResponse } from '@/types/product'
 import { useCart } from '@/hooks/useCart'
 
+const priceFormatter = new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' })
+const formatPrice = (amount: number) => priceFormatter.format(amount)
+
 export const ProductDetails = () => {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
@@ -136,9 +139,7 @@ export const ProductDetails = () => {
     : product.discountPercentage
 
   const hasDiscount = effectiveDiscountPercentage > 0
-  const finalPrice = hasDiscount
-    ? (product.price * (1 - effectiveDiscountPercentage / 100)).toFixed(2)
-    : product.price.toFixed(2)
+  const finalPrice = Math.round((Math.round(product.price * 100) * (100 - effectiveDiscountPercentage)) / 100) / 100
 
   const isOutOfStock = selectedSku ? selectedSku.stock === 0 : false
   const canAddToCart = !!selectedSku && !isOutOfStock
@@ -303,16 +304,16 @@ export const ProductDetails = () => {
             <div className="mt-6 flex flex-wrap items-baseline gap-4">
               {hasDiscount ? (
                 <>
-                  <span className="font-mono text-3xl text-neon-pink">${finalPrice}</span>
+                  <span className="font-mono text-3xl text-neon-pink">{formatPrice(finalPrice)}</span>
                   <span className="font-mono text-lg text-muted-foreground line-through">
-                    ${product.price}
+                    {formatPrice(product.price)}
                   </span>
                   <span className="bg-neon-pink px-2 py-1 font-mono text-[10px] font-extrabold uppercase tracking-widest text-primary-foreground">
                     -{effectiveDiscountPercentage}% off
                   </span>
                 </>
               ) : (
-                <span className="font-mono text-3xl text-neon-cyan">${product.price}</span>
+                <span className="font-mono text-3xl text-neon-cyan">{formatPrice(product.price)}</span>
               )}
               <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
                 {selectedSku
@@ -424,119 +425,117 @@ export const ProductDetails = () => {
                   />
                 </div>
                 <h3 className="font-bold text-sm uppercase truncate">{p.name}</h3>
-                <p className="font-mono text-xs text-neon-cyan mt-1">${p.price.toFixed(2)}</p>
+                <p className="font-mono text-xs text-neon-cyan mt-1">{formatPrice(p.price)}</p>
               </div>
             ))}
           </div>
         </section>
       )}
-      <div id="reviews">
-        <section id="reviews" className="mx-auto max-w-[1440px] border-t border-border px-6 py-16 md:px-10">
-          <div className="flex flex-wrap items-end justify-between gap-6">
-            <div>
-              <h2 className="mt-3 font-display text-3xl uppercase italic tracking-tighter md:text-5xl">
-                Reviews <span className="text-neon-cyan">({product.totalReviews})</span>
-              </h2>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Signal Score</p>
-                <p className="font-display text-4xl text-neon-cyan">
-                  {product.averageRating.toFixed(1)}
-                  <span className="ml-1 text-base text-muted-foreground">/5</span>
-                </p>
-              </div>
-              <StarRating value={product.averageRating} readOnly size={22} />
-            </div>
+      <section id="reviews" className="mx-auto max-w-[1440px] border-t border-border px-6 py-16 md:px-10">
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <div>
+            <h2 className="mt-3 font-display text-3xl uppercase italic tracking-tighter md:text-5xl">
+              Reviews <span className="text-neon-cyan">({product.totalReviews})</span>
+            </h2>
           </div>
-          <div className="mt-10">
-            {!isUserAuthenticated ? (
-              <ReviewLockedNotice message="Only logged in buyers with delivered orders can transmit a review." />
-            ) : reviewEligibility?.status === 'NOT_PURCHASED' ? (
-              <ReviewLockedNotice message="You need to have purchased and received this product before you can review it." />
-            ) : reviewEligibility?.status === 'ALREADY_REVIEWED' ? (
-              <ReviewLockedNotice message="You've already reviewed this product. Only 1 review per product is allowed." />
-            ) : !isOpenReviewForm ? (
-              <button
-                onClick={() => setIsOpenReviewForm(true)}
-                className="flex items-center gap-2 border border-neon-cyan bg-neon-cyan/10 px-5 py-3 text-xs font-black uppercase tracking-widest text-neon-cyan hover:bg-neon-cyan hover:text-primary-foreground"
-              >
-                <MessageSquarePlus className="h-4 w-4" /> Write a Review
-              </button>
-            ) : (
-              <form onSubmit={handleSubmitReview} className="space-y-4 border border-neon-cyan/40 bg-card p-6">
-                <div className="flex items-center gap-4">
-                  <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Rating</span>
-                  <StarRating value={newRating} onChange={setNewRating} size={26} />
-                  <span className="font-mono text-xs text-neon-cyan">{newRating}/5</span>
-                </div>
-                <input
-                  value={reviewTitle}
-                  onChange={(e) => setReviewTitle(e.target.value)}
-                  placeholder="Title"
-                  required
-                  className="w-full border border-border bg-background px-3 py-2.5 text-sm focus:border-neon-cyan focus:outline-none"
-                />
-                <textarea
-                  value={reviewDescription}
-                  onChange={(e) => setReviewDescription(e.target.value)}
-                  placeholder="Field report…"
-                  rows={4}
-                  required
-                  className="w-full resize-none border border-border bg-background px-3 py-2.5 text-sm focus:border-neon-cyan focus:outline-none"
-                />
-                <div className="flex justify-end gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setIsOpenReviewForm(false)}
-                    className="border border-border px-5 py-2.5 text-xs font-bold uppercase tracking-widest hover:border-foreground"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={createReviewMutation.isPending}
-                    className="bg-neon-cyan px-5 py-2.5 text-xs font-black uppercase tracking-widest text-primary-foreground hover:opacity-80 disabled:opacity-50"
-                  >
-                    {createReviewMutation.isPending ? "Transmitting..." : "Transmit"}
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-          <div className="mt-10 grid gap-4 md:grid-cols-2">
-            {reviewsStatus === "pending" ? (
-              <p className="font-mono text-xs text-muted-foreground">Loading transmissions...</p>
-            ) : reviewsList.length === 0 ? (
-              <p className="col-span-full border border-dashed border-border p-8 text-center font-mono text-xs uppercase tracking-widest text-muted-foreground">
-                No signals yet. Be first.
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Signal Score</p>
+              <p className="font-display text-4xl text-neon-cyan">
+                {product.averageRating.toFixed(1)}
+                <span className="ml-1 text-base text-muted-foreground">/5</span>
               </p>
-            ) : (
-              reviewsList.map((review) => (
-                <article key={review.id} className="border border-border bg-card p-5">
-                  <header className="flex items-center justify-between">
-                    <StarRating value={review.rating} readOnly size={14} />
-                    <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                      {review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ''}
-                    </span>
-                  </header>
-                  <h3 className="mt-3 font-bold uppercase tracking-tight">{review.title}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{review.description}</p>
-                  <p className="mt-4 font-mono text-[10px] uppercase tracking-widest text-neon-cyan">
-                    — {review.userFullName}
-                  </p>
-                </article>
-              ))
-            )}
+            </div>
+            <StarRating value={product.averageRating} readOnly size={22} />
           </div>
-          <div ref={reviewsObserverTarget} className="mt-8 flex h-16 items-center justify-center font-mono text-xs uppercase tracking-widest text-neon-cyan">
-            {isFetchingNextPage && <span className="animate-pulse">Loading more signals...</span>}
-            {!hasNextPage && reviewsList.length > 0 && (
-              <span className="text-muted-foreground">— End of transmissions —</span>
-            )}
-          </div>
-        </section>
-      </div>
+        </div>
+        <div className="mt-10">
+          {!isUserAuthenticated ? (
+            <ReviewLockedNotice message="Only logged in buyers with delivered orders can transmit a review." />
+          ) : reviewEligibility?.status === 'NOT_PURCHASED' ? (
+            <ReviewLockedNotice message="You need to have purchased and received this product before you can review it." />
+          ) : reviewEligibility?.status === 'ALREADY_REVIEWED' ? (
+            <ReviewLockedNotice message="You've already reviewed this product. Only 1 review per product is allowed." />
+          ) : !isOpenReviewForm ? (
+            <button
+              onClick={() => setIsOpenReviewForm(true)}
+              className="flex items-center gap-2 border border-neon-cyan bg-neon-cyan/10 px-5 py-3 text-xs font-black uppercase tracking-widest text-neon-cyan hover:bg-neon-cyan hover:text-primary-foreground"
+            >
+              <MessageSquarePlus className="h-4 w-4" /> Write a Review
+            </button>
+          ) : (
+            <form onSubmit={handleSubmitReview} className="space-y-4 border border-neon-cyan/40 bg-card p-6">
+              <div className="flex items-center gap-4">
+                <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Rating</span>
+                  <StarRating value={newRating} onChange={setNewRating} size={26} />
+                <span className="font-mono text-xs text-neon-cyan">{newRating}/5</span>
+              </div>
+              <input
+                value={reviewTitle}
+                onChange={(e) => setReviewTitle(e.target.value)}
+                placeholder="Title"
+                required
+                className="w-full border border-border bg-background px-3 py-2.5 text-sm focus:border-neon-cyan focus:outline-none"
+              />
+              <textarea
+                value={reviewDescription}
+                onChange={(e) => setReviewDescription(e.target.value)}
+                placeholder="Field report…"
+                rows={4}
+                required
+                className="w-full resize-none border border-border bg-background px-3 py-2.5 text-sm focus:border-neon-cyan focus:outline-none"
+              />
+              <div className="flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsOpenReviewForm(false)}
+                  className="border border-border px-5 py-2.5 text-xs font-bold uppercase tracking-widest hover:border-foreground"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={createReviewMutation.isPending}
+                  className="bg-neon-cyan px-5 py-2.5 text-xs font-black uppercase tracking-widest text-primary-foreground hover:opacity-80 disabled:opacity-50"
+                >
+                  {createReviewMutation.isPending ? "Transmitting..." : "Transmit"}
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+        <div className="mt-10 grid gap-4 md:grid-cols-2">
+          {reviewsStatus === "pending" ? (
+            <p className="font-mono text-xs text-muted-foreground">Loading transmissions...</p>
+          ) : reviewsList.length === 0 ? (
+            <p className="col-span-full border border-dashed border-border p-8 text-center font-mono text-xs uppercase tracking-widest text-muted-foreground">
+              No signals yet. Be first.
+            </p>
+          ) : (
+            reviewsList.map((review) => (
+              <article key={review.id} className="border border-border bg-card p-5">
+                <header className="flex items-center justify-between">
+                  <StarRating value={review.rating} readOnly size={14} />
+                  <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                    {review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ''}
+                  </span>
+                </header>
+                <h3 className="mt-3 font-bold uppercase tracking-tight">{review.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{review.description}</p>
+                <p className="mt-4 font-mono text-[10px] uppercase tracking-widest text-neon-cyan">
+                   — {review.userFullName}
+                </p>
+              </article>
+            ))
+          )}
+        </div>
+        <div ref={reviewsObserverTarget} className="mt-8 flex h-16 items-center justify-center font-mono text-xs uppercase tracking-widest text-neon-cyan">
+          {isFetchingNextPage && <span className="animate-pulse">Loading more signals...</span>}
+          {!hasNextPage && reviewsList.length > 0 && (
+            <span className="text-muted-foreground">— End of transmissions —</span>
+          )}
+        </div>
+      </section>
     </>
   )
 }

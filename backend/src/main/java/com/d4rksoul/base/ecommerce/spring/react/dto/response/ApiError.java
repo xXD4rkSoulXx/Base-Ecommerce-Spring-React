@@ -8,7 +8,6 @@ import java.time.Instant;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ApiError(
-
         int status,
 
         String error,

@@ -34,6 +34,7 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 public class WishlistItem {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false)
@@ -48,10 +49,9 @@ public class WishlistItem {
     private Product product;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
     private Instant updatedAt;
 }

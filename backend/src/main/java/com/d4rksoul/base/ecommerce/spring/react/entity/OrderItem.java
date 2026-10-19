@@ -11,8 +11,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -47,28 +45,33 @@ public class OrderItem {
     @JoinColumn(name = "product_sku_id", nullable = false, foreignKey = @ForeignKey(name = "fk_order_item_product_sku"))
     private ProductSku productSku;
 
-    @Min(1)
     @Column(nullable = false)
     private int quantity;
 
-    @Min(0)
     @Column(nullable = false)
     private BigDecimal price;
 
-    @Min(0)
-    @Max(100)
-    @Column(name = "discount_percentage")
     private int discountPercentage;
+
+    @Column(nullable = false)
+    private String productName;
+
+    @Column(nullable = false)
+    private String color;
+
+    @Column(nullable = false)
+    private String size;
+
+    private String imagePath;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "order_id", nullable = false, foreignKey = @ForeignKey(name = "fk_order_item_order"))
     private Order order;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
     private Instant updatedAt;
 }

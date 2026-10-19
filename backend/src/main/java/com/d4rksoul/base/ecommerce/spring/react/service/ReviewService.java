@@ -13,6 +13,7 @@ import com.d4rksoul.base.ecommerce.spring.react.exception.ProductAlreadyReviewed
 import com.d4rksoul.base.ecommerce.spring.react.exception.ProductNotFoundException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.ProductNotPurchasedException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.UserNotAuthenticatedException;
+import com.d4rksoul.base.ecommerce.spring.react.mapper.PageMapper;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.ReviewMapper;
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.ProductRepository;
@@ -39,6 +40,7 @@ public class ReviewService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final ReviewMapper reviewMapper;
+    private final PageMapper pageMapper;
 
     @Transactional
     public ReviewResponse createReview(Long productId, ReviewRequest request) {
@@ -48,7 +50,7 @@ public class ReviewService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " +  productId));
 
-        boolean hasPurchased = orderRepository.hasUserPurchasedProduct(userId, productId, OrderStatus.DELIVERED);
+        boolean hasPurchased = orderRepository.existsUserPurchasedProduct(userId, productId, OrderStatus.DELIVERED);
         if (!hasPurchased) {
             throw new ProductNotPurchasedException("You can only review products that have been successfully delivered to you.");
         }
@@ -69,7 +71,7 @@ public class ReviewService {
         User currentUser = getCurrentUser();
         Long userId = currentUser.getId();
 
-        boolean hasPurchased = orderRepository.hasUserPurchasedProduct(userId, productId, OrderStatus.DELIVERED);
+        boolean hasPurchased = orderRepository.existsUserPurchasedProduct(userId, productId, OrderStatus.DELIVERED);
         if (!hasPurchased) {
             return ReviewEligibility.NOT_PURCHASED;
         }
@@ -91,17 +93,8 @@ public class ReviewService {
         );
 
         Page<Review> reviewPage = reviewRepository.findByProductId(productId, pageable);
-        Page<ReviewResponse> responsePage = reviewPage.map(reviewMapper::toDto);
 
-        return PageResponse.<ReviewResponse>builder()
-                .content(responsePage.getContent())
-                .page(responsePage.getNumber())
-                .size(responsePage.getSize())
-                .totalElements(responsePage.getTotalElements())
-                .totalPages(responsePage.getTotalPages())
-                .first(responsePage.isFirst())
-                .last(responsePage.isLast())
-                .build();
+        return pageMapper.toDto(reviewPage.map(reviewMapper::toDto));
     }
 
     private User getCurrentUser() {

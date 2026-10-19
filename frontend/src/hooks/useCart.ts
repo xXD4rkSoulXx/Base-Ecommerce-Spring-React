@@ -3,6 +3,17 @@ import { useAuthStore } from '@/store/useAuthStore'
 import { useCartStore, type GuestCartItem } from '@/store/useCartStore'
 import { cartService } from '@/services/cart.service'
 
+type Priced = {
+  price: number
+  discountPercentage: number
+}
+
+const getUnitPrice = (item: Priced) => {
+  const cents = Math.round(item.price * 100)
+
+  return Math.round((cents * (100 - item.discountPercentage)) / 100) / 100
+}
+
 export const useCart = () => {
   const isAuthenticated = useAuthStore((state) => !!state.user)
   const queryClient = useQueryClient()
@@ -58,6 +69,9 @@ export const useCart = () => {
 
   const discountCode = isAuthenticated ? (serverCart?.discountCode ?? null) : null
   const discountPercentage = isAuthenticated ? (serverCart?.discountPercentage ?? 0) : 0
+  const getLineTotal = (item: Priced & { quantity: number }) => getUnitPrice(item) * item.quantity
+  const subtotal = items.reduce((total, item) => total + getLineTotal(item), 0)
+  const discountAmount = (subtotal * discountPercentage) / 100
   const { isError: isDiscountCodeError, error: discountCodeError } = applyDiscountMutation
 
   const isInCart = (productSkuId: number) =>
@@ -128,12 +142,15 @@ export const useCart = () => {
     totalItems,
     discountCode,
     discountPercentage,
+    subtotal,
+    discountAmount,
     isDiscountCodeError,
     discountCodeError,
     isInCart,
     addToCart,
     applyDiscountCode,
     getQuantity,
+    getLineTotal,
     updateQuantity,
     removeFromCart,
     removeDiscountCode,

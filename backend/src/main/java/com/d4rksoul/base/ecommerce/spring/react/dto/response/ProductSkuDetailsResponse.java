@@ -8,7 +8,6 @@ import java.util.List;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ProductSkuDetailsResponse(
-
         Long id,
 
         String size,

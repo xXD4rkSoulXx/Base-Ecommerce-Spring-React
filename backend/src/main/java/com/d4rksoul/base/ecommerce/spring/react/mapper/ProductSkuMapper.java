@@ -11,10 +11,6 @@ import java.util.List;
 public class ProductSkuMapper {
 
     public ProductSkuDetailsResponse toDetailsDto(ProductSku productSku) {
-        if (productSku == null) {
-            return null;
-        }
-
         List<String> paths = productSku.getProductSkuImages().stream()
                 .map(ProductSkuImage::getPath)
                 .toList();

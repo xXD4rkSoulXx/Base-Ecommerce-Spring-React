@@ -4,8 +4,10 @@ import com.d4rksoul.base.ecommerce.spring.react.dto.result.RotateRefreshTokenRes
 import com.d4rksoul.base.ecommerce.spring.react.entity.RefreshToken;
 import com.d4rksoul.base.ecommerce.spring.react.entity.User;
 import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidRefreshTokenException;
+import com.d4rksoul.base.ecommerce.spring.react.exception.RefreshTokenException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.RefreshTokenExpiredException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.RefreshTokenReuseException;
+import com.d4rksoul.base.ecommerce.spring.react.mapper.RefreshTokenMapper;
 import com.d4rksoul.base.ecommerce.spring.react.repository.RefreshTokenRepository;
 import com.d4rksoul.base.ecommerce.spring.react.security.HashService;
 import com.d4rksoul.base.ecommerce.spring.react.security.TokenService;
@@ -23,22 +25,19 @@ public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final TokenService tokenService;
     private final HashService hashService;
+    private final RefreshTokenMapper refreshTokenMapper;
 
     @Transactional
     public void create(User user, String rawToken) {
         String hashedToken = hashService.hash(rawToken);
+        Instant expiresAt = Instant.now().plus(30, ChronoUnit.DAYS);
 
-        RefreshToken refreshToken = RefreshToken.builder()
-                .user(user)
-                .token(hashedToken)
-                .expiresAt(Instant.now().plus(30, ChronoUnit.DAYS))
-                .revoked(false)
-                .build();
+        RefreshToken refreshToken = refreshTokenMapper.toEntity(user, hashedToken, expiresAt);
 
         refreshTokenRepository.save(refreshToken);
     }
 
-    @Transactional
+    @Transactional(dontRollbackOn = RefreshTokenException.class)
     public RotateRefreshTokenResult rotate(String rawOldToken) {
         String hashedOldToken = hashService.hash(rawOldToken);
 
@@ -60,7 +59,7 @@ public class RefreshTokenService {
         storedToken.setRevoked(true);
         refreshTokenRepository.save(storedToken);
 
-        String rawNewToken = tokenService.generateRefreshToken(user);
+        String rawNewToken = tokenService.generateRefreshToken();
         this.create(user, rawNewToken);
 
         return new RotateRefreshTokenResult(user, rawNewToken);

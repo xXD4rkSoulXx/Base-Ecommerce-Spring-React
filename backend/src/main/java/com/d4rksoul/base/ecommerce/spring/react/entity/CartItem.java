@@ -11,7 +11,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -45,7 +44,6 @@ public class CartItem {
     @JoinColumn(name = "product_sku_id", nullable = false, foreignKey = @ForeignKey(name = "fk_cart_item_product_sku"))
     private ProductSku productSku;
 
-    @Min(1)
     @Column(nullable = false)
     private int quantity;
 
@@ -54,10 +52,9 @@ public class CartItem {
     private Cart cart;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
     private Instant updatedAt;
 }

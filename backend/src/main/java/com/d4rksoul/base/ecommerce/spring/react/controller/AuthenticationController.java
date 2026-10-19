@@ -8,7 +8,8 @@ import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidRefreshTokenExc
 import com.d4rksoul.base.ecommerce.spring.react.service.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -26,8 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthenticationController {
 
-    @Value("${IS_PROD}")
-    private boolean isProd;
+    private final Environment environment;
     private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
@@ -100,6 +100,8 @@ public class AuthenticationController {
     }
 
     private ResponseCookie buildRefreshTokenCookie(String value, long maxAgeSeconds) {
+        boolean isProd = environment.acceptsProfiles(Profiles.of("prod"));
+
         return ResponseCookie.from("refreshToken", value)
                 .httpOnly(true)
                 .secure(isProd)

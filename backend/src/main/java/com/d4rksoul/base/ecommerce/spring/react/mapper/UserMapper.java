@@ -8,10 +8,6 @@ import org.springframework.stereotype.Component;
 public class UserMapper {
 
     public UserResponse toDto(User user) {
-        if (user == null) {
-            return null;
-        }
-
         return UserResponse.builder()
                 .email(user.getEmail())
                 .firstName(user.getFirstName())

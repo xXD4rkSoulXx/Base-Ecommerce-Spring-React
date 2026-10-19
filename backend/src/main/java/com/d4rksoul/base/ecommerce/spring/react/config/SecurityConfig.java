@@ -27,7 +27,8 @@ public class SecurityConfig {
                         .ignoringRequestMatchers(
                                 "/api/auth/register",
                                 "/api/auth/login",
-                                "/api/auth/refresh"
+                                "/api/auth/refresh",
+                                "/api/webhooks/stripe"
                         )
                 )
                 .addFilterBefore(new RefreshRequestHeaderFilter(), CsrfFilter.class)
@@ -56,6 +57,7 @@ public class SecurityConfig {
                                 "/api/products/top-rated",
                                 "/api/products/search"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/webhooks/stripe").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated()
                 );

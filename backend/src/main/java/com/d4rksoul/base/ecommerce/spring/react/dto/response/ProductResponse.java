@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ProductResponse(
-
         Long id,
 
         String ref,

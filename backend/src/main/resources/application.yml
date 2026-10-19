@@ -2,6 +2,9 @@ spring:
   config:
     import: optional:file:.env[.properties]
 
+  profiles:
+    active: dev
+
   application:
     name: base.ecommerce.spring.react
 
@@ -11,13 +14,29 @@ spring:
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
-  jpa:
-    hibernate:
-      ddl-auto: update
-
-# Talvez depois remover 
-springdoc:
-  api-docs:
-    enabled: true
-  swagger-ui:
-    enabled: true
+shipping:
+  origin:
+    name: "VELO_CITI"
+    address-line-1: "Unter den Linden 77"
+    city: "Berlin"
+    state: ""
+    postal-code: "10117"
+    country: "DE"
+    phone: "+49301234567"
+  packing:
+    boxes:
+      - name: "Small"
+        max-weight-kg: 2
+        length-cm: 20
+        width-cm: 15
+        height-cm: 10
+      - name: "Medium"
+        max-weight-kg: 5
+        length-cm: 35
+        width-cm: 25
+        height-cm: 15
+      - name: "Big"
+        max-weight-kg: 10
+        length-cm: 45
+        width-cm: 35
+        height-cm: 25

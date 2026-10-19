@@ -1,10 +1,13 @@
 package com.d4rksoul.base.ecommerce.spring.react.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record MergeCartRequest(
-        List<MergeCartItemRequest> items
+        @Size(max = 20)
+        List<@Valid MergeCartItemRequest> items
 ) {}
