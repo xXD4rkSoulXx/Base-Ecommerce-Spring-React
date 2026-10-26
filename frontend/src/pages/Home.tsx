@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { SectionDivider } from '@/components/ui/SectionDivider'
-import { ProductGridSection } from '@/components/card/ProductGridSection'
+import { ProductGridSection } from '@/components/section/ProductGridSection'
 import { useFeaturedProducts } from '@/hooks/useFeaturedProducts'
 import { useDealProducts } from '@/hooks/useDealProducts'
 import { useBestSellers } from '@/hooks/useBestSellers'

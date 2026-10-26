@@ -28,7 +28,6 @@ public class CorsConfig {
                 "X-Requested-With",
                 "Cache-Control"
         ));
-        configuration.setExposedHeaders(List.of("Authorization", "Set-Cookie"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

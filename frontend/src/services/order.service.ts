@@ -1,0 +1,25 @@
+import { api } from '@/lib/api'
+import type { OrderSearchRequest, OrderSummaryResponse, OrderDetailsResponse, CreateReturnRequest, OrderReturnResponse } from '@/types/order'
+import type { PageResponse } from '@/types/page'
+
+export const orderService = {
+  requestReturn: async (orderId: number, request: CreateReturnRequest) => {
+    const response = await api.post<OrderReturnResponse>(`/api/orders/${orderId}/returns`, request)
+
+    return response.data
+  },
+
+  getOrders: async (request: OrderSearchRequest) => {
+    const response = await api.get<PageResponse<OrderSummaryResponse>>('/api/orders', {
+      params: request
+    })
+
+    return response.data
+  },
+
+  getOrder: async (id: number) => {
+    const response = await api.get<OrderDetailsResponse>(`/api/orders/${id}`)
+
+    return response.data
+  }
+}

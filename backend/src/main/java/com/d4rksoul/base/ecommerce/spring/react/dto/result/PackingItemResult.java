@@ -1,6 +1,8 @@
 package com.d4rksoul.base.ecommerce.spring.react.dto.result;
 
 public record PackingItemResult(
+        Long productSkuId,
+
         double weightKg,
 
         double lengthCm,

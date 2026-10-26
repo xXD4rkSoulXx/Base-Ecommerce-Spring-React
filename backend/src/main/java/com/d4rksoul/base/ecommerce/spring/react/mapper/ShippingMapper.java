@@ -4,10 +4,12 @@ import com.d4rksoul.base.ecommerce.spring.react.config.ShippingOriginProperties;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.CheckoutAddressRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.result.PackedParcelResult;
 import com.d4rksoul.base.ecommerce.spring.react.dto.result.PackingItemResult;
+import com.d4rksoul.base.ecommerce.spring.react.entity.Order;
 import com.d4rksoul.base.ecommerce.spring.react.entity.ProductSku;
 import com.d4rksoul.base.ecommerce.spring.react.integration.shippo.dto.ShippoAddress;
 import com.d4rksoul.base.ecommerce.spring.react.integration.shippo.dto.ShippoParcel;
 import com.d4rksoul.base.ecommerce.spring.react.integration.shippo.dto.ShippoShipmentRequest;
+import com.d4rksoul.base.ecommerce.spring.react.integration.shippo.dto.ShippoTransactionRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -16,7 +18,7 @@ import java.util.List;
 public class ShippingMapper {
 
     public PackingItemResult toPackingItem(ProductSku sku) {
-        return new PackingItemResult(sku.getWeight(), sku.getLength(), sku.getWidth(), sku.getHeight());
+        return new PackingItemResult(sku.getId(), sku.getWeight(), sku.getLength(), sku.getWidth(), sku.getHeight());
     }
 
     public ShippoAddress toShippoAddress(ShippingOriginProperties origin) {
@@ -44,6 +46,19 @@ public class ShippingMapper {
                 .build();
     }
 
+    public ShippoAddress toShippoAddress(Order order) {
+        return ShippoAddress.builder()
+                .name(order.getRecipientName())
+                .street1(order.getAddressLine1())
+                .street2(order.getAddressLine2())
+                .city(order.getCity())
+                .state(order.getState())
+                .zip(order.getPostalCode())
+                .country(order.getCountry())
+                .phone(order.getPhone())
+                .build();
+    }
+
     public ShippoShipmentRequest toShipmentRequest(
             ShippoAddress addressFrom,
             ShippoAddress addressTo,
@@ -62,6 +77,14 @@ public class ShippingMapper {
                                 .massUnit("kg")
                                 .build()
                 ))
+                .async(false)
+                .build();
+    }
+
+
+    public ShippoTransactionRequest toTransactionRequest(String rateObjectId) {
+        return ShippoTransactionRequest.builder()
+                .rate(rateObjectId)
                 .async(false)
                 .build();
     }

@@ -12,6 +12,7 @@ import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidCredentialsExce
 import com.d4rksoul.base.ecommerce.spring.react.exception.UserNotFoundException;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.AuthenticationMapper;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.UserMapper;
+import com.d4rksoul.base.ecommerce.spring.react.repository.RefreshTokenRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.UserRepository;
 import com.d4rksoul.base.ecommerce.spring.react.security.TokenService;
 import jakarta.transaction.Transactional;
@@ -25,6 +26,7 @@ public class AuthenticationService {
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final AuthenticationMapper authenticationMapper;
     private final UserMapper userMapper;
     private final TokenService tokenService;
@@ -81,6 +83,6 @@ public class AuthenticationService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        refreshTokenService.deleteAllByUser(user);
+        refreshTokenRepository.deleteAllByUser(user);
     }
 }

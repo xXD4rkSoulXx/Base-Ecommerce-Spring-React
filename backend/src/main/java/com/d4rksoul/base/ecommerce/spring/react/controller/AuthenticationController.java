@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -87,7 +88,7 @@ public class AuthenticationController {
     }
 
     @DeleteMapping("/logout-all")
-    public ResponseEntity<Void> logoutAllByUser(@AuthenticationPrincipal org.springframework.security.oauth2.jwt.Jwt jwt) {
+    public ResponseEntity<Void> logoutAllByUser(@AuthenticationPrincipal Jwt jwt) {
         String email = jwt.getSubject();
 
         authenticationService.logoutAllByUser(email);

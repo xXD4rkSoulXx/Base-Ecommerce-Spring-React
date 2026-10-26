@@ -1,8 +1,10 @@
 package com.d4rksoul.base.ecommerce.spring.react.integration.stripe;
 
 import com.d4rksoul.base.ecommerce.spring.react.dto.result.StripeCheckoutEventResult;
+import com.d4rksoul.base.ecommerce.spring.react.dto.result.StripeRefundResult;
 import com.d4rksoul.base.ecommerce.spring.react.dto.result.StripeSessionResult;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Order;
+import com.d4rksoul.base.ecommerce.spring.react.entity.OrderReturn;
 import com.d4rksoul.base.ecommerce.spring.react.entity.User;
 import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidWebhookSignatureException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.StripeApiException;
@@ -13,11 +15,13 @@ import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Event;
 import com.stripe.model.checkout.Session;
+import com.stripe.net.RequestOptions;
 import com.stripe.net.Webhook;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @Component
@@ -33,7 +37,12 @@ public class StripeApiClient {
     private String webhookSecret;
 
     public Optional<StripeCheckoutEventResult> parseCheckoutEvent(String payload, String signature) {
-        Event event = constructEvent(payload, signature);
+        Event event;
+        try {
+            event = Webhook.constructEvent(payload, signature, webhookSecret);
+        } catch (SignatureVerificationException e) {
+            throw new InvalidWebhookSignatureException("Invalid Stripe webhook signature.", e);
+        }
 
         if (!event.getType().startsWith("checkout.session.")) {
             return Optional.empty();
@@ -45,14 +54,6 @@ public class StripeApiClient {
             return Optional.of(stripeMapper.toCheckoutEvent(event.getType(), session));
         } catch (EventDataObjectDeserializationException e) {
             throw new StripeApiException("Could not deserialize Stripe event " + event.getId(), e);
-        }
-    }
-
-    private Event constructEvent(String payload, String signature) {
-        try {
-            return Webhook.constructEvent(payload, signature, webhookSecret);
-        } catch (SignatureVerificationException e) {
-            throw new InvalidWebhookSignatureException("Invalid Stripe webhook signature.", e);
         }
     }
 
@@ -107,6 +108,22 @@ public class StripeApiClient {
             }
         } catch (StripeException e) {
             throw new StripeApiException("Failed to retrieve checkout session from Stripe.", e);
+        }
+    }
+
+    public StripeRefundResult createRefund(Order order, OrderReturn orderReturn, BigDecimal amount) {
+        try {
+            RequestOptions options = RequestOptions.builder()
+                    .setIdempotencyKey("return-refund-" + orderReturn.getId())
+                    .build();
+
+            return stripeMapper.toRefundResult(
+                    stripeClient.v1().refunds().create(
+                            stripeMapper.toRefundCreateParams(order, orderReturn, amount), options
+                    )
+            );
+        } catch (StripeException e) {
+            throw new StripeApiException("Failed to create refund with Stripe.", e);
         }
     }
 }

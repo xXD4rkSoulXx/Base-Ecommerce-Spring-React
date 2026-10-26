@@ -77,14 +77,18 @@ export const useCart = () => {
   const isInCart = (productSkuId: number) =>
     items.some((item) => item.productSkuId === productSkuId)
 
-  const addToCart = (item: GuestCartItem) => {
+  const addToCart = (item: GuestCartItem, onSuccess?: () => void) => {
     if (isAuthenticated) {
-      addMutation.mutate({ productSkuId: item.productSkuId, quantity: item.quantity })
+      addMutation.mutate(
+        { productSkuId: item.productSkuId, quantity: item.quantity },
+        { onSuccess }
+      )
 
       return
     }
 
     guestAdd(item)
+    onSuccess?.()
   }
 
   const applyDiscountCode = (code: string) => {

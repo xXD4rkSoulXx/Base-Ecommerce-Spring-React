@@ -96,8 +96,11 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ShippoApiException.class)
-    public ResponseEntity<ApiError> handleShippoApiException(ShippoApiException exception) {
-        return buildResponse(HttpStatus.BAD_GATEWAY, exception.getMessage());
+    public ResponseEntity<ApiError> handleShippoApiException() {
+        return buildResponse(
+                HttpStatus.BAD_GATEWAY,
+                "Shipping options are temporarily unavailable. Please try again in a moment."
+        );
     }
 
     @ExceptionHandler(NoUnifiedCarrierException.class)
@@ -128,6 +131,21 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CartLimitException.class)
     public ResponseEntity<ApiError> handleCartLimitException(CartLimitException exception) {
         return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<ApiError> handleOrderNotFoundException(OrderNotFoundException exception) {
+        return buildResponse(HttpStatus.NOT_FOUND, exception.getMessage());
+    }
+
+    @ExceptionHandler(InvalidReturnRequestException.class)
+    public ResponseEntity<ApiError> handleInvalidReturnRequest(InvalidReturnRequestException exception) {
+        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(ReturnNotAllowedException.class)
+    public ResponseEntity<ApiError> handleReturnNotAllowed(ReturnNotAllowedException exception) {
+        return buildResponse(HttpStatus.CONFLICT, exception.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

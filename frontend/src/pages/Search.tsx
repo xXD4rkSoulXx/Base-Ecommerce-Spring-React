@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import type { SubmitEvent } from 'react' 
 import { useSearchParams } from 'react-router-dom'
 import { SearchIcon } from 'lucide-react'
-import { useSearchProducts } from '@/hooks/useSearchProducts'
-import { ProductCard } from '@/components/card/ProductCard'
-import { Loading } from '@/pages//Loading'
+import { Loading } from '@/pages/Loading'
 import { ErrorPage } from '@/pages/ErrorPage'
+import { Pagination } from '@/components/ui/Pagination'
+import { ProductCard } from '@/components/card/ProductCard'
+import { useDebounce } from '@/hooks/useDebounce'
+import { useSearchProducts } from '@/hooks/useSearchProducts'
 
 export const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -13,6 +15,7 @@ export const Search = () => {
   const urlPage = searchParams.get('page') !== null ? Number(searchParams.get('page')) : 1
 
   const [inputValue, setInputValue] = useState(queryFromUrl)
+  const debouncedInput = useDebounce(inputValue.trim(), 400)
 
   const { data, isLoading, isError } = useSearchProducts()
   
@@ -48,6 +51,13 @@ export const Search = () => {
       setSearchParams({ q: searchTerm, page: '1' })
     }
   }
+
+  useEffect(() => {
+    if (debouncedInput !== queryFromUrl) {
+      handleSearch(debouncedInput)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedInput])
 
   const handleChangePage = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -85,11 +95,10 @@ export const Search = () => {
       >
         <SearchIcon className="h-5 w-5 text-neon-cyan" />
         <input
-          key={queryFromUrl}
           autoFocus
-          defaultValue={inputValue}
+          value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          placeholder="Search by name or REF… (Press Enter)"
+          placeholder="Search by name or REF…"
           className="w-full bg-transparent text-2xl placeholder:text-muted-foreground focus:outline-none md:text-3xl"
         />
         {inputValue && (
@@ -114,27 +123,7 @@ export const Search = () => {
               ))}
             </div>
           )}
-          {totalPages > 1 && (
-            <div className="mt-16 flex items-center justify-center gap-4 border-t border-border pt-8 font-mono text-xs">
-              <button
-                disabled={currentPage === 1}
-                onClick={() => handleChangePage(currentPage - 1)}
-                className="border border-border px-4 py-2 uppercase tracking-widest transition-colors hover:border-neon-cyan hover:text-neon-cyan disabled:opacity-30 disabled:hover:border-border disabled:hover:text-muted-foreground"
-              >
-                PREV
-              </button>   
-              <span className="text-muted-foreground uppercase tracking-wider">
-                Page <span className="font-bold text-foreground">{currentPage}</span> of <span className="font-bold text-foreground">{totalPages}</span>
-              </span>
-              <button
-                disabled={currentPage === totalPages}
-                onClick={() => handleChangePage(currentPage + 1)}
-                className="border border-border px-4 py-2 uppercase tracking-widest transition-colors hover:border-neon-cyan hover:text-neon-cyan disabled:opacity-30 disabled:hover:border-border disabled:hover:text-muted-foreground"
-              >
-                NEXT
-              </button>
-            </div>
-          )}
+          <Pagination currentPage={currentPage} totalPages={totalPages} onChange={handleChangePage} />
         </div>
       )}
     </div>

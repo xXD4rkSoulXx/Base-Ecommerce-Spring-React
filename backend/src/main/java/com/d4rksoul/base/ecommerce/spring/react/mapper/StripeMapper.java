@@ -1,14 +1,19 @@
 package com.d4rksoul.base.ecommerce.spring.react.mapper;
 
 import com.d4rksoul.base.ecommerce.spring.react.dto.result.StripeCheckoutEventResult;
+import com.d4rksoul.base.ecommerce.spring.react.dto.result.StripeRefundResult;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Order;
 import com.d4rksoul.base.ecommerce.spring.react.entity.OrderItem;
+import com.d4rksoul.base.ecommerce.spring.react.entity.OrderReturn;
 import com.d4rksoul.base.ecommerce.spring.react.entity.User;
+import com.stripe.model.Refund;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.CouponCreateParams;
 import com.stripe.param.CustomerCreateParams;
 import com.stripe.param.CustomerUpdateParams;
+import com.stripe.param.RefundCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -17,7 +22,10 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 @Component
+@RequiredArgsConstructor
 public class StripeMapper {
+
+    private final OrderItemMapper orderItemMapper;
 
     public CustomerCreateParams toCustomerCreateParams(User user, Order order) {
         return CustomerCreateParams.builder()
@@ -60,6 +68,16 @@ public class StripeMapper {
                 .setPercentOff(BigDecimal.valueOf(order.getDiscountPercentage()))
                 .setDuration(CouponCreateParams.Duration.ONCE)
                 .setName(order.getDiscountCode().getCode())
+                .build();
+    }
+
+    public RefundCreateParams toRefundCreateParams(Order order, OrderReturn orderReturn, BigDecimal amount) {
+        return RefundCreateParams.builder()
+                .setPaymentIntent(order.getStripePaymentIntentId())
+                .setAmount(toMinorUnits(amount))
+                .setReason(RefundCreateParams.Reason.REQUESTED_BY_CUSTOMER)
+                .putMetadata("orderId", String.valueOf(order.getId()))
+                .putMetadata("returnId", String.valueOf(orderReturn.getId()))
                 .build();
     }
 
@@ -112,9 +130,7 @@ public class StripeMapper {
     }
 
     private SessionCreateParams.LineItem toLineItem(String currency, OrderItem item) {
-        BigDecimal unitPrice = item.getPrice()
-                .multiply(BigDecimal.valueOf(100L - item.getDiscountPercentage()))
-                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        BigDecimal unitPrice = orderItemMapper.toUnitPrice(item);
 
         return SessionCreateParams.LineItem.builder()
                 .setQuantity((long) item.getQuantity())
@@ -134,22 +150,27 @@ public class StripeMapper {
     }
 
     public StripeCheckoutEventResult toCheckoutEvent(String type, Session session) {
+        var totalDetails = session.getTotalDetails();
+
         return new StripeCheckoutEventResult(
                 type,
                 session.getId(),
                 session.getPaymentStatus(),
                 session.getPaymentIntent(),
-                toTaxAmount(session)
+                toMajorUnits(totalDetails != null ? totalDetails.getAmountTax() : null),
+                toMajorUnits(session.getAmountTotal())
         );
     }
 
-    private BigDecimal toTaxAmount(Session session) {
-        var totalDetails = session.getTotalDetails();
+    public StripeRefundResult toRefundResult(Refund refund) {
+        return new StripeRefundResult(refund.getId(), refund.getStatus());
+    }
 
-        if (totalDetails == null || totalDetails.getAmountTax() == null) {
+    private BigDecimal toMajorUnits(Long minorUnits) {
+        if (minorUnits == null) {
             return BigDecimal.ZERO;
         }
 
-        return BigDecimal.valueOf(totalDetails.getAmountTax()).movePointLeft(2);
+        return BigDecimal.valueOf(minorUnits).movePointLeft(2);
     }
 }

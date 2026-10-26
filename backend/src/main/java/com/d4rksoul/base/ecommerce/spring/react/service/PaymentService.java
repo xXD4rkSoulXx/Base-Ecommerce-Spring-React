@@ -24,36 +24,27 @@ public class PaymentService {
         Order order = orderService.createPendingOrder(request);
 
         try {
-            return createStripeSession(order);
+            User user = order.getUser();
+            String customerId = user.getStripeCustomerId();
+
+            if (customerId == null) {
+                customerId = stripeApiClient.createCustomer(user, order);
+                user.setStripeCustomerId(customerId);
+                userRepository.save(user);
+            } else {
+                stripeApiClient.updateCustomerShipping(customerId, order);
+            }
+
+            StripeSessionResult session = stripeApiClient.createCheckoutSession(order, customerId);
+
+            order.setStripeCheckoutSessionId(session.id());
+            orderRepository.save(order);
+
+            return new CheckoutSessionResponse(session.url());
         } catch (RuntimeException e) {
             orderService.cancelOrder(order);
 
             throw e;
         }
-    }
-
-    private CheckoutSessionResponse createStripeSession(Order order) {
-        String customerId = resolveCustomerId(order);
-        StripeSessionResult session = stripeApiClient.createCheckoutSession(order, customerId);
-
-        order.setStripeCheckoutSessionId(session.id());
-        orderRepository.save(order);
-
-        return new CheckoutSessionResponse(session.url());
-    }
-
-    private String resolveCustomerId(Order order) {
-        User user = order.getUser();
-        String customerId = user.getStripeCustomerId();
-
-        if (customerId == null) {
-            customerId = stripeApiClient.createCustomer(user, order);
-            user.setStripeCustomerId(customerId);
-            userRepository.save(user);
-        } else {
-            stripeApiClient.updateCustomerShipping(customerId, order);
-        }
-
-        return customerId;
     }
 }

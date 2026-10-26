@@ -8,6 +8,7 @@ import com.d4rksoul.base.ecommerce.spring.react.entity.CartItem;
 import com.d4rksoul.base.ecommerce.spring.react.entity.DiscountCode;
 import com.d4rksoul.base.ecommerce.spring.react.entity.ProductSku;
 import com.d4rksoul.base.ecommerce.spring.react.entity.User;
+import com.d4rksoul.base.ecommerce.spring.react.enums.OrderStatus;
 import com.d4rksoul.base.ecommerce.spring.react.exception.CartLimitException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidDiscountCodeException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.ProductSkuNotFoundException;
@@ -17,6 +18,7 @@ import com.d4rksoul.base.ecommerce.spring.react.mapper.CartMapper;
 import com.d4rksoul.base.ecommerce.spring.react.repository.CartItemRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.CartRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.DiscountCodeRepository;
+import com.d4rksoul.base.ecommerce.spring.react.repository.OrderRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.ProductSkuRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -39,9 +41,9 @@ public class CartService {
     private final ProductImageService productImageService;
     private final DiscountCodeRepository discountCodeRepository;
     private final UserRepository userRepository;
+    private final OrderRepository orderRepository;
     private final CartMapper cartMapper;
     private final CartItemMapper cartItemMapper;
-    private final OrderService orderService;
 
     @Transactional
     public CartResponse addToCart(Long productSkuId, int quantity) {
@@ -113,7 +115,13 @@ public class CartService {
                 .filter(DiscountCode::isActive)
                 .orElseThrow(() -> new InvalidDiscountCodeException("Invalid or inactive discount code."));
 
-        if (orderService.existsUserUsedDiscountCode(currentUser.getId(), discountCode.getId())) {
+        boolean discountCodeAlreadyUsed = orderRepository.existsByUserIdAndDiscountCodeIdAndStatusNotIn(
+                currentUser.getId(),
+                discountCode.getId(),
+                List.of(OrderStatus.PENDING, OrderStatus.FAILED, OrderStatus.CANCELED)
+        );
+
+        if (discountCodeAlreadyUsed) {
             throw new InvalidDiscountCodeException("You have already used this discount code.");
         }
 
@@ -195,7 +203,7 @@ public class CartService {
     }
 
     private CartResponse buildCartResponse(Cart cart) {
-        List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
+        List<CartItem> items = cartItemRepository.findByCartIdOrderByIdAsc(cart.getId());
 
         Map<Long, String> covers = productImageService.findCoversBySkuId(
                 items.stream().map(CartItem::getProductSku).toList()

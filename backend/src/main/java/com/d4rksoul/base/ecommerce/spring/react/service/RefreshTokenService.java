@@ -71,9 +71,4 @@ public class RefreshTokenService {
 
         refreshTokenRepository.deleteByToken(hashedToken);
     }
-
-    @Transactional
-    public void deleteAllByUser(User user) {
-        refreshTokenRepository.deleteAllByUser(user);
-    }
 }

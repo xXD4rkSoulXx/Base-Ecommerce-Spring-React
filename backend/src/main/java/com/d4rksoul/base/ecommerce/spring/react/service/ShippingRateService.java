@@ -3,6 +3,7 @@ package com.d4rksoul.base.ecommerce.spring.react.service;
 import com.d4rksoul.base.ecommerce.spring.react.config.ShippingOriginProperties;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.CheckoutAddressRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.ShippingRateResponse;
+import com.d4rksoul.base.ecommerce.spring.react.dto.result.PackedParcelItemsResult;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Cart;
 import com.d4rksoul.base.ecommerce.spring.react.entity.CartItem;
 import com.d4rksoul.base.ecommerce.spring.react.entity.User;
@@ -34,6 +35,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -53,7 +56,7 @@ public class ShippingRateService {
         Cart cart = cartRepository.findByUserId(currentUser.getId())
                 .orElseThrow(() -> new EmptyCartException("Your cart is empty."));
 
-        List<CartItem> cartItems = cartItemRepository.findByCartId(cart.getId());
+        List<CartItem> cartItems = cartItemRepository.findByCartIdOrderByIdAsc(cart.getId());
 
         if (cartItems.isEmpty()) {
             throw new EmptyCartException("Your cart is empty.");
@@ -69,15 +72,22 @@ public class ShippingRateService {
             }
         }
 
-        List<PackedParcelResult> parcels = parcelPackingService.pack(packingItems);
+        List<PackedParcelResult> parcels = parcelPackingService.pack(packingItems).stream()
+                .map(PackedParcelItemsResult::parcel)
+                .toList();
 
         ShippoAddress addressFrom = shippingMapper.toShippoAddress(originProperties);
         ShippoAddress addressTo = shippingMapper.toShippoAddress(destination);
 
+        Map<PackedParcelResult, Long> parcelGroups = parcels.stream()
+                .collect(Collectors.groupingBy(Function.identity(), LinkedHashMap::new, Collectors.counting()));
+
         Map<String, RateAccumulator> aggregated = new LinkedHashMap<>();
 
-        for (PackedParcelResult parcel : parcels) {
-            ShippoShipmentRequest shipmentRequest = shippingMapper.toShipmentRequest(addressFrom, addressTo, parcel);
+        for (Map.Entry<PackedParcelResult, Long> parcelGroup : parcelGroups.entrySet()) {
+            ShippoShipmentRequest shipmentRequest = shippingMapper.toShipmentRequest(
+                    addressFrom, addressTo, parcelGroup.getKey()
+            );
             ShippoShipmentResponse response = shippoApiClient.createShipment(shipmentRequest);
 
             List<ShippoRate> rates = response.rates() != null ? response.rates() : List.of();
@@ -90,7 +100,11 @@ public class ShippingRateService {
                     continue;
                 }
 
-                aggregated.merge(key, new RateAccumulator(rate), RateAccumulator::combine);
+                aggregated.merge(
+                        key,
+                        new RateAccumulator(rate, parcelGroup.getValue().intValue()),
+                        RateAccumulator::combine
+                );
             }
         }
 
@@ -119,13 +133,13 @@ public class ShippingRateService {
         private int deliveryDays;
         private int parcelCount;
 
-        RateAccumulator(ShippoRate rate) {
+        RateAccumulator(ShippoRate rate, int parcelCount) {
             this.carrier = rate.provider();
             this.service = rate.servicelevel().name();
             this.currency = rate.currency();
-            this.amount = new BigDecimal(rate.amount());
+            this.amount = new BigDecimal(rate.amount()).multiply(BigDecimal.valueOf(parcelCount));
             this.deliveryDays = rate.estimatedDays() != null ? rate.estimatedDays() : 0;
-            this.parcelCount = 1;
+            this.parcelCount = parcelCount;
         }
 
         RateAccumulator combine(RateAccumulator other) {

@@ -6,16 +6,17 @@ import { Loading } from '@/pages/Loading'
 import { ErrorPage } from '@/pages/ErrorPage'
 import { ReviewLockedNotice } from '@/components/ui/ReviewLockedNotice'
 import { StarRating } from '@/components/ui/StarRating'
+import { ReviewCard } from '@/components/card/ReviewCard'
 import { useProductDetails } from '@/hooks/useProductDetails'
 import { useRelatedProducts } from '@/hooks/useRelatedProducts'
 import { useInfiniteProductReviews } from '@/hooks/useInfiniteProductReviews'
 import { useReviewEligibility } from '@/hooks/useReviewEligibility'
 import { useCreateReview } from '@/hooks/useCreateReview'
 import { useWishlist } from '@/hooks/useWishlist'
+import { useCart } from '@/hooks/useCart'
 import { type GuestCartItem } from '@/store/useCartStore'
 import { useAuthStore } from '@/store/useAuthStore'
 import type { ProductResponse } from '@/types/product'
-import { useCart } from '@/hooks/useCart'
 
 const priceFormatter = new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' })
 const formatPrice = (amount: number) => priceFormatter.format(amount)
@@ -204,8 +205,7 @@ export const ProductDetails = () => {
       quantity: 1
     }
 
-    addToCart(item)
-    toast.success(`${product.name} added to cart`)
+    addToCart(item, () => toast.success(`${product.name} added to cart`))
   }
 
   const handleSelectColor = (color: string) => {
@@ -513,19 +513,7 @@ export const ProductDetails = () => {
             </p>
           ) : (
             reviewsList.map((review) => (
-              <article key={review.id} className="border border-border bg-card p-5">
-                <header className="flex items-center justify-between">
-                  <StarRating value={review.rating} readOnly size={14} />
-                  <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                    {review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ''}
-                  </span>
-                </header>
-                <h3 className="mt-3 font-bold uppercase tracking-tight">{review.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{review.description}</p>
-                <p className="mt-4 font-mono text-[10px] uppercase tracking-widest text-neon-cyan">
-                   — {review.userFullName}
-                </p>
-              </article>
+              <ReviewCard key={review.id} review={review} />
             ))
           )}
         </div>

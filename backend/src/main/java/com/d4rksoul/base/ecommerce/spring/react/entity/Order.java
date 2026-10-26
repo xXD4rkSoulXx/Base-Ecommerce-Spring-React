@@ -65,6 +65,10 @@ public class Order {
     @Column(nullable = false)
     private BigDecimal shippingCost;
 
+    private BigDecimal totalAmount;
+
+    private Instant paidAt;
+
     @Column(nullable = false)
     private String recipientName;
 
@@ -93,15 +97,11 @@ public class Order {
     @Column(unique = true)
     private String stripeCheckoutSessionId;
 
-    private String shippoTransactionId;
-
     @Column(nullable = false)
     private String shippingCarrier;
 
     @Column(nullable = false)
     private String shippingService;
-
-    private String trackingNumber;
 
     @Builder.Default
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)

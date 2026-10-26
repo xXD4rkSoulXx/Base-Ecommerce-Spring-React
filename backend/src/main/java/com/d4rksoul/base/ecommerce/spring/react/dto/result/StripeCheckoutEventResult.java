@@ -11,5 +11,7 @@ public record StripeCheckoutEventResult(
 
         String paymentIntentId,
 
-        BigDecimal taxAmount
+        BigDecimal taxAmount,
+
+        BigDecimal totalAmount
 ) {}

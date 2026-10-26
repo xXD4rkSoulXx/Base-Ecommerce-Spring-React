@@ -1,6 +1,7 @@
 package com.d4rksoul.base.ecommerce.spring.react.service;
 
 import com.d4rksoul.base.ecommerce.spring.react.config.ShippingPackingProperties;
+import com.d4rksoul.base.ecommerce.spring.react.dto.result.PackedParcelItemsResult;
 import com.d4rksoul.base.ecommerce.spring.react.exception.UnpackableCartException;
 import com.d4rksoul.base.ecommerce.spring.react.dto.result.PackedParcelResult;
 import com.d4rksoul.base.ecommerce.spring.react.dto.result.PackingItemResult;
@@ -17,7 +18,7 @@ public class ParcelPackingService {
 
     private final ShippingPackingProperties packingProperties;
 
-    public List<PackedParcelResult> pack(List<PackingItemResult> items) {
+    public List<PackedParcelItemsResult> pack(List<PackingItemResult> items) {
         List<ShippingPackingProperties.Box> catalog = packingProperties.getBoxes().stream()
                 .sorted(Comparator.comparingDouble(ShippingPackingProperties.Box::volumeCm3))
                 .toList();
@@ -35,16 +36,19 @@ public class ParcelPackingService {
                     .orElse(null);
 
             if (target == null) {
-                ShippingPackingProperties.Box boxDefinition = catalog.stream()
-                        .filter(box -> item.weightKg() <= box.maxWeightKg() && item.volumeCm3() <= box.volumeCm3())
-                        .findFirst()
-                        .orElseThrow(() -> new UnpackableCartException(
-                                "No configured box is large enough for an item weighing " + item.weightKg()
-                                        + "kg with dimensions " + item.lengthCm() + "x" + item.widthCm()
-                                        + "x" + item.heightCm() + "cm."
+                target = new OpenBox(
+                        catalog.reversed().stream()
+                                .filter(
+                                        box -> item.weightKg() <= box.maxWeightKg()
+                                        && item.volumeCm3() <= box.volumeCm3()
+                                )
+                                .findFirst()
+                                .orElseThrow(() -> new UnpackableCartException(
+                                        "No configured box is large enough for an item weighing " + item.weightKg()
+                                                + "kg with dimensions " + item.lengthCm() + "x" + item.widthCm()
+                                                + "x" + item.heightCm() + "cm."
+                                )
                         ));
-
-                target = new OpenBox(boxDefinition);
                 openBoxes.add(target);
             }
 
@@ -52,16 +56,18 @@ public class ParcelPackingService {
         }
 
         return openBoxes.stream()
-                .map(OpenBox::toPackedParcel)
+                .map(box -> box.toPackedParcel(catalog))
                 .toList();
     }
 
     private static class OpenBox {
 
         private final ShippingPackingProperties.Box definition;
+        private final List<PackingItemResult> items = new ArrayList<>();
         private double remainingWeightKg;
         private double remainingVolumeCm3;
         private double packedWeightKg = 0;
+        private double packedVolumeCm3 = 0;
 
         private OpenBox(ShippingPackingProperties.Box definition) {
             this.definition = definition;
@@ -77,16 +83,25 @@ public class ParcelPackingService {
             remainingWeightKg -= item.weightKg();
             remainingVolumeCm3 -= item.volumeCm3();
             packedWeightKg += item.weightKg();
+            packedVolumeCm3 += item.volumeCm3();
+            items.add(item);
         }
 
-        PackedParcelResult toPackedParcel() {
-            return new PackedParcelResult(
-                    definition.name(),
+        PackedParcelItemsResult toPackedParcel(List<ShippingPackingProperties.Box> catalog) {
+            ShippingPackingProperties.Box fitted = catalog.stream()
+                    .filter(box -> packedWeightKg <= box.maxWeightKg() && packedVolumeCm3 <= box.volumeCm3())
+                    .findFirst()
+                    .orElse(definition);
+
+            PackedParcelResult parcel = new PackedParcelResult(
+                    fitted.name(),
                     packedWeightKg,
-                    definition.lengthCm(),
-                    definition.widthCm(),
-                    definition.heightCm()
+                    fitted.lengthCm(),
+                    fitted.widthCm(),
+                    fitted.heightCm()
             );
+
+            return new PackedParcelItemsResult(parcel, List.copyOf(items));
         }
     }
 }

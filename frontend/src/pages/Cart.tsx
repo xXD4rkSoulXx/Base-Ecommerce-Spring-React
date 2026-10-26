@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { X, Minus, Plus } from 'lucide-react'
+import { X, Minus, Plus, Trash2 } from 'lucide-react'
 import { useCart } from '@/hooks/useCart'
 
 const priceFormatter = new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' })
@@ -13,16 +13,27 @@ export const Cart = () => {
     discountAmount,
     getLineTotal,
     updateQuantity,
-    removeFromCart
+    removeFromCart,
+    clearCart
   } = useCart()
 
   const total = subtotal - discountAmount
 
   return (
     <div className="mx-auto max-w-[1440px] px-6 py-16 md:px-10">
-      <h1 className="mt-4 font-display text-5xl uppercase tracking-tighter md:text-7xl">
-        Your <span className="text-neon-cyan">Cart</span>
-      </h1>
+      <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
+        <h1 className="font-display text-5xl uppercase tracking-tighter md:text-7xl">
+          Your <span className="text-neon-cyan">Cart</span>
+        </h1>
+        {items.length > 0 && (
+          <button
+            onClick={() => clearCart()}
+            className="flex items-center gap-2 border border-border px-4 py-2 text-xs font-bold uppercase tracking-widest hover:border-neon-cyan hover:text-neon-cyan"
+          >
+            <Trash2 className="h-3 w-3" /> Clear all
+          </button>
+        )}
+      </div>
       {items.length === 0 ? (
         <div className="mt-20 flex flex-col items-center gap-6 border border-dashed border-border py-20 text-center">
           <p className="max-w-md text-muted-foreground">
