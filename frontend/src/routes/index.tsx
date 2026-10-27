@@ -8,6 +8,10 @@ import { Shop } from '@/pages/Shop'
 import { ProductDetails } from '@/pages/ProductDetails'
 import { Search } from '@/pages/Search'
 import { About } from '@/pages/About'
+import { ReturnPolicy } from '@/pages/ReturnPolicy'
+import { Faq } from '@/pages/Faq'
+import { TermsAndConditions } from '@/pages/TermsAndConditions'
+import { PrivacyPolicy } from '@/pages/PrivacyPolicy'
 import { Wishlist } from '@/pages/Wishlist'
 import { Cart } from '@/pages/Cart'
 import { Register } from '@/pages/Register'
@@ -32,6 +36,10 @@ export const router = createBrowserRouter([
       { path: '/product/:id', element: <ProductDetails /> },
       { path: '/search', element: <Search /> },
       { path: '/about', element: <About />},
+      { path: '/returns', element: <ReturnPolicy /> },
+      { path: '/faq', element: <Faq /> },
+      { path: '/terms', element: <TermsAndConditions /> },
+      { path: '/privacy', element: <PrivacyPolicy /> },
       { path: '/wishlist', element: <Wishlist /> },
       { path: '/cart', element: <Cart /> },
       {

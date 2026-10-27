@@ -1,0 +1,72 @@
+import { LegalPageLayout } from '@/components/layout/LegalPageLayout'
+import { LegalSection } from '@/components/section/LegalSection'
+
+export const TermsAndConditions = () => (
+  <LegalPageLayout title="Terms and conditions" updated="October 27, 2026">
+    <LegalSection
+      title="About this store"
+      paragraphs={[
+        'VELO_CITI is a demonstration e-commerce project built for a portfolio. It is not a real business. These terms describe how the demo works and are a sample text, not legal advice.'
+      ]}
+    />
+    <LegalSection
+      title="No real purchases"
+      items={[
+        'Payments are processed in Stripe test mode. No real money is charged.',
+        'Do not enter real card details. Use a Stripe test card, for example 4242 4242 4242 4242.',
+        'No order will ever be shipped. Shipping labels and tracking are simulated.',
+        'Products, prices, images and brand claims are fictional.'
+      ]}
+    />
+    <LegalSection
+      title="Accounts"
+      paragraphs={[
+        'You need an account to place an order. Keep your credentials safe, as you are responsible for activity under your account. Demo accounts and data may be deleted at any time.'
+      ]}
+    />
+    <LegalSection
+      title="Prices, tax and shipping"
+      paragraphs={[
+        'Prices are shown in euros. Tax is calculated at checkout and shipping rates are quoted for your address before you pay. The final amount appears on the payment page and in your order.'
+      ]}
+    />
+    <LegalSection
+      title="Stock"
+      paragraphs={[
+        'Stock is reserved while you pay. If checkout is not completed in time, the reservation is released.'
+      ]}
+    />
+    <LegalSection
+      title="Discount codes"
+      paragraphs={[
+        'Only one code can be applied per order, and a code can be used once per account. The Return policy explains when a used code is released.'
+      ]}
+    />
+    <LegalSection
+      title="Returns and refunds"
+      paragraphs={['Returns and refunds are covered by the Return policy page.']}
+    />
+    <LegalSection
+      title="Acceptable use"
+      paragraphs={[
+        'Do not disrupt the service, probe it for vulnerabilities or use it for anything other than evaluating the project.'
+      ]}
+    />
+    <LegalSection
+      title="Images"
+      paragraphs={[
+        'Product images are placeholders from third-party sources and often do not match the product shown. They remain the property of their owners.'
+      ]}
+    />
+    <LegalSection
+      title="Security testing"
+      paragraphs={[
+        'Security testing of this demo is welcome, on your own accounts. Please do not run denial-of-service or load tests, do not target the payment and shipping providers, and do not access other people\'s data. If you find something, report it as an issue on the project repository.'
+      ]}
+    />
+    <LegalSection
+      title="Changes"
+      paragraphs={['These terms may change at any time. The date above shows the latest update.']}
+    />
+  </LegalPageLayout>
+)

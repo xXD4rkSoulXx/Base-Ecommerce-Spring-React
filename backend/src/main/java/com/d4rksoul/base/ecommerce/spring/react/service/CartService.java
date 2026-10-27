@@ -118,7 +118,7 @@ public class CartService {
         boolean discountCodeAlreadyUsed = orderRepository.existsByUserIdAndDiscountCodeIdAndStatusNotIn(
                 currentUser.getId(),
                 discountCode.getId(),
-                List.of(OrderStatus.PENDING, OrderStatus.FAILED, OrderStatus.CANCELED)
+                List.of(OrderStatus.PENDING, OrderStatus.FAILED, OrderStatus.CANCELED, OrderStatus.REFUNDED)
         );
 
         if (discountCodeAlreadyUsed) {

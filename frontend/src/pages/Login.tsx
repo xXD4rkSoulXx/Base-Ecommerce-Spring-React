@@ -31,7 +31,7 @@ export const Login = () => {
             </h2>
             <p className="mt-6 max-w-sm text-sm text-muted-foreground">
               Operator credentials required. Access your archive, transit logs and
-              saved drops across the Velo_Citi network.
+              wishlist across the Velo_Citi network.
             </p>
           </div>
         </div>
@@ -69,15 +69,6 @@ export const Login = () => {
             disabled={isPending}
             placeholder="••••••••••"
           />
-          <div className="flex items-center justify-between text-xs">
-            <label className="flex items-center gap-2 font-mono uppercase tracking-widest text-muted-foreground">
-              <input type="checkbox" className="h-3 w-3 accent-neon-cyan" />
-                Remember device
-            </label>
-            <Link to="/login" className="font-mono uppercase tracking-widest text-neon-cyan hover:text-neon-pink">
-              Forgot key?
-            </Link>
-          </div>
           <button
             type="submit"
             disabled={isPending}
@@ -85,19 +76,6 @@ export const Login = () => {
           >
             {isPending ? "Authenticating..." : "Authenticate"}
             {!isPending && <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />}
-          </button>
-          <div className="relative my-2 flex items-center">
-            <div className="flex-1 border-t border-border" />
-            <span className="px-4 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-              or
-            </span>
-            <div className="flex-1 border-t border-border" />
-          </div>
-          <button
-            type="button"
-            className="w-full border border-border py-4 text-xs font-bold uppercase tracking-[0.3em] text-foreground transition-colors hover:border-neon-cyan hover:text-neon-cyan"
-          >
-            Continue with Google
           </button>
         </form>
         <p className="mt-10 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">

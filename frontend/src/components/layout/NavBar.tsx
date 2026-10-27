@@ -221,7 +221,7 @@ export const NavBar = () => {
                   to="/register"
                   end
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-neon-pink hover:text-neon-pink/80"
+                  className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-foreground/80 hover:text-neon-cyan"
                 >
                   <User className="h-4 w-4" /> Register
                 </NavLink>

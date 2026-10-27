@@ -118,10 +118,14 @@ export const Register = () => {
             />
             <span className="font-mono uppercase tracking-widest leading-relaxed text-muted-foreground">
               I accept the{" "}
-              <Link to="/about" className="text-neon-cyan hover:text-neon-pink">
-                Network Protocol
+              <Link to="/terms" className="text-neon-cyan hover:text-neon-pink">
+                Terms
               </Link>{" "}
-              and Transit Policy.
+              and the{" "}
+              <Link to="/privacy" className="text-neon-cyan hover:text-neon-pink">
+                Privacy policy
+              </Link>
+              .
             </span>
           </label>
           <button
@@ -131,19 +135,6 @@ export const Register = () => {
           >
             Create Operator
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </button>
-          <div className="relative my-2 flex items-center">
-            <div className="flex-1 border-t border-border" />
-            <span className="px-4 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-              or
-            </span>
-            <div className="flex-1 border-t border-border" />
-          </div>
-          <button
-            type="button"
-            className="w-full border border-border py-4 text-xs font-bold uppercase tracking-[0.3em] text-foreground transition-colors hover:border-neon-cyan hover:text-neon-cyan"
-          >
-            Continue with Google
           </button>
         </form>
         <p className="mt-10 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
@@ -163,8 +154,7 @@ export const Register = () => {
               Suit <span className="text-neon-pink">up</span>.
             </h2>
             <p className="mt-6 max-w-sm text-sm text-muted-foreground">
-              Get early-access drops, transit tracking and Lab releases delivered
-              straight to your console.
+              Track every parcel, manage returns and save your favorites.
             </p>
           </div>
           <div className="space-y-3 border-t border-border pt-6">

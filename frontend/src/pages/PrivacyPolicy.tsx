@@ -1,0 +1,54 @@
+import { LegalPageLayout } from '@/components/layout/LegalPageLayout'
+import { LegalSection } from '@/components/section/LegalSection'
+
+export const PrivacyPolicy = () => (
+  <LegalPageLayout title="Privacy policy" updated="October 27, 2026">
+    <LegalSection
+      title="Scope"
+      paragraphs={[
+        'VELO_CITI is a demo store built for a portfolio. This page explains which data the demo handles. It is a sample text, not legal advice.'
+      ]}
+    />
+    <LegalSection
+      title="Data we collect"
+      items={[
+        'Account: your email and the other details you give when you register.',
+        'Orders: delivery name, address and phone number, the items you buy and the amounts paid.',
+        'Cart and wishlist: the products you save.',
+        'Technical data: the cookies described below.'
+      ]}
+    />
+    <LegalSection
+      title="How we use it"
+      paragraphs={[
+        'To create your account, process and deliver (simulated) orders, request shipping rates, issue refunds and keep you signed in. We do not sell your data, and the demo sends no marketing emails.'
+      ]}
+    />
+    <LegalSection
+      title="Service providers"
+      paragraphs={['We share data only with the providers needed to run the demo.']}
+      items={[
+        'Stripe processes payments. Card details are entered on Stripe\'s page and never reach our servers. We keep the payment reference and the amounts.',
+        'Shippo receives your delivery address and the size and weight of your parcels to quote shipping rates and create test labels.'
+      ]}
+    />
+    <LegalSection
+      title="Cookies"
+      paragraphs={[
+        'We use essential cookies only: a refresh-token cookie that keeps you signed in for up to 30 days, and a cookie that protects against cross-site request forgery. Stripe may set its own cookies on its checkout page.'
+      ]}
+    />
+    <LegalSection
+      title="Retention and security"
+      paragraphs={[
+        'Account and order data are kept while the demo is running and may be deleted at any time. Passwords are never stored in plain text.'
+      ]}
+    />
+    <LegalSection
+      title="Your data"
+      paragraphs={[
+        'This demo has no support mailbox, so requests cannot be handled by email. Demo data may be deleted at any time.'
+      ]}
+    />
+  </LegalPageLayout>
+)
