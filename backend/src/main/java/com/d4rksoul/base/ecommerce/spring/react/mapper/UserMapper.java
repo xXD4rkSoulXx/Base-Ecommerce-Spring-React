@@ -1,5 +1,6 @@
 package com.d4rksoul.base.ecommerce.spring.react.mapper;
 
+import com.d4rksoul.base.ecommerce.spring.react.dto.response.ProfileResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.UserResponse;
 import com.d4rksoul.base.ecommerce.spring.react.entity.User;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,14 @@ public class UserMapper {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .role(user.getRole())
+                .build();
+    }
+
+    public ProfileResponse toProfileDto(User user, long totalOrders) {
+        return ProfileResponse.builder()
+                .user(toDto(user))
+                .createdAt(user.getCreatedAt())
+                .totalOrders(totalOrders)
                 .build();
     }
 }

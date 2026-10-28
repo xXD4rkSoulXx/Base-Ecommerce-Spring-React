@@ -1,5 +1,6 @@
 package com.d4rksoul.base.ecommerce.spring.react.service;
 
+import com.d4rksoul.base.ecommerce.spring.react.dto.request.ChangePasswordRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.result.LoginResult;
 import com.d4rksoul.base.ecommerce.spring.react.dto.result.RotateRefreshTokenResult;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.LoginRequest;
@@ -9,6 +10,7 @@ import com.d4rksoul.base.ecommerce.spring.react.entity.User;
 import com.d4rksoul.base.ecommerce.spring.react.enums.UserRole;
 import com.d4rksoul.base.ecommerce.spring.react.exception.EmailAlreadyExistsException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidCredentialsException;
+import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidPasswordChangeException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.UserNotFoundException;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.AuthenticationMapper;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.UserMapper;
@@ -71,6 +73,23 @@ public class AuthenticationService {
         UserResponse userResponse = userMapper.toDto(result.user());
 
         return new LoginResult(userResponse, accessToken, newRefreshToken);
+    }
+
+    @Transactional
+    public void changePassword(String email, ChangePasswordRequest request) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
+            throw new InvalidPasswordChangeException("Current password is incorrect");
+        }
+
+        if (passwordEncoder.matches(request.newPassword(), user.getPassword())) {
+            throw new InvalidPasswordChangeException("New password must be different from the current password");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        refreshTokenRepository.deleteAllByUser(user);
     }
 
     @Transactional

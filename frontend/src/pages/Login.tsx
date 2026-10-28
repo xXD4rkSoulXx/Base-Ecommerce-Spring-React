@@ -5,12 +5,16 @@ import { ArrowRight, Lock, Mail } from 'lucide-react'
 import type { AxiosError } from 'axios'
 import { useLogin } from '@/hooks/useLogin'
 import { Field } from '@/components/ui/Field'
+import { FormError } from '@/components/ui/FormError'
 
 export const Login = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   
   const { mutate, isPending, isError, error } = useLogin()
+
+  const errorMessage =
+    (error as AxiosError<{ message: string }>)?.response?.data?.message || 'Invalid credentials'
 
   const handleLogin = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -44,11 +48,7 @@ export const Login = () => {
           Welcome back. Authenticate to resume your session.
         </p>
         <form className="mt-10 space-y-6" onSubmit={handleLogin}>
-          {isError && (
-            <div className="border border-red-500/30 bg-red-500/10 px-4 py-3 font-mono text-xs text-red-400 uppercase tracking-wider">
-              {(error as AxiosError<{ message: string }>)?.response?.data?.message || "⚠️ Invalid Credentials"}
-            </div>
-          )}
+          {isError && <FormError message={errorMessage} />}
           <Field
             label="Email"
             icon={<Mail className="h-4 w-4" />}

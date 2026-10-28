@@ -39,6 +39,8 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
 
     List<Order> findByUserIdAndStatus(Long userId, OrderStatus status);
 
+    long countByUserIdAndStatusIn(Long userId, Collection<OrderStatus> statuses);
+
     Optional<Order> findByStripeCheckoutSessionId(String stripeCheckoutSessionId);
 
     List<Order> findByStatusAndStripeCheckoutSessionIdNotNullAndCreatedAtBefore(OrderStatus status, Instant limit);

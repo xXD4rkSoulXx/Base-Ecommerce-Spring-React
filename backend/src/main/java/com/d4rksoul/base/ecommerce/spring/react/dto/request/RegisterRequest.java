@@ -1,5 +1,6 @@
 package com.d4rksoul.base.ecommerce.spring.react.dto.request;
 
+import com.d4rksoul.base.ecommerce.spring.react.validation.StrongPassword;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -12,12 +13,7 @@ public record RegisterRequest(
         @Email(message = "Invalid email format")
         String email,
 
-        @NotBlank(message = "Password is required")
-        @Size(min = 8, message = "Password must be at least 8 characters long")
-        @Pattern(
-                regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d).+$",
-                message = "Password must contain uppercase, lowercase and number"
-        )
+        @StrongPassword
         String password,
 
         @NotBlank(message = "First name is required")

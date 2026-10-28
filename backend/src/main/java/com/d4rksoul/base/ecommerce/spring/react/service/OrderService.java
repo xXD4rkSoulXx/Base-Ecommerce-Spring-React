@@ -55,18 +55,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.d4rksoul.base.ecommerce.spring.react.enums.OrderStatus.HISTORY_STATUSES;
+
 @Service
 @RequiredArgsConstructor
 public class OrderService {
-
-    private static final List<OrderStatus> HISTORY_STATUSES = List.of(
-            OrderStatus.PAID,
-            OrderStatus.PROCESSING,
-            OrderStatus.SHIPPED,
-            OrderStatus.DELIVERED,
-            OrderStatus.RETURN_REQUESTED,
-            OrderStatus.REFUNDED
-    );
 
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;

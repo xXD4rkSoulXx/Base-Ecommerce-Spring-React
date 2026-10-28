@@ -1,5 +1,5 @@
 import { api } from '@/lib/api'
-import type { RegisterRequest, LoginRequest, LoginResponse } from '@/types/auth'
+import type { RegisterRequest, LoginRequest, LoginResponse, ChangePasswordRequest } from '@/types/auth'
 
 export const authService = {
   register: async (request: RegisterRequest) => {
@@ -11,8 +11,16 @@ export const authService = {
 
     return response.data
   },
+
+  changePassword: async (request: ChangePasswordRequest) => {
+    await api.put<void>('/api/auth/password', request)
+  },
   
   logout: async () => {
     await api.delete<void>('/api/auth/logout')
+  },
+
+  logoutAll: async () => {
+    await api.delete<void>('/api/auth/logout-all')
   }
 }

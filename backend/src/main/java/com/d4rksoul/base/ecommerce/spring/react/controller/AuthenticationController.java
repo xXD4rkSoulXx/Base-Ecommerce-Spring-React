@@ -1,5 +1,6 @@
 package com.d4rksoul.base.ecommerce.spring.react.controller;
 
+import com.d4rksoul.base.ecommerce.spring.react.dto.request.ChangePasswordRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.result.LoginResult;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.LoginResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.LoginRequest;
@@ -19,6 +20,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -70,6 +72,20 @@ public class AuthenticationController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, newRefreshTokenCookie.toString())
                 .body(new LoginResponse(result.user(), result.accessToken()));
+    }
+
+    @PutMapping("/password")
+    public ResponseEntity<Void> changePassword(
+            @AuthenticationPrincipal Jwt jwt,
+            @Valid @RequestBody ChangePasswordRequest request
+    ) {
+        authenticationService.changePassword(jwt.getSubject(), request);
+
+        ResponseCookie cleanCookie = buildRefreshTokenCookie("", 0);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cleanCookie.toString())
+                .build();
     }
 
     @DeleteMapping("/logout")

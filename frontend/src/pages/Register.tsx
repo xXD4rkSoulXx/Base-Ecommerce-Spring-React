@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import type { SubmitEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { AlertTriangle, ArrowRight, Lock, Mail, User } from 'lucide-react'
+import { ArrowRight, Lock, Mail, User } from 'lucide-react'
 import type { AxiosError } from 'axios'
 import { useRegister } from '@/hooks/useRegister'
 import { Field } from '@/components/ui/Field'
+import { FormError } from '@/components/ui/FormError'
 import { Perk } from '@/components/ui/Perk'
 
 export const Register = () => {
@@ -16,7 +17,7 @@ export const Register = () => {
   const [accept, setAccept] = useState(false)
   const [validationError, setValidationError] = useState<string | null>(null)
   
-  const { mutate, isPending, isError, error } = useRegister()
+  const { mutate, isPending, error } = useRegister()
 
   const errorMessage = validationError
     || (error as AxiosError<{ message: string }>)?.response?.data?.message
@@ -50,17 +51,9 @@ export const Register = () => {
         <p className="mt-3 text-sm text-muted-foreground">
           Provision your operator profile and unlock the full archive.
         </p>
-        {(validationError || isError) && (
-          <div
-            role="alert"
-            className="mt-8 flex items-start gap-3 border border-destructive/60 bg-destructive/10 px-4 py-3 text-xs text-destructive"
-          >
-            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-            <div>
-              <p className="mt-1 font-mono">
-                {errorMessage}
-              </p>
-            </div>
+        {errorMessage && (
+          <div className="mt-8">
+            <FormError message={errorMessage} />
           </div>
         )}
         <form className="mt-10 space-y-6" onSubmit={handleRegister}>

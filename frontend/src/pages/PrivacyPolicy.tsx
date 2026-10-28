@@ -47,7 +47,13 @@ export const PrivacyPolicy = () => (
     <LegalSection
       title="Your data"
       paragraphs={[
-        'This demo has no support mailbox, so requests cannot be handled by email. Demo data may be deleted at any time.'
+        'You can manage part of your data from your account page. The demo has no account deletion, data export or support mailbox, so other requests cannot be handled. Demo data may be deleted at any time.'
+      ]}
+      items={[
+        'View your name, email, the date you joined and your order history.',
+        'Edit your first and last name. Your email cannot be changed.',
+        'Change your password, which signs you out of every device.',
+        'End all your sessions on every device at any time.'
       ]}
     />
   </LegalPageLayout>
