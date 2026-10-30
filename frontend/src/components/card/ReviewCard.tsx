@@ -5,12 +5,14 @@ interface ReviewCardProps {
   review: ReviewResponse
 }
 
+const dateFormatter = new Intl.DateTimeFormat('pt-PT', { dateStyle: 'medium' })
+
 export const ReviewCard = ({ review }: ReviewCardProps) => (
   <article className="border border-border bg-card p-5">
     <header className="flex items-center justify-between">
       <StarRating value={review.rating} readOnly size={14} />
       <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-        {review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ''}
+        {review.createdAt ? dateFormatter.format(new Date(review.createdAt)) : ''}
       </span>
     </header>
     <h3 className="mt-3 font-bold uppercase tracking-tight">{review.title}</h3>

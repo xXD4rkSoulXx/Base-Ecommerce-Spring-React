@@ -1,8 +1,11 @@
 package com.d4rksoul.base.ecommerce.spring.react.dto.response;
 
+import com.d4rksoul.base.ecommerce.spring.react.enums.Permission;
 import com.d4rksoul.base.ecommerce.spring.react.enums.UserRole;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
+
+import java.util.Set;
 
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -13,5 +16,7 @@ public record UserResponse(
 
         String lastName,
 
-        UserRole role
+        UserRole role,
+
+        Set<Permission> permissions
 ) {}

@@ -23,7 +23,7 @@ import { AdminDashboard } from '@/pages/admin/AdminDashboard'
 import { AdminProducts } from '@/pages/admin/AdminProducts'
 import { AdminOrders } from '@/pages/admin/AdminOrders'
 import { AdminDiscounts } from '@/pages/admin/AdminDiscounts'
-import { AdminUsers } from '@/pages/admin/AdminUsers'
+import { AdminTeam } from '@/pages/admin/AdminTeam'
 import { NoPermission } from '@/pages/NoPermission'
 import { NotFound } from '@/pages/NotFound'
 
@@ -60,27 +60,29 @@ export const router = createBrowserRouter([
     ]
   },
   {
-    path: '/admin',
-    element: <AdminLayout />,
+    element: <ProtectedRoute permission="DASHBOARD_READ" />,
     children: [
       {
-        element: <ProtectedRoute allowedRoles={['OPERATOR', 'MANAGER', 'ADMIN']} />,
+        path: '/admin',
+        element: <AdminLayout />,
         children: [
           { index: true, element: <AdminDashboard /> },
-          { path: 'products', element: <AdminProducts /> },
-          { path: 'orders', element: <AdminOrders /> }
-        ]
-      },
-      {
-        element: <ProtectedRoute allowedRoles={['MANAGER', 'ADMIN']} />,
-        children: [
-          { path: 'discounts', element: <AdminDiscounts /> }
-        ]
-      },
-      {
-        element: <ProtectedRoute allowedRoles={['ADMIN']} />,
-        children: [
-          { path: 'users', element: <AdminUsers /> }
+          {
+            element: <ProtectedRoute permission="PRODUCTS_READ" />,
+            children: [{ path: 'products', element: <AdminProducts /> }]
+          },
+          {
+            element: <ProtectedRoute permission="ORDERS_READ" />,
+            children: [{ path: 'orders', element: <AdminOrders /> }]
+          },
+          {
+            element: <ProtectedRoute permission="DISCOUNTS_READ" />,
+            children: [{ path: 'discounts', element: <AdminDiscounts /> }]
+          },
+          {
+            element: <ProtectedRoute permission="TEAM_READ" />,
+            children: [{ path: 'team', element: <AdminTeam /> }]
+          }
         ]
       }
     ]

@@ -1,24 +1,36 @@
 package com.d4rksoul.base.ecommerce.spring.react.config;
 
+import com.d4rksoul.base.ecommerce.spring.react.enums.UserRole;
+import com.d4rksoul.base.ecommerce.spring.react.security.TokenClaims;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            JwtAuthenticationConverter jwtAuthenticationConverter
+    ) throws Exception {
         http
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf
@@ -37,7 +49,7 @@ public class SecurityConfig {
                 )
                 .logout(AbstractHttpConfigurer::disable)
                 .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(Customizer.withDefaults())
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter))
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -63,5 +75,21 @@ public class SecurityConfig {
                 );
 
         return http.build();
+    }
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter permissionsConverter = new JwtGrantedAuthoritiesConverter();
+        permissionsConverter.setAuthoritiesClaimName(TokenClaims.PERMISSIONS);
+        permissionsConverter.setAuthorityPrefix("");
+
+        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+        converter.setJwtGrantedAuthoritiesConverter(
+                jwt -> UserRole.DEMO.name().equals(jwt.getClaimAsString(TokenClaims.ROLE))
+                        ? List.of()
+                        : permissionsConverter.convert(jwt)
+        );
+
+        return converter;
     }
 }

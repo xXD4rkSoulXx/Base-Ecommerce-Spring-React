@@ -4,6 +4,7 @@ import { Menu, Search, Heart, User, ShoppingBag, X } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useWishlist } from '@/hooks/useWishlist'
 import { useCart } from '@/hooks/useCart'
+import { usePermission } from '@/hooks/usePermission'
 
 interface NavItem {
   to: string
@@ -14,19 +15,18 @@ export const NavBar = () => {
   const [open, setOpen] = useState(false)
   const [now, setNow] = useState(new Date())
 
-  const hasAnyRole = useAuthStore((state) => state.hasAnyRole)
   const user = useAuthStore((state) => state.user)
   
   const countCart = useCart().totalItems
 
   const countWishlist = useWishlist().totalItems
 
-  const isElevatedOperator = hasAnyRole(['OPERATOR', 'MANAGER', 'ADMIN'])
-
+  const canAccessAdmin = usePermission('DASHBOARD_READ')
+  
   const navItems: NavItem[] = [
     { to: '/shop', label: 'Shop' },
     { to: '/about', label: 'About' },
-    ...(isElevatedOperator ? [{ to: '/admin', label: 'Admin' }] : [])
+    ...(canAccessAdmin ? [{ to: '/admin', label: 'Admin' }] : [])
   ]
 
   const time = now.toLocaleTimeString('pt-PT', {

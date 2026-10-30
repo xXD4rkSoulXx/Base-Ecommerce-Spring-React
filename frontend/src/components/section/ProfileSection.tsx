@@ -6,10 +6,7 @@ import { useLogout } from '@/hooks/useLogout'
 import { useLogoutAll } from '@/hooks/useLogoutAll'
 import { useProfile } from '@/hooks/useProfile'
 
-const ASIDE_CLASS_NAME = 'self-start border border-border bg-card p-8'
-
-const formatMemberSince = (createdAt: string) =>
-  new Date(createdAt).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })
+const dateFormatter = new Intl.DateTimeFormat('pt-PT', { dateStyle: 'medium' })
 
 const getInitials = (firstName: string, lastName: string) =>
   `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
@@ -23,7 +20,7 @@ export const ProfileSection = () => {
 
   if (isLoading) {
     return (
-      <aside className={ASIDE_CLASS_NAME}>
+      <aside className="self-start border border-border bg-card p-8">
         <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Loading...</p>
       </aside>
     )
@@ -31,7 +28,7 @@ export const ProfileSection = () => {
 
   if (isError || !profile) {
     return (
-      <aside className={ASIDE_CLASS_NAME}>
+      <aside className="self-start border border-border bg-card p-8">
         <p className="font-mono text-xs uppercase tracking-widest text-destructive">
           Could not load your profile
         </p>
@@ -42,7 +39,7 @@ export const ProfileSection = () => {
   const { user, createdAt, totalOrders } = profile
 
   return (
-    <aside className={ASIDE_CLASS_NAME}>
+    <aside className="self-start border border-border bg-card p-8">
       <div className="flex items-center gap-4">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center border border-neon-cyan/40 font-display text-2xl text-neon-cyan">
           {getInitials(user.firstName, user.lastName)}
@@ -55,7 +52,7 @@ export const ProfileSection = () => {
         </div>
       </div>
       <div className="mt-8 grid grid-cols-2 gap-6 border-y border-border py-6">
-        <ProfileStat label="Member Since" value={formatMemberSince(createdAt)} />
+        <ProfileStat label="Member Since" value={dateFormatter.format(new Date(createdAt))} />
         <ProfileStat label="Total Orders" value={totalOrders} />
       </div>
       <div className="mt-6 space-y-3">

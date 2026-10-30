@@ -1,29 +1,10 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { ArrowLeft, LayoutDashboard, Package, Tag, ShoppingCart, Users, type LucideIcon } from 'lucide-react'
-import { useAuthStore } from '@/store/useAuthStore'
-
-interface AdminNavItem {
-  to: string
-  label: string
-  icon: LucideIcon
-  end?: boolean
-}
+import { ArrowLeft } from 'lucide-react'
+import { useAdminNavItems } from '@/hooks/useAdminNavItems'
 
 export const AdminSidebar = () => {
   const navigate = useNavigate()
-
-  const hasAnyRole = useAuthStore((state) => state.hasAnyRole)
-
-  const isManagerOrAdmin = hasAnyRole(['MANAGER', 'ADMIN'])
-  const isAdminOnly = hasAnyRole(['ADMIN'])
-  
-  const adminNavItems: AdminNavItem[] = [
-    { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
-    { to: '/admin/products', label: 'Products', icon: Package },
-    ...(isManagerOrAdmin ? [{ to: '/admin/discounts', label: 'Discounts', icon: Tag }] : []),
-    { to: '/admin/orders', label: 'Orders', icon: ShoppingCart },
-    ...(isAdminOnly ? [{ to: '/admin/users', label: 'Users', icon: Users }] : [])
-  ]
+  const adminNavItems = useAdminNavItems()
 
   return (
     <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 border-r border-border bg-card lg:block">

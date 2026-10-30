@@ -1,35 +1,16 @@
 import { useEffect } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { X, ArrowLeft, LayoutDashboard, Package, Tag, ShoppingCart, Users, type LucideIcon } from 'lucide-react'
-import { useAuthStore } from '@/store/useAuthStore'
+import { X, ArrowLeft } from 'lucide-react'
+import { useAdminNavItems } from '@/hooks/useAdminNavItems'
 
 interface AdminMenuMobileProps {
   open: boolean
   onClose: () => void
 }
 
-interface AdminNavItem {
-  to: string
-  label: string
-  icon: LucideIcon
-  end?: boolean
-}
-
 export const AdminMenuMobile = ({ open, onClose }: AdminMenuMobileProps) => {
   const navigate = useNavigate()
-
-  const hasAnyRole = useAuthStore((state) => state.hasAnyRole)
-
-  const isManagerOrAdmin = hasAnyRole(['MANAGER', 'ADMIN'])
-  const isAdminOnly = hasAnyRole(['ADMIN'])
-  
-  const adminNavItems: AdminNavItem[] = [
-    { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
-    { to: '/admin/products', label: 'Products', icon: Package },
-    ...(isManagerOrAdmin ? [{ to: '/admin/discounts', label: 'Discounts', icon: Tag }] : []),
-    { to: '/admin/orders', label: 'Orders', icon: ShoppingCart },
-    ...(isAdminOnly ? [{ to: '/admin/users', label: 'Users', icon: Users }] : [])
-  ]
+  const adminNavItems = useAdminNavItems()
 
   useEffect(() => {
     if (open) {

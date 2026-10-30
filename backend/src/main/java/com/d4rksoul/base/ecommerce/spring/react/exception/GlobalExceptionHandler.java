@@ -1,8 +1,10 @@
 package com.d4rksoul.base.ecommerce.spring.react.exception;
 
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.ApiError;
+import com.d4rksoul.base.ecommerce.spring.react.exception.admin.InvalidTeamChangeException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -151,6 +153,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidPasswordChangeException.class)
     public ResponseEntity<ApiError> handleInvalidPasswordChange(InvalidPasswordChangeException exception) {
         return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(InvalidTeamChangeException.class)
+    public ResponseEntity<ApiError> handleInvalidTeamChange(InvalidTeamChangeException exception) {
+        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiError> handleUnreadableMessage() {
+        return buildResponse(HttpStatus.BAD_REQUEST, "Malformed request body");
     }
 
     @ExceptionHandler(Exception.class)

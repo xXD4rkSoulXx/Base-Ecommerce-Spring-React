@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Lock, ShieldAlert } from 'lucide-react'
+import { ArrowLeft, Lock } from 'lucide-react'
 
 export const NoPermission = () => {
   return (
@@ -35,23 +35,17 @@ export const NoPermission = () => {
             <span className="text-neon-pink">●</span> clearance :: <span className="text-foreground">REJECTED</span>
           </p>
           <p className="mt-1 text-muted-foreground">
-            <span className="text-neon-cyan">●</span> required :: <span className="text-foreground">OPERATOR</span>
+            <span className="text-neon-cyan">●</span> required :: <span className="text-foreground">STAFF ACCESS</span>
           </p>
           <p className="mt-1 text-muted-foreground">
             <span className="text-neon-cyan">●</span> incident :: <span className="text-foreground">logged</span>
           </p>
         </div>
         <p className="mx-auto mt-6 max-w-md text-sm text-muted-foreground">
-          Your credentials don't grant entry to this node. Authenticate as an
-          operator or return to public terrain.
+          Your role doesn't grant entry to this area. Ask an administrator if you
+          think this is a mistake.
         </p>
         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Link
-            to="/login"
-            className="flex items-center gap-2 bg-neon-cyan px-6 py-3 text-xs font-black uppercase tracking-widest text-primary-foreground hover:opacity-80"
-          >
-            <ShieldAlert className="h-3.5 w-3.5" /> Sign In as Operator
-          </Link>
           <Link
             to="/"
             className="flex items-center gap-2 border border-border px-6 py-3 text-xs font-black uppercase tracking-widest hover:border-neon-cyan hover:text-neon-cyan"

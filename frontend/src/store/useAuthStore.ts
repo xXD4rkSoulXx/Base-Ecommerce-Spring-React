@@ -9,10 +9,9 @@ interface AuthState {
   setUser: (user: UserResponse) => void
   clearAuth: () => void
   setHydrated: () => void
-  hasAnyRole: (allowedRoles: string[]) => boolean
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
+export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   accessToken: null,
   isHydrated: false,
@@ -22,16 +21,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   setUser: (user) => set({ user }),
 
   clearAuth: () => set({ user: null, accessToken: null }),
-  
-  setHydrated: () => set({ isHydrated: true }),
 
-  hasAnyRole: (allowedRoles) => {
-    const user = get().user
-
-    if (!user) {
-      return false
-    }
-
-    return allowedRoles.includes(user.role)
-  }
+  setHydrated: () => set({ isHydrated: true })
 }))
