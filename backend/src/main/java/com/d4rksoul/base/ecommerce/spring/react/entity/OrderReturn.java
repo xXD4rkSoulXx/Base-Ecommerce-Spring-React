@@ -60,6 +60,15 @@ public class OrderReturn {
 
     private Instant refundedAt;
 
+    private Instant approvedAt;
+
+    private Instant receivedAt;
+
+    private String rejectionReason;
+
+    @Column(nullable = false)
+    private boolean manuallyManaged;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private Instant createdAt;

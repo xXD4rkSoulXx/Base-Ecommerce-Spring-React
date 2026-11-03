@@ -16,17 +16,13 @@ import com.d4rksoul.base.ecommerce.spring.react.enums.ReturnStatus;
 import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidReturnRequestException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.OrderNotFoundException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.ReturnNotAllowedException;
-import com.d4rksoul.base.ecommerce.spring.react.exception.UserNotAuthenticatedException;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.OrderReturnItemMapper;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.OrderReturnMapper;
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderReturnItemRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderReturnRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderStatusEventRepository;
-import com.d4rksoul.base.ecommerce.spring.react.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -36,7 +32,6 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -51,7 +46,7 @@ public class OrderReturnService {
     private final OrderReturnRepository orderReturnRepository;
     private final OrderReturnItemRepository orderReturnItemRepository;
     private final OrderStatusEventRepository orderStatusEventRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final OrderStatusEventService orderStatusEventService;
     private final OrderReturnMapper orderReturnMapper;
     private final OrderReturnItemMapper orderReturnItemMapper;
@@ -64,7 +59,7 @@ public class OrderReturnService {
             throw new InvalidReturnRequestException("Please describe the reason for the return.");
         }
 
-        User user = getCurrentUser();
+        User user = userService.getCurrentUser();
 
         Order order = orderRepository
                 .findByIdAndUserIdAndStatusIn(orderId, user.getId(), List.of(OrderStatus.DELIVERED))
@@ -82,7 +77,7 @@ public class OrderReturnService {
         Map<Long, OrderItem> orderItemsById = order.getOrderItems().stream()
                 .collect(Collectors.toMap(OrderItem::getId, Function.identity()));
         Map<Long, Long> returnedByItemId = orderReturnItemMapper.toReturnedQuantities(
-                orderReturnItemRepository.sumReturnedQuantities(orderId, ReturnStatus.FAILED)
+                orderReturnItemRepository.sumReturnedQuantities(orderId, ReturnStatus.INACTIVE_STATUSES)
         );
 
         Set<Long> seen = new HashSet<>();
@@ -147,7 +142,7 @@ public class OrderReturnService {
         }
 
         Map<Long, Long> returnedByItemId = orderReturnItemMapper.toReturnedQuantities(
-                orderReturnItemRepository.sumReturnedQuantities(order.getId(), ReturnStatus.FAILED)
+                orderReturnItemRepository.sumReturnedQuantities(order.getId(), ReturnStatus.INACTIVE_STATUSES)
         );
 
         Map<Long, Long> returnableByItemId = order.getOrderItems().stream()
@@ -157,14 +152,5 @@ public class OrderReturnService {
                 ));
 
         return new ReturnEligibilityResult(deadline, returnableByItemId);
-    }
-
-    private User getCurrentUser() {
-        Jwt jwt = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-                .map(auth -> (Jwt) auth.getPrincipal())
-                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
-
-        return userRepository.findByEmail(jwt.getSubject())
-                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
     }
 }

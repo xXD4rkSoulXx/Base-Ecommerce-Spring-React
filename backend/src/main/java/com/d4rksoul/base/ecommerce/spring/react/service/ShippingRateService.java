@@ -9,7 +9,6 @@ import com.d4rksoul.base.ecommerce.spring.react.entity.CartItem;
 import com.d4rksoul.base.ecommerce.spring.react.entity.User;
 import com.d4rksoul.base.ecommerce.spring.react.exception.EmptyCartException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.NoUnifiedCarrierException;
-import com.d4rksoul.base.ecommerce.spring.react.exception.UserNotAuthenticatedException;
 import com.d4rksoul.base.ecommerce.spring.react.integration.shippo.ShippoApiClient;
 import com.d4rksoul.base.ecommerce.spring.react.integration.shippo.dto.ShippoAddress;
 import com.d4rksoul.base.ecommerce.spring.react.integration.shippo.dto.ShippoRate;
@@ -18,12 +17,9 @@ import com.d4rksoul.base.ecommerce.spring.react.integration.shippo.dto.ShippoShi
 import com.d4rksoul.base.ecommerce.spring.react.mapper.ShippingMapper;
 import com.d4rksoul.base.ecommerce.spring.react.repository.CartItemRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.CartRepository;
-import com.d4rksoul.base.ecommerce.spring.react.repository.UserRepository;
 import com.d4rksoul.base.ecommerce.spring.react.dto.result.PackedParcelResult;
 import com.d4rksoul.base.ecommerce.spring.react.dto.result.PackingItemResult;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +29,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -44,7 +39,7 @@ public class ShippingRateService {
 
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final ParcelPackingService parcelPackingService;
     private final ShippingMapper shippingMapper;
     private final ShippoApiClient shippoApiClient;
@@ -52,7 +47,7 @@ public class ShippingRateService {
 
     @Transactional(readOnly = true)
     public List<ShippingRateResponse> getShippingRates(CheckoutAddressRequest destination) {
-        User currentUser = getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         Cart cart = cartRepository.findByUserId(currentUser.getId())
                 .orElseThrow(() -> new EmptyCartException("Your cart is empty."));
 
@@ -168,14 +163,5 @@ public class ShippingRateService {
 
             return deliveryDays == 1 ? "1 day" : deliveryDays + " days";
         }
-    }
-
-    private User getCurrentUser() {
-        Jwt jwt = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-                .map(auth -> (Jwt) auth.getPrincipal())
-                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
-
-        return userRepository.findByEmail(jwt.getSubject())
-                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
     }
 }

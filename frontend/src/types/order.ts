@@ -1,11 +1,33 @@
 import type { ProductColor, ProductSize } from '@/types/product'
 
-export type OrderStatus = 'PAID' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED'
-  | 'RETURN_REQUESTED' | 'REFUNDED'
-export type ShipmentStatus = 'PRE_TRANSIT' | 'IN_TRANSIT' | 'OUT_FOR_DELIVERY' | 'DELIVERED'
-  | 'FAILURE' | 'RETURNED'
-export type ReturnStatus = 'REQUESTED' | 'REFUNDED' | 'FAILED'
-export type ReturnReason = 'DOES_NOT_FIT' | 'DEFECTIVE' | 'NOT_AS_DESCRIBED' | 'CHANGED_MIND'
+export type OrderStatus =
+  | 'PAID'
+  | 'PROCESSING'
+  | 'SHIPPED'
+  | 'DELIVERED'
+  | 'RETURN_REQUESTED'
+  | 'REFUNDED'
+
+export type ShipmentStatus =
+  | 'PRE_TRANSIT'
+  | 'IN_TRANSIT'
+  | 'OUT_FOR_DELIVERY'
+  | 'DELIVERED'
+  | 'FAILURE'
+  | 'RETURNED'
+
+export type ReturnStatus =
+  | 'REQUESTED'
+  | 'APPROVED'
+  | 'RECEIVED'
+  | 'REFUNDED'
+  | 'REJECTED'
+
+export type ReturnReason =
+  | 'DOES_NOT_FIT'
+  | 'DEFECTIVE'
+  | 'NOT_AS_DESCRIBED'
+  | 'CHANGED_MIND'
   | 'OTHER'
 
 export interface OrderSearchRequest {
@@ -73,7 +95,18 @@ export interface OrderStatusEventResponse {
   occurredAt: string
 }
 
-export interface OrderDetailsResponse {
+export interface ShippingAddress {
+  recipientName: string
+  addressLine1: string
+  addressLine2?: string
+  city: string
+  state?: string
+  postalCode: string
+  country: string
+  phone?: string
+}
+
+export interface OrderDetailsResponse extends ShippingAddress {
   id: number
   status: OrderStatus
   createdAt: string
@@ -86,14 +119,6 @@ export interface OrderDetailsResponse {
   totalAmount: number
   shippingCarrier?: string
   shippingService?: string
-  recipientName: string
-  addressLine1: string
-  addressLine2?: string
-  city: string
-  state?: string
-  postalCode: string
-  country: string
-  phone?: string
   events: OrderStatusEventResponse[]
   shipments: OrderShipmentResponse[]
   returnableUntil?: string
@@ -109,6 +134,7 @@ export interface OrderReturnResponse {
   refundAmount?: number
   createdAt: string
   refundedAt?: string
+  rejectionReason?: string
   items: OrderReturnItemResponse[]
 }
 

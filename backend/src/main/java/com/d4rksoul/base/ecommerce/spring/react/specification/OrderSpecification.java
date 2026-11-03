@@ -3,6 +3,8 @@ package com.d4rksoul.base.ecommerce.spring.react.specification;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Order;
 import com.d4rksoul.base.ecommerce.spring.react.entity.OrderItem;
 import com.d4rksoul.base.ecommerce.spring.react.enums.OrderStatus;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 import lombok.AccessLevel;
@@ -11,6 +13,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OrderSpecification {
@@ -73,9 +76,62 @@ public class OrderSpecification {
         };
     }
 
+    public static Specification<Order> hasStatus(OrderStatus status) {
+        return (root, _, cb) -> {
+            if (status == null) {
+                return cb.conjunction();
+            }
+
+            return cb.equal(root.get("status"), status);
+        };
+    }
+
+    public static Specification<Order> matchesCustomerSearch(String q) {
+        return (root, _, cb) -> {
+            if (q == null || q.isBlank()) {
+                return cb.conjunction();
+            }
+
+            String term = q.trim().toLowerCase();
+            String pattern = "%" + term + "%";
+
+            Predicate matchesText = cb.or(
+                    cb.like(cb.lower(root.get("user").get("email")), pattern),
+                    cb.like(cb.lower(root.get("recipientName")), pattern)
+            );
+
+            String number = term.startsWith("#") ? term.substring(1) : term;
+
+            if (number.matches("\\d{1,18}")) {
+                return cb.or(matchesText, cb.equal(root.get("id"), Long.parseLong(number)));
+            }
+
+            return matchesText;
+        };
+    }
+
     public static Specification<Order> orderByRecentDesc() {
         return (root, query, cb) -> {
             query.orderBy(cb.desc(root.get("createdAt")), cb.asc(root.get("id")));
+
+            return cb.conjunction();
+        };
+    }
+
+    public static Specification<Order> orderByFulfillmentPriority() {
+        return (root, query, cb) -> {
+            List<OrderStatus> statuses = OrderStatus.FULFILLMENT_STATUSES;
+            CriteriaBuilder.Case<Integer> priority = cb.selectCase();
+
+            for (int i = 0; i < statuses.size(); i++) {
+                priority.when(cb.equal(root.get("status"), statuses.get(i)), i);
+            }
+
+            query.orderBy(
+                    cb.asc(priority.otherwise(statuses.size())),
+                    cb.asc(root.get("createdAt")),
+                    cb.asc(root.get("id"))
+            );
 
             return cb.conjunction();
         };

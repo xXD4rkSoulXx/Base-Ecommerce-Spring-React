@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
-import { useAdminNavItems } from '@/hooks/useAdminNavItems'
+import { useAdminNavItems } from '@/hooks/admin/useAdminNavItems'
 
 export const AdminSidebar = () => {
   const navigate = useNavigate()

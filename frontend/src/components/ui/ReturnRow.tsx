@@ -30,6 +30,9 @@ export const ReturnRow = ({ orderReturn, orderItems }: ReturnRowProps) => (
       {returnReasonLabels[orderReturn.reason]}
       {orderReturn.comment && ` · ${orderReturn.comment}`}
     </p>
+    {orderReturn.rejectionReason && (
+      <p className="text-red-500">Reason: {orderReturn.rejectionReason}</p>
+    )}
     <ul className="space-y-0.5">
       {orderReturn.items.map((returned) => {
         const item = orderItems.find((orderItem) => orderItem.id === returned.orderItemId)

@@ -3,6 +3,10 @@ package com.d4rksoul.base.ecommerce.spring.react.repository;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Order;
 import com.d4rksoul.base.ecommerce.spring.react.enums.OrderStatus;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ShipmentStatus;
+import org.jspecify.annotations.NonNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -39,13 +43,15 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
 
     List<Order> findByUserIdAndStatus(Long userId, OrderStatus status);
 
+    Optional<Order> findByIdAndStatusIn(Long id, Collection<OrderStatus> statuses);
+
     long countByUserIdAndStatusIn(Long userId, Collection<OrderStatus> statuses);
 
     Optional<Order> findByStripeCheckoutSessionId(String stripeCheckoutSessionId);
 
     List<Order> findByStatusAndStripeCheckoutSessionIdNotNullAndCreatedAtBefore(OrderStatus status, Instant limit);
 
-    List<Order> findByStatusAndPaidAtBefore(OrderStatus status, Instant limit);
+    List<Order> findByStatusAndPaidAtBeforeAndManuallyManagedFalse(OrderStatus status, Instant limit);
 
     @EntityGraph(attributePaths = {
             "discountCode",
@@ -59,6 +65,7 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
         SELECT o FROM Order o
         WHERE o.status = :status
         AND o.paidAt < :limit
+        AND o.manuallyManaged = false
         AND NOT EXISTS (SELECT 1 FROM OrderShipment s WHERE s.order = o)
     """)
     List<Order> findByStatusAndPaidAtBeforeWithoutShipments(
@@ -69,6 +76,7 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     @Query("""
         SELECT o FROM Order o
         WHERE o.status = :status
+        AND o.manuallyManaged = false
         AND EXISTS (SELECT 1 FROM OrderShipment s WHERE s.order = o AND s.status <> :excluded)
     """)
     List<Order> findWithAnyShipmentOtherThan(
@@ -79,6 +87,7 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     @Query("""
         SELECT o FROM Order o
         WHERE o.status = :status
+        AND o.manuallyManaged = false
         AND EXISTS (SELECT 1 FROM OrderShipment s WHERE s.order = o)
         AND NOT EXISTS (SELECT 1 FROM OrderShipment s WHERE s.order = o AND s.status <> :shipmentStatus)
     """)
@@ -86,6 +95,16 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
             @Param("status") OrderStatus status,
             @Param("shipmentStatus") ShipmentStatus shipmentStatus
     );
+
+    @Override
+    @EntityGraph(attributePaths = "user")
+    @NonNull
+    Page<Order> findAll(@NonNull Specification<Order> specification, @NonNull Pageable pageable);
+
+    @Modifying
+    @Transactional
+    @Query("update Order o set o.manuallyManaged = true where o.id = :id")
+    void markManuallyManaged(@Param("id") Long id);
 
     @Modifying
     @Transactional

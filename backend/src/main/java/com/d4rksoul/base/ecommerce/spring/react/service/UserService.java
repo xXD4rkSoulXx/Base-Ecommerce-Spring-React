@@ -5,13 +5,18 @@ import com.d4rksoul.base.ecommerce.spring.react.dto.response.ProfileResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.UserResponse;
 import com.d4rksoul.base.ecommerce.spring.react.entity.User;
 import com.d4rksoul.base.ecommerce.spring.react.enums.OrderStatus;
+import com.d4rksoul.base.ecommerce.spring.react.exception.UserNotAuthenticatedException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.UserNotFoundException;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.UserMapper;
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +25,15 @@ public class UserService {
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
     private final UserMapper userMapper;
+
+    public User getCurrentUser() {
+        Jwt jwt = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
+                .map(auth -> (Jwt) auth.getPrincipal())
+                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
+
+        return userRepository.findByEmail(jwt.getSubject())
+                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
+    }
 
     @Transactional(readOnly = true)
     public ProfileResponse getProfile(String email) {

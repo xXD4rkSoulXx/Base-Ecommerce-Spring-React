@@ -22,6 +22,8 @@ import { CheckoutSuccess } from '@/pages/CheckoutSucess'
 import { AdminDashboard } from '@/pages/admin/AdminDashboard'
 import { AdminProducts } from '@/pages/admin/AdminProducts'
 import { AdminOrders } from '@/pages/admin/AdminOrders'
+import { AdminReturns } from '@/pages/admin/AdminReturns'
+import { AdminOrderDetails } from '@/pages/admin/AdminOrderDetails'
 import { AdminDiscounts } from '@/pages/admin/AdminDiscounts'
 import { AdminTeam } from '@/pages/admin/AdminTeam'
 import { NoPermission } from '@/pages/NoPermission'
@@ -51,7 +53,7 @@ export const router = createBrowserRouter([
       },
       {
         element: <ProtectedRoute />,
-                children: [
+        children: [
           { path: '/account', element: <Account /> },
           { path: '/checkout', element: <Checkout /> },
           { path: '/checkout/success', element: <CheckoutSuccess /> }
@@ -73,7 +75,14 @@ export const router = createBrowserRouter([
           },
           {
             element: <ProtectedRoute permission="ORDERS_READ" />,
-            children: [{ path: 'orders', element: <AdminOrders /> }]
+            children: [
+              { path: 'orders', element: <AdminOrders /> },
+              { path: 'orders/:id', element: <AdminOrderDetails /> }
+            ]
+          },
+          {
+            element: <ProtectedRoute permission="RETURNS_READ" />,
+            children: [{ path: 'returns', element: <AdminReturns /> }]
           },
           {
             element: <ProtectedRoute permission="DISCOUNTS_READ" />,

@@ -12,7 +12,6 @@ import com.d4rksoul.base.ecommerce.spring.react.enums.OrderStatus;
 import com.d4rksoul.base.ecommerce.spring.react.exception.CartLimitException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidDiscountCodeException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.ProductSkuNotFoundException;
-import com.d4rksoul.base.ecommerce.spring.react.exception.UserNotAuthenticatedException;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.CartItemMapper;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.CartMapper;
 import com.d4rksoul.base.ecommerce.spring.react.repository.CartItemRepository;
@@ -20,10 +19,7 @@ import com.d4rksoul.base.ecommerce.spring.react.repository.CartRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.DiscountCodeRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.ProductSkuRepository;
-import com.d4rksoul.base.ecommerce.spring.react.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,16 +34,16 @@ public class CartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ProductSkuRepository productSkuRepository;
-    private final ProductImageService productImageService;
     private final DiscountCodeRepository discountCodeRepository;
-    private final UserRepository userRepository;
     private final OrderRepository orderRepository;
+    private final UserService userService;
+    private final ProductImageService productImageService;
     private final CartMapper cartMapper;
     private final CartItemMapper cartItemMapper;
 
     @Transactional
     public CartResponse addToCart(Long productSkuId, int quantity) {
-        User currentUser = getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         Cart cart = cartRepository.findByUserId(currentUser.getId())
                 .orElseGet(() -> cartRepository.save(cartMapper.toEntity(currentUser)));
 
@@ -80,7 +76,7 @@ public class CartService {
             return;
         }
 
-        User currentUser = getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         Cart cart = cartRepository.findByUserId(currentUser.getId())
                 .orElseGet(() -> cartRepository.save(cartMapper.toEntity(currentUser)));
 
@@ -107,7 +103,7 @@ public class CartService {
 
     @Transactional
     public CartResponse applyDiscountCode(String code) {
-        User currentUser = getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         Cart cart = cartRepository.findByUserId(currentUser.getId())
                 .orElseGet(() -> cartRepository.save(cartMapper.toEntity(currentUser)));
 
@@ -133,7 +129,7 @@ public class CartService {
 
     @Transactional(readOnly = true)
     public CartResponse getCart() {
-        User currentUser = getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         Cart cart = cartRepository.findByUserId(currentUser.getId()).orElse(null);
 
         if (cart == null) {
@@ -145,7 +141,7 @@ public class CartService {
 
     @Transactional
     public CartResponse updateQuantity(Long productSkuId, int quantity) {
-        User currentUser = getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         Cart cart = cartRepository.findByUserId(currentUser.getId()).orElse(null);
 
         if (cart == null) {
@@ -163,7 +159,7 @@ public class CartService {
 
     @Transactional
     public CartResponse removeFromCart(Long productSkuId) {
-        User currentUser = getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         Cart cart = cartRepository.findByUserId(currentUser.getId()).orElse(null);
 
         if (cart == null) {
@@ -177,7 +173,7 @@ public class CartService {
 
     @Transactional
     public CartResponse removeDiscountCode() {
-        User currentUser = getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         Cart cart = cartRepository.findByUserId(currentUser.getId()).orElse(null);
 
         if (cart == null) {
@@ -192,7 +188,7 @@ public class CartService {
 
     @Transactional
     public void clearCart() {
-        User currentUser = getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         Cart cart = cartRepository.findByUserId(currentUser.getId()).orElse(null);
 
         if (cart == null) {
@@ -214,14 +210,5 @@ public class CartService {
                 .toList();
 
         return cartMapper.toDto(itemResponses, cart.getDiscountCode());
-    }
-
-    private User getCurrentUser() {
-        Jwt jwt = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-                .map(auth -> (Jwt) auth.getPrincipal())
-                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
-
-        return userRepository.findByEmail(jwt.getSubject())
-                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
     }
 }

@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { X, ArrowLeft } from 'lucide-react'
-import { useAdminNavItems } from '@/hooks/useAdminNavItems'
+import { useAdminNavItems } from '@/hooks/admin/useAdminNavItems'
 
 interface AdminMenuMobileProps {
   open: boolean

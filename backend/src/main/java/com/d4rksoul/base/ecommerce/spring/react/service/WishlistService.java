@@ -7,23 +7,18 @@ import com.d4rksoul.base.ecommerce.spring.react.entity.User;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Wishlist;
 import com.d4rksoul.base.ecommerce.spring.react.entity.WishlistItem;
 import com.d4rksoul.base.ecommerce.spring.react.exception.ProductNotFoundException;
-import com.d4rksoul.base.ecommerce.spring.react.exception.UserNotAuthenticatedException;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.ProductMapper;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.WishlistMapper;
 import com.d4rksoul.base.ecommerce.spring.react.repository.ProductRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.ProductSkuImageRepository;
-import com.d4rksoul.base.ecommerce.spring.react.repository.UserRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.WishlistItemRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.WishlistRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,13 +29,13 @@ public class WishlistService {
     private final WishlistItemRepository wishlistItemRepository;
     private final ProductRepository productRepository;
     private final ProductSkuImageRepository productSkuImageRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final ProductMapper productMapper;
     private final WishlistMapper wishlistMapper;
 
     @Transactional
     public void addToWishlist(Long productId) {
-        User currentUser = getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         Wishlist wishlist = wishlistRepository.findByUserId(currentUser.getId())
                 .orElseGet(() -> wishlistRepository.save(wishlistMapper.toEntity(currentUser)));
 
@@ -62,7 +57,7 @@ public class WishlistService {
             return;
         }
 
-        User currentUser = getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         Wishlist wishlist = wishlistRepository.findByUserId(currentUser.getId())
                 .orElseGet(() -> wishlistRepository.save(wishlistMapper.toEntity(currentUser)));
 
@@ -88,7 +83,7 @@ public class WishlistService {
 
     @Transactional(readOnly = true)
     public List<ProductResponse> getWishlist() {
-        User currentUser = getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         Wishlist wishlist = wishlistRepository.findByUserId(currentUser.getId()).orElse(null);
 
         if (wishlist == null) {
@@ -120,7 +115,7 @@ public class WishlistService {
 
     @Transactional
     public void removeFromWishlist(Long productId) {
-        User currentUser = getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         Wishlist wishlist = wishlistRepository.findByUserId(currentUser.getId()).orElse(null);
 
         if (wishlist == null) {
@@ -132,7 +127,7 @@ public class WishlistService {
 
     @Transactional
     public void clearWishlist() {
-        User currentUser = getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         Wishlist wishlist = wishlistRepository.findByUserId(currentUser.getId()).orElse(null);
 
         if (wishlist == null) {
@@ -140,14 +135,5 @@ public class WishlistService {
         }
 
         wishlistItemRepository.deleteByWishlistId(wishlist.getId());
-    }
-
-    private User getCurrentUser() {
-        Jwt jwt = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-                .map(auth -> (Jwt) auth.getPrincipal())
-                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
-
-        return userRepository.findByEmail(jwt.getSubject())
-                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
     }
 }

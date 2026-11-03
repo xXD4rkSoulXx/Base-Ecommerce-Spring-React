@@ -1,4 +1,4 @@
-package com.d4rksoul.base.ecommerce.spring.react.scheduler;
+package com.d4rksoul.base.ecommerce.spring.react.simulation;
 
 import com.d4rksoul.base.ecommerce.spring.react.entity.Order;
 import com.d4rksoul.base.ecommerce.spring.react.entity.ShipmentTrackingEvent;
@@ -6,10 +6,11 @@ import com.d4rksoul.base.ecommerce.spring.react.enums.OrderStatus;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ShipmentStatus;
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.ShipmentTrackingEventRepository;
-import com.d4rksoul.base.ecommerce.spring.react.service.OrderShipmentService;
+import com.d4rksoul.base.ecommerce.spring.react.service.OrderFulfillmentService;
 import com.d4rksoul.base.ecommerce.spring.react.service.OrderStatusEventService;
 import com.d4rksoul.base.ecommerce.spring.react.service.ShipmentTrackingEventService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +18,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.ThreadLocalRandom;
 
+@ConditionalOnProperty(prefix = "app.simulation", name = "enabled", havingValue = "true")
 @Component
 @RequiredArgsConstructor
 public class OrderFulfillmentScheduler {
@@ -31,7 +33,7 @@ public class OrderFulfillmentScheduler {
 
     private final OrderRepository orderRepository;
     private final ShipmentTrackingEventRepository shipmentTrackingEventRepository;
-    private final OrderShipmentService orderShipmentService;
+    private final OrderFulfillmentService orderFulfillmentService;
     private final OrderStatusEventService orderStatusEventService;
     private final ShipmentTrackingEventService shipmentTrackingEventService;
 
@@ -52,10 +54,10 @@ public class OrderFulfillmentScheduler {
     private void startProcessing() {
         Instant limit = Instant.now().minus(PROCESSING_DELAY);
 
-        for (Order order : orderRepository.findByStatusAndPaidAtBefore(OrderStatus.PAID, limit)) {
-            if (orderStatusEventService.transition(order.getId(), OrderStatus.PAID, OrderStatus.PROCESSING)) {
-                orderShipmentService.purchaseLabels(order.getId());
-            }
+        for (Order order : orderRepository
+                .findByStatusAndPaidAtBeforeAndManuallyManagedFalse(OrderStatus.PAID, limit)
+        ) {
+            orderFulfillmentService.startProcessing(order.getId());
         }
     }
 

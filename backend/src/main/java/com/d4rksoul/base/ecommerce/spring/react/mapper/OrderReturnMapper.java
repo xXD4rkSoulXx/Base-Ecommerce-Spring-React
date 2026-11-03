@@ -37,6 +37,7 @@ public class OrderReturnMapper {
                 .refundAmount(orderReturn.getRefundAmount())
                 .createdAt(orderReturn.getCreatedAt())
                 .refundedAt(orderReturn.getRefundedAt())
+                .rejectionReason(orderReturn.getRejectionReason())
                 .items(items.stream().map(orderReturnItemMapper::toDto).toList())
                 .build();
     }

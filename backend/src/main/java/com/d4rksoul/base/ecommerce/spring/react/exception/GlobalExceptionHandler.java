@@ -1,7 +1,9 @@
 package com.d4rksoul.base.ecommerce.spring.react.exception;
 
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.ApiError;
+import com.d4rksoul.base.ecommerce.spring.react.exception.admin.InvalidOrderTransitionException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.admin.InvalidTeamChangeException;
+import com.d4rksoul.base.ecommerce.spring.react.exception.admin.ReturnNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -158,6 +160,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidTeamChangeException.class)
     public ResponseEntity<ApiError> handleInvalidTeamChange(InvalidTeamChangeException exception) {
         return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(InvalidOrderTransitionException.class)
+    public ResponseEntity<ApiError> handleInvalidOrderTransition(InvalidOrderTransitionException exception) {
+        return buildResponse(HttpStatus.CONFLICT, exception.getMessage());
+    }
+
+    @ExceptionHandler(ReturnNotFoundException.class)
+    public ResponseEntity<ApiError> handleReturnNotFound(ReturnNotFoundException exception) {
+        return buildResponse(HttpStatus.NOT_FOUND, exception.getMessage());
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)

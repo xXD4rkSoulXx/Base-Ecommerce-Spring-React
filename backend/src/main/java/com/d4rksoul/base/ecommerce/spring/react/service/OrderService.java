@@ -26,7 +26,6 @@ import com.d4rksoul.base.ecommerce.spring.react.exception.InsufficientStockExcep
 import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidDiscountCodeException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidShippingRateException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.OrderNotFoundException;
-import com.d4rksoul.base.ecommerce.spring.react.exception.UserNotAuthenticatedException;
 import com.d4rksoul.base.ecommerce.spring.react.integration.stripe.StripeApiClient;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.OrderMapper;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.PageMapper;
@@ -38,7 +37,6 @@ import com.d4rksoul.base.ecommerce.spring.react.repository.OrderShipmentReposito
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderStatusEventRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.ProductSkuRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.ShipmentTrackingEventRepository;
-import com.d4rksoul.base.ecommerce.spring.react.repository.UserRepository;
 import com.d4rksoul.base.ecommerce.spring.react.specification.OrderSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,8 +44,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,8 +64,8 @@ public class OrderService {
     private final OrderShipmentItemRepository orderShipmentItemRepository;
     private final OrderStatusEventRepository orderStatusEventRepository;
     private final ShipmentTrackingEventRepository shipmentTrackingEventRepository;
-    private final UserRepository userRepository;
     private final ProductSkuRepository productSkuRepository;
+    private final UserService userService;
     private final ProductImageService productImageService;
     private final ShippingRateService shippingRateService;
     private final OrderReturnService orderReturnService;
@@ -82,7 +78,7 @@ public class OrderService {
 
     @Transactional
     public Order createPendingOrder(CreateOrderRequest request) {
-        User user = getCurrentUser();
+        User user = userService.getCurrentUser();
         Cart cart = cartRepository.findByUserIdForUpdate(user.getId())
                 .orElseThrow(() -> new EmptyCartException("Your cart is empty."));
 
@@ -152,7 +148,7 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public PageResponse<OrderSummaryResponse> getOrders(OrderSearchRequest filter) {
-        User user = getCurrentUser();
+        User user = userService.getCurrentUser();
 
         Specification<Order> specification = Specification
                 .where(OrderSpecification.belongsToUser(user.getId()))
@@ -171,11 +167,15 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public OrderDetailsResponse getOrder(Long id) {
-        User user = getCurrentUser();
+        User user = userService.getCurrentUser();
 
         Order order = orderRepository.findByIdAndUserIdAndStatusIn(id, user.getId(), HISTORY_STATUSES)
                 .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + id));
 
+        return buildDetails(order);
+    }
+
+    public OrderDetailsResponse buildDetails(Order order) {
         List<OrderShipment> shipments = orderShipmentRepository.findByOrderIdOrderByIdAsc(order.getId());
 
         List<OrderStatusEvent> events = orderStatusEventRepository.findByOrderIdOrderByOccurredAtAscIdAsc(order.getId());
@@ -196,14 +196,5 @@ public class OrderService {
     @Transactional
     public void cancelOrder(Order order) {
         releaseReservation(order, OrderStatus.CANCELED);
-    }
-
-    private User getCurrentUser() {
-        Jwt jwt = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-                .map(auth -> (Jwt) auth.getPrincipal())
-                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
-
-        return userRepository.findByEmail(jwt.getSubject())
-                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
     }
 }

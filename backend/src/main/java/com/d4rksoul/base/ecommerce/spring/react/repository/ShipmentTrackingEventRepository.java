@@ -18,6 +18,7 @@ public interface ShipmentTrackingEventRepository extends JpaRepository<ShipmentT
         WHERE e.status = :status
         AND s.status = :status
         AND e.occurredAt < :limit
+        AND s.order.manuallyManaged = false
     """)
     List<ShipmentTrackingEvent> findCurrentByStatusAndOccurredAtBefore(
             @Param("status") ShipmentStatus status,

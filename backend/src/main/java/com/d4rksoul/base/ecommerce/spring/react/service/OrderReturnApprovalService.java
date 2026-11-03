@@ -41,26 +41,57 @@ public class OrderReturnApprovalService {
     private final StripeApiClient stripeApiClient;
 
     @Transactional
-    public void approve(Long returnId) {
-        OrderReturn orderReturn = orderReturnRepository
-                .findByIdAndStatus(returnId, ReturnStatus.REQUESTED)
-                .orElse(null);
+    public Optional<OrderReturn> approve(Long returnId) {
+        return orderReturnRepository.findByIdAndStatus(returnId, ReturnStatus.REQUESTED).map(orderReturn -> {
+            orderReturn.setStatus(ReturnStatus.APPROVED);
+            orderReturn.setApprovedAt(Instant.now());
 
-        if (orderReturn == null) {
-            return;
-        }
+            return orderReturn;
+        });
+    }
 
+    @Transactional
+    public Optional<OrderReturn> receive(Long returnId) {
+        return orderReturnRepository.findByIdAndStatus(returnId, ReturnStatus.APPROVED).map(orderReturn -> {
+            orderReturn.setStatus(ReturnStatus.RECEIVED);
+            orderReturn.setReceivedAt(Instant.now());
+
+            for (OrderReturnItem item : orderReturnItemRepository.findByOrderReturnId(returnId)) {
+                productSkuRepository.incrementStock(item.getOrderItem().getProductSku().getId(), item.getQuantity());
+            }
+
+            return orderReturn;
+        });
+    }
+
+    @Transactional
+    public Optional<OrderReturn> refund(Long returnId) {
+        return orderReturnRepository.findByIdAndStatus(returnId, ReturnStatus.RECEIVED).map(this::issueRefund);
+    }
+
+    @Transactional
+    public Optional<OrderReturn> reject(Long returnId, String reason) {
+        return orderReturnRepository.findByIdAndStatus(returnId, ReturnStatus.REQUESTED).map(orderReturn -> {
+            orderReturn.setStatus(ReturnStatus.REJECTED);
+            orderReturn.setRejectionReason(reason);
+
+            orderStatusEventService.transition(
+                    orderReturn.getOrder().getId(), OrderStatus.RETURN_REQUESTED, OrderStatus.DELIVERED
+            );
+
+            return orderReturn;
+        });
+    }
+
+    private OrderReturn issueRefund(OrderReturn orderReturn) {
         Order order = orderReturn.getOrder();
-        List<OrderReturnItem> returnItems = orderReturnItemRepository.findByOrderReturnId(returnId);
+        List<OrderReturnItem> returnItems = orderReturnItemRepository.findByOrderReturnId(orderReturn.getId());
         BigDecimal amount = calculateRefund(order, returnItems);
 
-        Optional<StripeRefundResult> refund = refund(order, orderReturn, amount);
+        Optional<StripeRefundResult> refund = createRefund(order, orderReturn, amount);
 
         if (refund.isEmpty()) {
-            orderReturn.setStatus(ReturnStatus.FAILED);
-            orderStatusEventService.transition(order.getId(), OrderStatus.RETURN_REQUESTED, OrderStatus.DELIVERED);
-
-            return;
+            return orderReturn;
         }
 
         orderReturn.setStatus(ReturnStatus.REFUNDED);
@@ -68,16 +99,14 @@ public class OrderReturnApprovalService {
         orderReturn.setStripeRefundId(refund.get().id());
         orderReturn.setRefundedAt(Instant.now());
 
-        for (OrderReturnItem item : returnItems) {
-            productSkuRepository.incrementStock(item.getOrderItem().getProductSku().getId(), item.getQuantity());
-        }
-
         OrderStatus next = isFullyReturned(order) ? OrderStatus.REFUNDED : OrderStatus.DELIVERED;
 
         orderStatusEventService.transition(order.getId(), OrderStatus.RETURN_REQUESTED, next);
+
+        return orderReturn;
     }
 
-    private Optional<StripeRefundResult> refund(Order order, OrderReturn orderReturn, BigDecimal amount) {
+    private Optional<StripeRefundResult> createRefund(Order order, OrderReturn orderReturn, BigDecimal amount) {
         try {
             StripeRefundResult refund = stripeApiClient.createRefund(order, orderReturn, amount);
 
@@ -127,7 +156,7 @@ public class OrderReturnApprovalService {
 
     private boolean isFullyReturned(Order order) {
         Map<Long, Long> returnedByItemId = orderReturnItemMapper.toReturnedQuantities(
-                orderReturnItemRepository.sumReturnedQuantities(order.getId(), ReturnStatus.FAILED)
+                orderReturnItemRepository.sumReturnedQuantities(order.getId(), ReturnStatus.INACTIVE_STATUSES)
         );
 
         return order.getOrderItems().stream()

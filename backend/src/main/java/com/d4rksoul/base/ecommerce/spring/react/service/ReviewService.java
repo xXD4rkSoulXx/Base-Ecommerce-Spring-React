@@ -12,24 +12,18 @@ import com.d4rksoul.base.ecommerce.spring.react.enums.ReviewEligibility;
 import com.d4rksoul.base.ecommerce.spring.react.exception.ProductAlreadyReviewedException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.ProductNotFoundException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.ProductNotPurchasedException;
-import com.d4rksoul.base.ecommerce.spring.react.exception.UserNotAuthenticatedException;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.PageMapper;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.ReviewMapper;
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.ProductRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.ReviewRepository;
-import com.d4rksoul.base.ecommerce.spring.react.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -38,13 +32,13 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final ReviewMapper reviewMapper;
     private final PageMapper pageMapper;
 
     @Transactional
     public ReviewResponse createReview(Long productId, ReviewRequest request) {
-        User currentUser = getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         Long userId = currentUser.getId();
 
         Product product = productRepository.findById(productId)
@@ -68,7 +62,7 @@ public class ReviewService {
 
     @Transactional(readOnly = true)
     public ReviewEligibility getReviewEligibility(Long productId) {
-        User currentUser = getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         Long userId = currentUser.getId();
 
         boolean hasPurchased = orderRepository.existsUserPurchasedProduct(userId, productId, OrderStatus.DELIVERED);
@@ -95,14 +89,5 @@ public class ReviewService {
         Page<Review> reviewPage = reviewRepository.findByProductId(productId, pageable);
 
         return pageMapper.toDto(reviewPage.map(reviewMapper::toDto));
-    }
-
-    private User getCurrentUser() {
-        Jwt jwt = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-                .map(auth -> (Jwt) auth.getPrincipal())
-                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
-
-        return userRepository.findByEmail(jwt.getSubject())
-                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
     }
 }

@@ -70,6 +70,9 @@ public class Order {
     private Instant paidAt;
 
     @Column(nullable = false)
+    private boolean manuallyManaged;
+
+    @Column(nullable = false)
     private String recipientName;
 
     @Column(nullable = false)

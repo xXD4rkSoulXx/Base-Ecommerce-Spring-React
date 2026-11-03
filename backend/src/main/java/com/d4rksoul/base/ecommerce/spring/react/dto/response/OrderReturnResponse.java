@@ -26,5 +26,7 @@ public record OrderReturnResponse(
 
         Instant refundedAt,
 
+        String rejectionReason,
+
         List<OrderReturnItemResponse> items
 ) {}

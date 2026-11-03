@@ -9,8 +9,15 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface OrderShipmentRepository extends JpaRepository<OrderShipment, Long> {
+
+    boolean existsByOrderId(Long orderId);
+
+    boolean existsByOrderIdAndStatusNot(Long orderId, ShipmentStatus status);
+
+    Optional<OrderShipment> findByIdAndOrderId(Long id, Long orderId);
 
     List<OrderShipment> findByOrderIdOrderByIdAsc(Long orderId);
 

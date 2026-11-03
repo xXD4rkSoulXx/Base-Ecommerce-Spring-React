@@ -3,8 +3,10 @@ import { Activity, Box, Clock, MapPin, Package, RotateCcw, Truck, X } from 'luci
 import { InfoBox } from '@/components/ui/InfoBox'
 import { OrderStatusBadge } from '@/components/ui/OrderStatusBadge'
 import { ParcelRow } from '@/components/ui/ParcelRow'
-import { SummaryLine } from '@/components/ui/SummaryLine'
 import { OrderTimeline } from '@/components/ui/OrderTimeline'
+import { OrderAddress } from '@/components/ui/OrderAddress'
+import { OrderItemRow } from '@/components/ui/OrderItemRow'
+import { OrderTotals } from '@/components/ui/OrderTotals'
 import { ReturnRow } from '@/components/ui/ReturnRow'
 import { ReturnDialog } from '@/components/dialog/ReturnDialog'
 import { useOrder } from '@/hooks/useOrder'
@@ -14,13 +16,8 @@ interface OrderDetailDialogProps {
   onClose: () => void
 }
 
-const priceFormatter = new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' })
-const formatPrice = (amount: number) => priceFormatter.format(amount)
 const dateTimeFormatter = new Intl.DateTimeFormat('pt-PT', { dateStyle: 'medium', timeStyle: 'short' })
 const dateFormatter = new Intl.DateTimeFormat('pt-PT', { dateStyle: 'medium' })
-const formatSize = (size: string) => (size.startsWith('_') ? size.substring(1) : size)
-const countryNames = new Intl.DisplayNames('en', { type: 'region' })
-const formatCountry = (code: string) => countryNames.of(code) ?? code
 
 export const OrderDetailDialog = ({ orderId, onClose }: OrderDetailDialogProps) => {
   const { data: order, isLoading, isError } = useOrder(orderId)
@@ -68,18 +65,7 @@ export const OrderDetailDialog = ({ orderId, onClose }: OrderDetailDialogProps) 
                   <OrderStatusBadge status={order.status} />
                 </InfoBox>
                 <InfoBox icon={<MapPin className="h-3.5 w-3.5" />} label="Ship To">
-                  <div className="space-y-0.5 text-xs">
-                    <p>{order.recipientName}</p>
-                    <p>
-                      {order.addressLine1}
-                      {order.addressLine2 && `, ${order.addressLine2}`}
-                    </p>
-                    <p>
-                      {order.postalCode} {order.city}
-                      {order.state && `, ${order.state}`}
-                    </p>
-                    <p>{formatCountry(order.country)}</p>
-                  </div>
+                  <OrderAddress address={order} />
                 </InfoBox>
                 <InfoBox icon={<Truck className="h-3.5 w-3.5" />} label="Carrier">
                   <div className="space-y-0.5 text-xs">
@@ -142,33 +128,7 @@ export const OrderDetailDialog = ({ orderId, onClose }: OrderDetailDialogProps) 
                 )}
                 <div className="border border-border">
                   {order.items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex items-center justify-between gap-3 border-b border-border p-3 last:border-b-0"
-                    >
-                      <div className="flex min-w-0 items-center gap-3">
-                        <div className="h-14 w-14 shrink-0 overflow-hidden border border-border bg-background">
-                          {item.imagePath && (
-                            <img
-                              src={item.imagePath}
-                              alt={item.productName}
-                              loading="lazy"
-                              className="h-full w-full object-cover"
-                            />
-                          )}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-mono text-[10px] text-neon-cyan">{item.ref}</p>
-                          <p className="truncate font-bold uppercase">{item.productName}</p>
-                          <p className="font-mono text-[10px] text-muted-foreground">
-                            {[item.size && `Size ${formatSize(item.size)}`, item.color, `Qty ${item.quantity}`]
-                              .filter(Boolean)
-                              .join(' · ')}
-                          </p>
-                        </div>
-                      </div>
-                      <span className="font-mono text-sm text-neon-cyan">{formatPrice(item.lineTotal)}</span>
-                    </div>
+                    <OrderItemRow key={item.id} item={item} />
                   ))}
                 </div>
               </div>
@@ -187,21 +147,7 @@ export const OrderDetailDialog = ({ orderId, onClose }: OrderDetailDialogProps) 
                   </div>
                 </div>
               )}
-              <div className="border border-border bg-background/40 p-4 font-mono text-xs">
-                <SummaryLine label="Subtotal" value={formatPrice(order.subtotal)} />
-                {order.discountAmount > 0 && (
-                  <SummaryLine
-                    label={order.discountCode ? `Discount (${order.discountCode})` : 'Discount'}
-                    value={`-${formatPrice(order.discountAmount)}`}
-                  />
-                )}
-                <SummaryLine label="Shipping" value={formatPrice(order.shippingCost)} />
-                <SummaryLine label="Tax" value={formatPrice(order.taxAmount)} />
-                <div className="mt-2 flex justify-between border-t border-border pt-2">
-                  <span className="uppercase tracking-widest">Total</span>
-                  <span className="text-lg text-neon-cyan">{formatPrice(order.totalAmount)}</span>
-                </div>
-              </div>
+              <OrderTotals order={order} />
             </>
           )}
         </div>

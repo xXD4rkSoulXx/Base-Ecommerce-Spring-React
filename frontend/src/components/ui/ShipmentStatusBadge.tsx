@@ -5,7 +5,7 @@ const statusConfig: Record<ShipmentStatus, { label: string; color: string }> = {
   IN_TRANSIT: { label: 'In transit', color: 'text-neon-cyan' },
   OUT_FOR_DELIVERY: { label: 'Out for delivery', color: 'text-neon-cyan' },
   DELIVERED: { label: 'Delivered', color: 'text-muted-foreground' },
-  FAILURE: { label: 'Failure', color: 'text-neon-pink' },
+  FAILURE: { label: 'Delivery failed', color: 'text-neon-pink' },
   RETURNED: { label: 'Returned', color: 'text-muted-foreground' }
 }
 

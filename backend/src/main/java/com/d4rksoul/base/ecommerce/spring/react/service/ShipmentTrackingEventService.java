@@ -20,6 +20,7 @@ public class ShipmentTrackingEventService {
     private static final Map<ShipmentStatus, String> DESCRIPTIONS = Map.of(
             ShipmentStatus.IN_TRANSIT, "Parcel picked up by the carrier",
             ShipmentStatus.OUT_FOR_DELIVERY, "Out for delivery",
+            ShipmentStatus.FAILURE, "Delivery attempt failed",
             ShipmentStatus.DELIVERED, "Delivered"
     );
 
@@ -29,9 +30,9 @@ public class ShipmentTrackingEventService {
     private final ShippingOriginProperties originProperties;
 
     @Transactional
-    public void transition(Long shipmentId, ShipmentStatus from, ShipmentStatus to) {
+    public boolean transition(Long shipmentId, ShipmentStatus from, ShipmentStatus to) {
         if (orderShipmentRepository.updateStatus(shipmentId, from, to) == 0) {
-            return;
+            return false;
         }
 
         OrderShipment shipment = orderShipmentRepository.getReferenceById(shipmentId);
@@ -42,5 +43,7 @@ public class ShipmentTrackingEventService {
         shipmentTrackingEventRepository.save(
                 shipmentTrackingEventMapper.toEntity(shipment, to, DESCRIPTIONS.get(to), location, Instant.now())
         );
+
+        return true;
     }
 }

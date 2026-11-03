@@ -9,4 +9,5 @@ public enum OrderStatus {
     public static final List<OrderStatus> HISTORY_STATUSES = List.of(
             PAID, PROCESSING, SHIPPED, DELIVERED, RETURN_REQUESTED, REFUNDED
     );
+    public static final List<OrderStatus> FULFILLMENT_STATUSES = List.of(PROCESSING, PAID);
 }
