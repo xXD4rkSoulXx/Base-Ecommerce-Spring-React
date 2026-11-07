@@ -26,15 +26,6 @@ public class UserService {
     private final OrderRepository orderRepository;
     private final UserMapper userMapper;
 
-    public User getCurrentUser() {
-        Jwt jwt = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-                .map(auth -> (Jwt) auth.getPrincipal())
-                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
-
-        return userRepository.findByEmail(jwt.getSubject())
-                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
-    }
-
     @Transactional(readOnly = true)
     public ProfileResponse getProfile(String email) {
         User user = userRepository.findByEmail(email)
@@ -53,5 +44,14 @@ public class UserService {
         user.setLastName(request.lastName().trim());
 
         return userMapper.toDto(user);
+    }
+
+    public User getCurrentUser() {
+        Jwt jwt = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
+                .map(auth -> (Jwt) auth.getPrincipal())
+                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
+
+        return userRepository.findByEmail(jwt.getSubject())
+                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
     }
 }

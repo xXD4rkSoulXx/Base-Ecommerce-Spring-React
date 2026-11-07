@@ -204,6 +204,16 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.CONFLICT, exception.getMessage());
     }
 
+    @ExceptionHandler(DiscountCodeNotFoundException.class)
+    public ResponseEntity<ApiError> handleDiscountCodeNotFound(DiscountCodeNotFoundException exception) {
+        return buildResponse(HttpStatus.NOT_FOUND, exception.getMessage());
+    }
+
+    @ExceptionHandler(DiscountCodeAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleDiscountCodeAlreadyExists(DiscountCodeAlreadyExistsException exception) {
+        return buildResponse(HttpStatus.CONFLICT, exception.getMessage());
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiError> handleUnreadableMessage() {
         return buildResponse(HttpStatus.BAD_REQUEST, "Malformed request body");

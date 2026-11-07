@@ -1,6 +1,6 @@
 package com.d4rksoul.base.ecommerce.spring.react.controller.admin;
 
-import com.d4rksoul.base.ecommerce.spring.react.dto.request.admin.AdjustStockRequest;
+import com.d4rksoul.base.ecommerce.spring.react.dto.request.admin.AdminAdjustStockRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.admin.AdminStockSearchRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.admin.AdminSetStockRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.PageResponse;
@@ -30,7 +30,7 @@ public class AdminStockController {
     @PreAuthorize("hasAuthority('STOCK_WRITE')")
     public ResponseEntity<Void> adjustStock(
             @PathVariable Long skuId,
-            @Valid @RequestBody AdjustStockRequest request
+            @Valid @RequestBody AdminAdjustStockRequest request
     ) {
         adminStockService.adjustStock(skuId, request.delta());
 

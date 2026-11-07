@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record AdjustStockRequest(
+public record AdminAdjustStockRequest(
         @NotNull(message = "Adjustment is required")
         @Min(value = -100000, message = "Adjustment must be at least -100000")
         @Max(value = 100000, message = "Adjustment must be at most 100000")
