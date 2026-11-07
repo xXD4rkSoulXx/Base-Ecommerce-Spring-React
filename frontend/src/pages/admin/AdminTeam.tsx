@@ -1,21 +1,21 @@
 import { useState } from 'react'
 import { UserPlus } from 'lucide-react'
-import { AssignRoleDialog } from '@/components/dialog/admin/AssignRoleDialog'
+import { AdminAssignRoleDialog } from '@/components/dialog/admin/AdminAssignRoleDialog'
 import { FormError } from '@/components/ui/FormError'
-import { TeamMemberRow } from '@/components/ui/admin/TeamMemberRow'
+import { TeamMemberRow } from '@/components/ui/admin/AdminTeamMemberRow'
 import { usePermission } from '@/hooks/usePermission'
-import { useTeam } from '@/hooks/admin/useTeam'
+import { useAdminTeam } from '@/hooks/admin/useAdminTeam'
 import { useAuthStore } from '@/store/useAuthStore'
-import type { TeamMemberResponse } from '@/types/admin/team'
+import type { AdminTeamMemberResponse } from '@/types/admin/adminTeam'
 
 export const AdminTeam = () => {
-  const { data: team, isLoading, isError } = useTeam()
+  const { data: team, isLoading, isError } = useAdminTeam()
   const canEdit = usePermission('TEAM_WRITE')
   const currentEmail = useAuthStore((state) => state.user?.email)
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [selected, setSelected] = useState<TeamMemberResponse | null>(null)
+  const [selected, setSelected] = useState<AdminTeamMemberResponse | null>(null)
 
-  const openDialog = (member: TeamMemberResponse | null) => {
+  const openDialog = (member: AdminTeamMemberResponse | null) => {
     setSelected(member)
     setDialogOpen(true)
   }
@@ -65,7 +65,7 @@ export const AdminTeam = () => {
           </table>
         </div>
       )}
-      <AssignRoleDialog
+      <AdminAssignRoleDialog
         key={`${selected?.id ?? 'new'}-${selected?.role}`}
         open={dialogOpen}
         onOpenChange={setDialogOpen}

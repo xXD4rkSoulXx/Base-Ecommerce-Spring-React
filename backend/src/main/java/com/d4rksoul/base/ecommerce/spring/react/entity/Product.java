@@ -1,5 +1,6 @@
 package com.d4rksoul.base.ecommerce.spring.react.entity;
 
+import com.d4rksoul.base.ecommerce.spring.react.enums.FeaturedSlot;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ProductCategory;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -11,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,7 +27,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "products")
+@Table(
+        name = "products",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_product_featured_slot", columnNames = {"featured_slot"})
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -56,7 +63,12 @@ public class Product {
     @Column(nullable = false)
     private ProductCategory category;
 
-    private boolean featured;
+    @Enumerated(EnumType.STRING)
+    private FeaturedSlot featuredSlot;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean active = true;
 
     @Builder.Default
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)

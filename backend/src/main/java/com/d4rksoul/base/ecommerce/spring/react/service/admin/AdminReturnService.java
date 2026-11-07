@@ -7,7 +7,7 @@ import com.d4rksoul.base.ecommerce.spring.react.entity.OrderReturn;
 import com.d4rksoul.base.ecommerce.spring.react.entity.OrderReturnItem;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ReturnStatus;
 import com.d4rksoul.base.ecommerce.spring.react.exception.ReturnNotAllowedException;
-import com.d4rksoul.base.ecommerce.spring.react.exception.admin.ReturnNotFoundException;
+import com.d4rksoul.base.ecommerce.spring.react.exception.ReturnNotFoundException;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.PageMapper;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.admin.AdminReturnMapper;
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderReturnItemRepository;
@@ -34,30 +34,6 @@ public class AdminReturnService {
     private final OrderReturnApprovalService orderReturnApprovalService;
     private final AdminReturnMapper adminReturnMapper;
     private final PageMapper pageMapper;
-
-    @Transactional(readOnly = true)
-    public PageResponse<AdminReturnResponse> getReturns(AdminReturnSearchRequest filter) {
-        Specification<OrderReturn> specification = filter.pending()
-                ? Specification.where(ReturnSpecification.hasStatusIn(ReturnStatus.PENDING_STATUSES))
-                    .and(ReturnSpecification.orderByPendingPriority())
-                : Specification.where(ReturnSpecification.hasStatus(filter.status()))
-                    .and(ReturnSpecification.orderByRecentDesc());
-
-        Pageable pageable = PageRequest.of(filter.page(), filter.size());
-
-        Page<OrderReturn> returnsPage = orderReturnRepository.findAll(specification, pageable);
-
-        List<OrderReturnItem> items = orderReturnItemRepository
-                .findByOrderReturnInOrderByIdAsc(returnsPage.getContent());
-
-        Page<AdminReturnResponse> responsePage = new PageImpl<>(
-                adminReturnMapper.toDtos(returnsPage.getContent(), items),
-                pageable,
-                returnsPage.getTotalElements()
-        );
-
-        return pageMapper.toDto(responsePage);
-    }
 
     @Transactional
     public AdminReturnResponse approve(Long id) {
@@ -89,6 +65,30 @@ public class AdminReturnService {
                 .orElseThrow(() -> unavailable(id));
 
         return complete(orderReturn);
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<AdminReturnResponse> getReturns(AdminReturnSearchRequest filter) {
+        Specification<OrderReturn> specification = Boolean.TRUE.equals(filter.pending())
+                ? Specification.where(ReturnSpecification.hasStatusIn(ReturnStatus.PENDING_STATUSES))
+                .and(ReturnSpecification.orderByPendingPriority())
+                : Specification.where(ReturnSpecification.hasStatus(filter.status()))
+                .and(ReturnSpecification.orderByRecentDesc());
+
+        Pageable pageable = PageRequest.of(filter.page(), filter.size());
+
+        Page<OrderReturn> returnsPage = orderReturnRepository.findAll(specification, pageable);
+
+        List<OrderReturnItem> items = orderReturnItemRepository
+                .findByOrderReturnInOrderByIdAsc(returnsPage.getContent());
+
+        Page<AdminReturnResponse> responsePage = new PageImpl<>(
+                adminReturnMapper.toDtos(returnsPage.getContent(), items),
+                pageable,
+                returnsPage.getTotalElements()
+        );
+
+        return pageMapper.toDto(responsePage);
     }
 
     private AdminReturnResponse complete(OrderReturn orderReturn) {

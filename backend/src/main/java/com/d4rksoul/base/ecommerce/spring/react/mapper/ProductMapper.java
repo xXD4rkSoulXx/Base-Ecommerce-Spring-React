@@ -4,6 +4,7 @@ import com.d4rksoul.base.ecommerce.spring.react.dto.response.ProductDetailsRespo
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.ProductResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.ProductSkuDetailsResponse;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Product;
+import com.d4rksoul.base.ecommerce.spring.react.entity.ProductSku;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -24,11 +25,13 @@ public class ProductMapper {
                 .discountPercentage(product.getDiscountPercentage())
                 .category(product.getCategory())
                 .cover(cover)
+                .featuredSlot(product.getFeaturedSlot())
                 .build();
     }
 
     public ProductDetailsResponse toDetailsDto(Product product, Double averageRating, Long totalReviews) {
         List<ProductSkuDetailsResponse> productSkusDto = product.getProductSkus().stream()
+                .filter(ProductSku::isActive)
                 .map(productSkuMapper::toDetailsDto)
                 .toList();
 

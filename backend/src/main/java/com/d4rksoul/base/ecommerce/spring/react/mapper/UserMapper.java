@@ -1,7 +1,7 @@
 package com.d4rksoul.base.ecommerce.spring.react.mapper;
 
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.ProfileResponse;
-import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.TeamMemberResponse;
+import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.AdminTeamMemberResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.UserResponse;
 import com.d4rksoul.base.ecommerce.spring.react.entity.User;
 import org.springframework.stereotype.Component;
@@ -29,8 +29,8 @@ public class UserMapper {
                 .build();
     }
 
-    public TeamMemberResponse toTeamMemberDto(User user) {
-        return TeamMemberResponse.builder()
+    public AdminTeamMemberResponse toTeamMemberDto(User user) {
+        return AdminTeamMemberResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .firstName(user.getFirstName())
@@ -40,7 +40,7 @@ public class UserMapper {
                 .build();
     }
 
-    public List<TeamMemberResponse> toTeamMemberDtos(List<User> users) {
+    public List<AdminTeamMemberResponse> toTeamMemberDtos(List<User> users) {
         return users.stream()
                 .map(this::toTeamMemberDto)
                 .toList();

@@ -44,6 +44,7 @@ public class WishlistService {
         }
 
         Product product = productRepository.findById(productId)
+                .filter(Product::isActive)
                 .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + productId));
 
         WishlistItem item = wishlistMapper.toEntity(wishlist, product);
@@ -72,7 +73,9 @@ public class WishlistService {
             return;
         }
 
-        List<Product> productsToAdd = productRepository.findAllById(productIdsToAdd);
+        List<Product> productsToAdd = productRepository.findAllById(productIdsToAdd).stream()
+                .filter(Product::isActive)
+                .toList();
 
         List<WishlistItem> newItems = productsToAdd.stream()
                 .map(product -> wishlistMapper.toEntity(wishlist, product))
@@ -94,6 +97,7 @@ public class WishlistService {
 
         List<Product> products = items.stream()
                 .map(WishlistItem::getProduct)
+                .filter(Product::isActive)
                 .toList();
 
         List<Long> productIds = products.stream()

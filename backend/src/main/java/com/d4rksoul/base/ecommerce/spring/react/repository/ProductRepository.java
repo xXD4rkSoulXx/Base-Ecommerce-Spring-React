@@ -2,6 +2,7 @@ package com.d4rksoul.base.ecommerce.spring.react.repository;
 
 import com.d4rksoul.base.ecommerce.spring.react.dto.projection.RatingStatsProjection;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Product;
+import com.d4rksoul.base.ecommerce.spring.react.enums.FeaturedSlot;
 import com.d4rksoul.base.ecommerce.spring.react.enums.OrderStatus;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ProductCategory;
 import org.springframework.data.domain.Page;
@@ -12,7 +13,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
@@ -28,13 +28,24 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     Optional<RatingStatsProjection> findRatingStatsByProductId(@Param("productId") Long productId);
 
     @EntityGraph(attributePaths = {"productSkus"})
-    Optional<Product> findDetailsById(Long id);
+    @Query("""
+        SELECT p
+        FROM Product p
+        WHERE p.id = :id
+        AND p.active = true
+        AND EXISTS (
+            SELECT 1
+            FROM ProductSku activeSku
+            WHERE activeSku.product = p AND activeSku.active = true
+        )
+    """)
+    Optional<Product> findVisibleDetailsById(@Param("id") Long id);
 
-    List<Product> findByFeaturedTrue(Pageable pageable);
+    Optional<Product> findByFeaturedSlot(FeaturedSlot featuredSlot);
 
-    List<Product> findByDiscountPercentageGreaterThan(int discountPercentage, Pageable pageable);
+    boolean existsByRef(String ref);
 
-    List<Product> findByCategoryAndIdNot(ProductCategory category, Long id, Pageable pageable);
+    boolean existsByRefAndIdNot(String ref, Long id);
 
     @Query(
             value = """
@@ -45,6 +56,12 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
         JOIN oi.order o
         WHERE o.status = :status
         AND (:category IS NULL OR p.category = :category)
+        AND p.active = true
+        AND EXISTS (
+            SELECT 1
+            FROM ProductSku activeSku
+            WHERE activeSku.product = p AND activeSku.active = true
+        )
         GROUP BY p
         ORDER BY SUM(oi.quantity) DESC
     """,
@@ -59,6 +76,12 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
             JOIN oi.order o
             WHERE o.status = :status
             AND (:category IS NULL OR p2.category = :category)
+            AND p2.active = true
+            AND EXISTS (
+                SELECT 1
+                FROM ProductSku activeSku
+                WHERE activeSku.product = p2 AND activeSku.active = true
+            )
             GROUP BY p2.id
         )
     """
@@ -75,6 +98,12 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
         FROM Product p
         JOIN p.reviews r
         WHERE (:category IS NULL OR p.category = :category)
+        AND p.active = true
+        AND EXISTS (
+            SELECT 1
+            FROM ProductSku activeSku
+            WHERE activeSku.product = p AND activeSku.active = true
+        )
         GROUP BY p
         HAVING COUNT(r) >= :minReviews
         ORDER BY AVG(r.rating) DESC
@@ -87,6 +116,12 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
             FROM Product p2
             JOIN p2.reviews r
             WHERE (:category IS NULL OR p2.category = :category)
+            AND p2.active = true
+            AND EXISTS (
+                SELECT 1
+                FROM ProductSku activeSku
+                WHERE activeSku.product = p2 AND activeSku.active = true
+            )
             GROUP BY p2.id
             HAVING COUNT(r) >= :minReviews
         )

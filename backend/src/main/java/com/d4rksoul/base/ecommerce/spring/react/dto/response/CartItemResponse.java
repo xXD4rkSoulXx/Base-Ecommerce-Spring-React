@@ -30,5 +30,7 @@ public record CartItemResponse(
 
         int stock,
 
-        int quantity
+        int quantity,
+
+        boolean available
 ) {}

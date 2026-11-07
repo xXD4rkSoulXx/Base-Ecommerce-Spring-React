@@ -47,7 +47,7 @@ public class CartService {
         Cart cart = cartRepository.findByUserId(currentUser.getId())
                 .orElseGet(() -> cartRepository.save(cartMapper.toEntity(currentUser)));
 
-        ProductSku sku = productSkuRepository.findById(productSkuId)
+        ProductSku sku = productSkuRepository.findByIdAndActiveTrueAndProductActiveTrue(productSkuId)
                 .orElseThrow(() -> new ProductSkuNotFoundException(
                         "Product SKU not found with id: " + productSkuId
                 ));
@@ -91,7 +91,8 @@ public class CartService {
                 existingItem.setQuantity(Math.min(existingItem.getQuantity() + guestItem.quantity(), 10));
                 cartItemRepository.save(existingItem);
             } else if (lines < 20) {
-                Optional<ProductSku> sku = productSkuRepository.findById(guestItem.productSkuId());
+                Optional<ProductSku> sku = productSkuRepository
+                        .findByIdAndActiveTrueAndProductActiveTrue(guestItem.productSkuId());
 
                 if (sku.isPresent()) {
                     cartItemRepository.save(cartItemMapper.toEntity(cart, sku.get(), guestItem.quantity()));

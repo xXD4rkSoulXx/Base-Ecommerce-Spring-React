@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import { reviewService } from '@/services/review.service'
 import { useAuthStore } from '@/store/useAuthStore'
+import { reviewService } from '@/services/review.service'
 
 export const useReviewEligibility = (id: string | undefined) => {
   const isUserAuthenticated = useAuthStore((state) => !!state.user)

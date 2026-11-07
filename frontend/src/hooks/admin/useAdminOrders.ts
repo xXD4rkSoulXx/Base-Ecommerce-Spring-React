@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'react-router-dom'
-import { adminOrderService } from '@/services/admin/order.service'
+import { adminOrderService } from '@/services/admin/adminOrder.service'
 import type { OrderStatus } from '@/types/order'
 
 export const useAdminOrders = () => {

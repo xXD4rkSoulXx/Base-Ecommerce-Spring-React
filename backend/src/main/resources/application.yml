@@ -17,9 +17,17 @@ spring:
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
 app:
   simulation:
     enabled: true
+  storage:
+    upload-dir: uploads
+    public-base-url: ${STORAGE_PUBLIC_BASE_URL}
 
 shipping:
   origin:

@@ -35,5 +35,8 @@ build/
 ### Environment Variables ###
 .env
 
-# Cryptographic JWT keys
-src/main/resources/keys/
+### Cryptographic JWT keys ###
+keys/
+
+### Storage Images File ###
+uploads/

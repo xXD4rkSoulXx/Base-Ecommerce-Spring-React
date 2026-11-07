@@ -2,17 +2,17 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { isAxiosError } from 'axios'
 import { toast } from 'sonner'
-import { RejectReturnDialog } from '@/components/dialog/admin/RejectReturnDialog'
+import { AdminRejectReturnDialog } from '@/components/dialog/admin/AdminRejectReturnDialog'
 import { AdminReturnCard } from '@/components/card/admin/AdminReturnCard'
 import { AdminReturnTabs } from '@/components/section/admin/AdminReturnTabs'
 import { FormError } from '@/components/ui/FormError'
 import { Pagination } from '@/components/ui/Pagination'
 import { useAdminReturns } from '@/hooks/admin/useAdminReturns'
-import { useApproveReturn } from '@/hooks/admin/useApproveReturn'
-import { useReceiveReturn } from '@/hooks/admin/useReceiveReturn'
-import { useRefundReturn } from '@/hooks/admin/useRefundReturn'
+import { useAdminApproveReturn } from '@/hooks/admin/useAdminApproveReturn'
+import { useAdminReceiveReturn } from '@/hooks/admin/useAdminReceiveReturn'
+import { useAdminRefundReturn } from '@/hooks/admin/useAdminRefundReturn'
 import { usePermission } from '@/hooks/usePermission'
-import type { AdminReturnResponse } from '@/types/admin/return'
+import type { AdminReturnResponse } from '@/types/admin/adminReturn'
 
 const getErrorMessage = (error: unknown, fallback: string) =>
   isAxiosError<{ message?: string }>(error) ? (error.response?.data?.message ?? fallback) : fallback
@@ -20,9 +20,9 @@ const getErrorMessage = (error: unknown, fallback: string) =>
 export const AdminReturns = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const { data, isLoading, isError } = useAdminReturns()
-  const { mutate: approveReturn, isPending: isApproving } = useApproveReturn()
-  const { mutate: receiveReturn, isPending: isReceiving } = useReceiveReturn()
-  const { mutate: refundReturn, isPending: isRefunding } = useRefundReturn()
+  const { mutate: approveReturn, isPending: isApproving } = useAdminApproveReturn()
+  const { mutate: receiveReturn, isPending: isReceiving } = useAdminReceiveReturn()
+  const { mutate: refundReturn, isPending: isRefunding } = useAdminRefundReturn()
   const canEdit = usePermission('RETURNS_WRITE')
   const [error, setError] = useState<string | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -131,7 +131,7 @@ export const AdminReturns = () => {
         ))}
       </div>
       <Pagination currentPage={currentPage} totalPages={totalPages} onChange={changePage} />
-      <RejectReturnDialog
+      <AdminRejectReturnDialog
         key={rejecting?.id ?? 'none'}
         open={dialogOpen}
         onOpenChange={setDialogOpen}

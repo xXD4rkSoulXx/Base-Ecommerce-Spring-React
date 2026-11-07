@@ -26,6 +26,7 @@ import com.d4rksoul.base.ecommerce.spring.react.exception.InsufficientStockExcep
 import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidDiscountCodeException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidShippingRateException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.OrderNotFoundException;
+import com.d4rksoul.base.ecommerce.spring.react.exception.ProductUnavailableException;
 import com.d4rksoul.base.ecommerce.spring.react.integration.stripe.StripeApiClient;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.OrderMapper;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.PageMapper;
@@ -87,6 +88,17 @@ public class OrderService {
             throw new EmptyCartException("Your cart is empty.");
         }
 
+        for (CartItem cartItem : cartItems) {
+            ProductSku sku = cartItem.getProductSku();
+
+            if (!sku.isActive() || !sku.getProduct().isActive()) {
+                throw new ProductUnavailableException(
+                        sku.getProduct().getName()
+                                + " is no longer available. Remove it from your cart to continue."
+                );
+            }
+        }
+
         CheckoutAddressRequest address = request.address();
         ShippingRateResponse rate = shippingRateService.getShippingRates(address).stream()
                 .filter(r -> r.rateId().equals(request.rateId()))
@@ -105,9 +117,9 @@ public class OrderService {
 
         boolean discountCodeAlreadyUsed = discountCode != null
                 && orderRepository.existsByUserIdAndDiscountCodeIdAndStatusNotIn(
-                    user.getId(),
-                    discountCode.getId(),
-                    List.of(OrderStatus.PENDING, OrderStatus.FAILED, OrderStatus.CANCELED, OrderStatus.REFUNDED)
+                user.getId(),
+                discountCode.getId(),
+                List.of(OrderStatus.PENDING, OrderStatus.FAILED, OrderStatus.CANCELED, OrderStatus.REFUNDED)
         );
 
         if (discountCodeAlreadyUsed) {
@@ -175,6 +187,11 @@ public class OrderService {
         return buildDetails(order);
     }
 
+    @Transactional
+    public void cancelOrder(Order order) {
+        releaseReservation(order, OrderStatus.CANCELED);
+    }
+
     public OrderDetailsResponse buildDetails(Order order) {
         List<OrderShipment> shipments = orderShipmentRepository.findByOrderIdOrderByIdAsc(order.getId());
 
@@ -191,10 +208,5 @@ public class OrderService {
         return orderMapper.toDetailsDto(
                 order, shipments, shipmentItems, shipmentEvents, events, returns, eligibility
         );
-    }
-
-    @Transactional
-    public void cancelOrder(Order order) {
-        releaseReservation(order, OrderStatus.CANCELED);
     }
 }

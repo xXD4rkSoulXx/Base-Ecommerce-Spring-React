@@ -1,8 +1,11 @@
 package com.d4rksoul.base.ecommerce.spring.react.specification;
 
 import com.d4rksoul.base.ecommerce.spring.react.entity.Product;
+import com.d4rksoul.base.ecommerce.spring.react.entity.ProductSku;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ProductCategory;
 import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
@@ -30,6 +33,28 @@ public class ProductSpecification {
                     cb.like(cb.lower(root.get("name")), "%" + q.trim().toLowerCase() + "%"),
                     cb.like(cb.lower(root.get("ref")), "%" + q.trim().toLowerCase() + "%")
             );
+        };
+    }
+
+    public static Specification<Product> hasFeaturedSlot() {
+        return (root, _, cb) -> cb.isNotNull(root.get("featuredSlot"));
+    }
+
+    public static Specification<Product> hasIdNot(Long id) {
+        return (root, _, cb) -> cb.notEqual(root.get("id"), id);
+    }
+
+    public static Specification<Product> isVisibleInShop() {
+        return (root, query, cb) -> {
+            Subquery<Long> skus = query.subquery(Long.class);
+            Root<ProductSku> sku = skus.from(ProductSku.class);
+
+            skus.select(sku.get("id")).where(
+                    cb.equal(sku.get("product").get("id"), root.get("id")),
+                    cb.isTrue(sku.get("active"))
+            );
+
+            return cb.and(cb.isTrue(root.get("active")), cb.exists(skus));
         };
     }
 
@@ -67,6 +92,25 @@ public class ProductSpecification {
             query.orderBy(cb.desc(root.get("createdAt")), cb.asc(root.get("id")));
 
             return cb.conjunction();
+        };
+    }
+
+    public static Specification<Product> hasLowStock(boolean lowStock, int threshold) {
+        return (root, query, cb) -> {
+            if (!lowStock) {
+                return cb.conjunction();
+            }
+
+            Subquery<Long> skus = query.subquery(Long.class);
+            Root<ProductSku> sku = skus.from(ProductSku.class);
+
+            skus.select(sku.get("id")).where(
+                    cb.equal(sku.get("product").get("id"), root.get("id")),
+                    cb.isTrue(sku.get("active")),
+                    cb.lessThanOrEqualTo(sku.get("stock"), threshold)
+            );
+
+            return cb.exists(skus);
         };
     }
 }

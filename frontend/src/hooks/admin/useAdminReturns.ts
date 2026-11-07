@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'react-router-dom'
-import { adminReturnService } from '@/services/admin/return.service'
+import { adminReturnService } from '@/services/admin/adminReturn.service'
 import type { ReturnStatus } from '@/types/order'
 
 export const DEFAULT_RETURN_FILTER = 'TODO'

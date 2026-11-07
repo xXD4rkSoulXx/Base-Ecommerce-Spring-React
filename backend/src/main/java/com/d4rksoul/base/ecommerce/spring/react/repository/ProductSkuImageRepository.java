@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductSkuImageRepository extends JpaRepository<ProductSkuImage, Long> {
 
@@ -35,4 +36,10 @@ public interface ProductSkuImageRepository extends JpaRepository<ProductSkuImage
         ORDER BY sku.id ASC, psi.id ASC
     """)
     List<ProductSkuCoverProjection> findImagesByProductSkuIds(@Param("productSkuIds") List<Long> productSkuIds);
+
+    List<ProductSkuImage> findByProductSkuIdOrderByIdAsc(Long productSkuId);
+
+    Optional<ProductSkuImage> findByIdAndProductSkuId(Long id, Long productSkuId);
+
+    boolean existsByProductSkuId(Long productSkuId);
 }

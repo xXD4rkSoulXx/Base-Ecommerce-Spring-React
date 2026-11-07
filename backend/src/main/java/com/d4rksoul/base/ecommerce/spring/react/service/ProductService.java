@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +49,8 @@ public class ProductService {
             case "top_rated" -> productRepository.findTopRatedPage(3, filter.category(), pageable);
             case "discount" -> {
                 Specification<Product> specification = Specification
-                        .where(ProductSpecification.hasCategory(filter.category()))
+                        .where(ProductSpecification.isVisibleInShop())
+                        .and(ProductSpecification.hasCategory(filter.category()))
                         .and(ProductSpecification.hasDiscount())
                         .and(ProductSpecification.orderByDiscountDesc());
 
@@ -58,7 +58,8 @@ public class ProductService {
             }
             default -> {
                 Specification<Product> specification = Specification
-                        .where(ProductSpecification.hasCategory(filter.category()));
+                        .where(ProductSpecification.isVisibleInShop())
+                        .and(ProductSpecification.hasCategory(filter.category()));
 
                 Specification<Product> orderSpecification = switch (filter.sortBy()) {
                     case "price_asc", "price_desc" -> ProductSpecification.orderByEffectivePrice(filter.sortBy());
@@ -74,8 +75,8 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public ProductDetailsResponse getProductDetails(Long productId) {
-        Product product = productRepository.findDetailsById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + productId));
+        Product product = productRepository.findVisibleDetailsById(productId)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + productId));
 
         if (product.getProductSkus() != null) {
             product.getProductSkus().forEach(sku -> {
@@ -99,34 +100,42 @@ public class ProductService {
         Product currentProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " +  productId));
 
-        List<Product> relatedProducts = productRepository.findByCategoryAndIdNot(
-                currentProduct.getCategory(),
-                productId,
-                PageRequest.of(0, 4)
-        );
+        Specification<Product> specification = Specification
+                .where(ProductSpecification.isVisibleInShop())
+                .and(ProductSpecification.hasCategory(currentProduct.getCategory()))
+                .and(ProductSpecification.hasIdNot(productId))
+                .and(ProductSpecification.orderByRecentDesc());
+
+        List<Product> relatedProducts = productRepository.findAll(
+                    specification,
+                    PageRequest.of(0, 4)
+                ).getContent();
 
         return mapProductsToDto(relatedProducts);
     }
 
     @Transactional(readOnly = true)
     public List<ProductResponse> getFeaturedProducts() {
-        List<Product> featuredProducts = productRepository.findByFeaturedTrue(
-                PageRequest.of(0, 2)
-        );
+        Specification<Product> specification = Specification
+                .where(ProductSpecification.isVisibleInShop())
+                .and(ProductSpecification.hasFeaturedSlot());
+
+        List<Product> featuredProducts = productRepository.findAll(specification);
 
         return mapProductsToDto(featuredProducts);
     }
 
     @Transactional(readOnly = true)
     public List<ProductResponse> getDealProducts() {
-        Pageable pageable = PageRequest.of(0, 8, Sort.by(
-                Sort.Direction.DESC,
-                "discountPercentage"
-        ));
-        List<Product> dealProducts = productRepository.findByDiscountPercentageGreaterThan(
-                0,
-                pageable
-        );
+        Specification<Product> specification = Specification
+                .where(ProductSpecification.isVisibleInShop())
+                .and(ProductSpecification.hasDiscount())
+                .and(ProductSpecification.orderByDiscountDesc());
+
+        List<Product> dealProducts = productRepository.findAll(
+                        specification,
+                        PageRequest.of(0, 8)
+                ).getContent();
 
         return mapProductsToDto(dealProducts);
     }
@@ -158,7 +167,8 @@ public class ProductService {
     @Transactional(readOnly = true)
     public PageResponse<ProductResponse> search(ProductSearchRequest filter) {
         Specification<Product> specification = Specification
-                .where(ProductSpecification.containsNameOrRef(filter.q()))
+                .where(ProductSpecification.isVisibleInShop())
+                .and(ProductSpecification.containsNameOrRef(filter.q()))
                 .and(ProductSpecification.orderByRecentDesc());
 
         Pageable pageable = PageRequest.of(filter.page(), filter.size());

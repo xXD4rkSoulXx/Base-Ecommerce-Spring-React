@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { userService } from '@/services/user.service'
 import { useAuthStore } from '@/store/useAuthStore'
+import { userService } from '@/services/user.service'
 import type { ProfileResponse } from '@/types/user'
 
 export const useUpdateProfile = () => {

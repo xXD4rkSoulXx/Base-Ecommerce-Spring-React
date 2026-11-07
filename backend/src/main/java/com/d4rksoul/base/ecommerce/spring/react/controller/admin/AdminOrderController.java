@@ -2,7 +2,7 @@ package com.d4rksoul.base.ecommerce.spring.react.controller.admin;
 
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.UpdateShipmentStatusRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.admin.AdminOrderSearchRequest;
-import com.d4rksoul.base.ecommerce.spring.react.dto.request.admin.UpdateOrderStatusRequest;
+import com.d4rksoul.base.ecommerce.spring.react.dto.request.admin.AdminUpdateOrderStatusRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.PageResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.AdminOrderDetailsResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.AdminOrderSummaryResponse;
@@ -48,7 +48,7 @@ public class AdminOrderController {
     @PreAuthorize("hasAuthority('ORDERS_WRITE')")
     public ResponseEntity<Void> changeStatus(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateOrderStatusRequest request
+            @Valid @RequestBody AdminUpdateOrderStatusRequest request
     ) {
         adminOrderService.changeStatus(id, request.status());
 

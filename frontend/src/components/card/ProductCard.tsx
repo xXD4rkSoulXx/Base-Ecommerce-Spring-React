@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Heart } from 'lucide-react'
+import { DiscountBadge } from '@/components/ui/DiscountBadge'
+import { ProductPrice } from '@/components/ui/ProductPrice'
 import { useWishlist } from '@/hooks/useWishlist'
 import type { ProductResponse } from '@/types/product'
 
@@ -8,15 +10,10 @@ interface ProductCardProps {
   index: number
 }
 
-const priceFormatter = new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' })
-const formatPrice = (amount: number) => priceFormatter.format(amount)
-
 export const ProductCard = ({ product, index }: ProductCardProps) => {
   const { isInWishlist, toggleWishlist } = useWishlist()
 
   const isActive = isInWishlist(product.id)
-
-  const finalPrice = Math.round((Math.round(product.price * 100) * (100 - product.discountPercentage)) / 100) / 100
 
   const handleToggleWishlist = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -42,11 +39,7 @@ export const ProductCard = ({ product, index }: ProductCardProps) => {
             REF: {product.ref}
           </span>
         </div>
-        {product.discountPercentage > 0 && (
-          <div className="absolute right-3 top-3 flex h-12 w-12 items-center justify-center bg-neon-pink font-mono text-xs font-black tracking-tighter text-primary-foreground shadow-lg shadow-neon-pink/30">
-            -{product.discountPercentage}%
-          </div>
-        )}
+        {product.discountPercentage > 0 && <DiscountBadge percentage={product.discountPercentage} />}
         <div className={`absolute ${product.discountPercentage > 0 ? 'right-3 top-[4.25rem]' : 'right-3 top-3'}`}>
           <button
             type="button"
@@ -75,22 +68,7 @@ export const ProductCard = ({ product, index }: ProductCardProps) => {
             {product.category}
           </p>
         </div>
-        <div className="flex shrink-0 flex-col items-end leading-tight">
-          {product.discountPercentage > 0 ? (
-            <>
-              <span className="font-mono text-sm tracking-tighter text-neon-pink">
-                {formatPrice(finalPrice)}
-              </span>
-              <span className="font-mono text-[10px] text-muted-foreground line-through">
-                {formatPrice(product.price)}
-              </span>
-            </>
-          ) : (
-            <span className="font-mono text-sm tracking-tighter text-neon-cyan">
-              {formatPrice(finalPrice)}
-            </span>
-          )}
-        </div>
+        <ProductPrice price={product.price} discountPercentage={product.discountPercentage} />
       </div>
     </Link>
   )

@@ -70,7 +70,9 @@ export const useCart = () => {
   const discountCode = isAuthenticated ? (serverCart?.discountCode ?? null) : null
   const discountPercentage = isAuthenticated ? (serverCart?.discountPercentage ?? 0) : 0
   const getLineTotal = (item: Priced & { quantity: number }) => getUnitPrice(item) * item.quantity
-  const subtotal = items.reduce((total, item) => total + getLineTotal(item), 0)
+  const subtotal = items
+    .filter((item) => item.available !== false)
+    .reduce((total, item) => total + getLineTotal(item), 0)
   const discountAmount = (subtotal * discountPercentage) / 100
   const { isError: isDiscountCodeError, error: discountCodeError } = applyDiscountMutation
 

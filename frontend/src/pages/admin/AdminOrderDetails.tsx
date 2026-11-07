@@ -13,11 +13,11 @@ import { OrderTotals } from '@/components/ui/OrderTotals'
 import { ParcelRow } from '@/components/ui/ParcelRow'
 import { ReturnRow } from '@/components/ui/ReturnRow'
 import { SectionTitle } from '@/components/ui/SectionTitle'
-import { ParcelActions } from '@/components/ui/admin/ParcelActions'
+import { AdminParcelActions } from '@/components/ui/admin/AdminParcelActions'
 import { usePermission } from '@/hooks/usePermission'
 import { useAdminOrder } from '@/hooks/admin/useAdminOrder'
-import { useChangeOrderStatus } from '@/hooks/admin/useChangeOrderStatus'
-import { useChangeShipmentStatus } from '@/hooks/admin/useChangeShipmentStatus'
+import { useAdminChangeOrderStatus } from '@/hooks/admin/useAdminChangeOrderStatus'
+import { useAdminChangeShipmentStatus } from '@/hooks/admin/useAdminChangeShipmentStatus'
 import type { OrderStatus, ShipmentStatus } from '@/types/order'
 
 const NEXT_STATUS_LABELS: Partial<Record<OrderStatus, string>> = {
@@ -32,8 +32,8 @@ const getErrorMessage = (error: unknown, fallback: string) =>
 export const AdminOrderDetails = () => {
   const id = Number(useParams().id)
   const { data, isLoading, isError } = useAdminOrder(id)
-  const { mutate: changeStatus, isPending } = useChangeOrderStatus(id)
-  const { mutate: changeShipmentStatus, isPending: isShipmentPending } = useChangeShipmentStatus(id)
+  const { mutate: changeStatus, isPending } = useAdminChangeOrderStatus(id)
+  const { mutate: changeShipmentStatus, isPending: isShipmentPending } = useAdminChangeShipmentStatus(id)
   const canEdit = usePermission('ORDERS_WRITE')
   const [error, setError] = useState<string | null>(null)
 
@@ -161,7 +161,7 @@ export const AdminOrderDetails = () => {
                   orderItems={order.items}
                   actions={
                     canEdit && shipmentActions[shipment.id]?.length > 0 ? (
-                      <ParcelActions
+                      <AdminParcelActions
                         actions={shipmentActions[shipment.id]}
                         disabled={busy}
                         onChange={(status) => changeParcel(shipment.id, status)}

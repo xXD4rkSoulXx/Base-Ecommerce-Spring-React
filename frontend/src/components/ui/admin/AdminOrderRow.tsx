@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { OrderStatusBadge } from '@/components/ui/OrderStatusBadge'
-import type { AdminOrderSummaryResponse } from '@/types/admin/order'
+import type { AdminOrderSummaryResponse } from '@/types/admin/adminOrder'
 
 interface AdminOrderRowProps {
   order: AdminOrderSummaryResponse

@@ -11,7 +11,7 @@ import com.d4rksoul.base.ecommerce.spring.react.entity.OrderShipment;
 import com.d4rksoul.base.ecommerce.spring.react.enums.OrderStatus;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ShipmentStatus;
 import com.d4rksoul.base.ecommerce.spring.react.exception.OrderNotFoundException;
-import com.d4rksoul.base.ecommerce.spring.react.exception.admin.InvalidOrderTransitionException;
+import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidOrderTransitionException;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.PageMapper;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.admin.AdminOrderMapper;
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderRepository;

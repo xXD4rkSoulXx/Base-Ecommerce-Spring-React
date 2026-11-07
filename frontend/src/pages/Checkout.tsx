@@ -124,6 +124,7 @@ export const Checkout = () => {
 
   const selectedRate = shippingRates.find((rate) => rate.rateId === selectedRateId)
   const total = subtotal - discountAmount + (selectedRate?.amount ?? 0)
+  const hasUnavailableItems = items.some((item) => item.available === false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setAddress((current) => ({ ...current, [e.target.name]: e.target.value }))
@@ -183,6 +184,23 @@ export const Checkout = () => {
           className="mt-8 bg-neon-cyan px-8 py-4 text-xs font-black uppercase tracking-widest text-primary-foreground"
         >
           Enter Archive
+        </button>
+      </div>
+    )
+  }
+
+  if (hasUnavailableItems) {
+    return (
+      <div className="mx-auto max-w-2xl px-6 py-32 text-center">
+        <h1 className="font-display text-3xl uppercase">Items unavailable</h1>
+        <p className="mt-4 text-muted-foreground">
+          Some items in your cart are no longer available. Remove them to continue.
+        </p>
+        <button
+          onClick={() => navigate('/cart')}
+          className="mt-8 bg-neon-cyan px-8 py-4 text-xs font-black uppercase tracking-widest text-primary-foreground"
+        >
+          Back to cart
         </button>
       </div>
     )

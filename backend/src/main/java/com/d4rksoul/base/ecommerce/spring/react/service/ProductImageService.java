@@ -57,4 +57,14 @@ public class ProductImageService {
 
         return covers;
     }
+
+    public Map<Long, String> findCoversByProductId(List<Long> productIds) {
+        return productSkuImageRepository.findCoverByProductIds(productIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        ProductCoverProjection::productId,
+                        ProductCoverProjection::path,
+                        (existing, _) -> existing
+                ));
+    }
 }

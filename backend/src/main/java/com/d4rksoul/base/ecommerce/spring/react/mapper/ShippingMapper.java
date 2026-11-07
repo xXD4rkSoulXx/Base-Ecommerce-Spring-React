@@ -18,7 +18,9 @@ import java.util.List;
 public class ShippingMapper {
 
     public PackingItemResult toPackingItem(ProductSku sku) {
-        return new PackingItemResult(sku.getId(), sku.getWeight(), sku.getLength(), sku.getWidth(), sku.getHeight());
+        return new PackingItemResult(
+                sku.getId(), sku.getWeight() / 1000.0, sku.getLength(), sku.getWidth(), sku.getHeight()
+        );
     }
 
     public ShippoAddress toShippoAddress(ShippingOriginProperties origin) {

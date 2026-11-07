@@ -78,6 +78,10 @@ public class ProductSku {
     private int discountPercentage;
 
     @Builder.Default
+    @Column(nullable = false)
+    private boolean active = true;
+
+    @Builder.Default
     @OneToMany(mappedBy = "productSku", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductSkuImage> productSkuImages = new ArrayList<>();
 

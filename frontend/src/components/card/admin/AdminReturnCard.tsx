@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { MapPin } from 'lucide-react'
 import { ReturnStatusBadge } from '@/components/ui/ReturnStatusBadge'
-import type { AdminReturnResponse } from '@/types/admin/return'
+import type { AdminReturnResponse } from '@/types/admin/adminReturn'
 import type { ReturnReason, ShippingAddress } from '@/types/order'
 
 interface AdminReturnCardProps {

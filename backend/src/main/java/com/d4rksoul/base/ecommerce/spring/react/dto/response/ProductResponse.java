@@ -1,5 +1,6 @@
 package com.d4rksoul.base.ecommerce.spring.react.dto.response;
 
+import com.d4rksoul.base.ecommerce.spring.react.enums.FeaturedSlot;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ProductCategory;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
@@ -21,5 +22,7 @@ public record ProductResponse(
 
         ProductCategory category,
 
-        String cover
+        String cover,
+
+        FeaturedSlot featuredSlot
 ) {}

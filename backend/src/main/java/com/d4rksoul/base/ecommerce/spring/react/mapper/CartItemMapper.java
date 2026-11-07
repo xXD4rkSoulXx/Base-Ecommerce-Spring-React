@@ -39,6 +39,7 @@ public class CartItemMapper {
                 .discountPercentage(effectiveDiscountPercentage)
                 .stock(sku.getStock())
                 .quantity(cartItem.getQuantity())
+                .available(sku.isActive() && product.isActive())
                 .build();
     }
 }

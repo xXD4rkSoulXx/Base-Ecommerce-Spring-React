@@ -25,7 +25,7 @@ public class JwtKeyProvider {
     private final Path privateKeyPath;
 
     public JwtKeyProvider() {
-        this.keysPath = Paths.get("src/main/resources/keys");
+        this.keysPath = Paths.get("keys/");
         this.publicKeyPath = keysPath.resolve("public.pem");
         this.privateKeyPath = keysPath.resolve("private.pem");
     }

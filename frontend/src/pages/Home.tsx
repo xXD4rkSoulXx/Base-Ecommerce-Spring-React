@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { FeaturedProductCard } from '@/components/card/FeaturedProductCard'
 import { SectionDivider } from '@/components/ui/SectionDivider'
 import { ProductGridSection } from '@/components/section/ProductGridSection'
 import { useFeaturedProducts } from '@/hooks/useFeaturedProducts'
@@ -7,9 +8,6 @@ import { useBestSellers } from '@/hooks/useBestSellers'
 import { useNewArrivals } from '@/hooks/useNewArrivals'
 import { useTopRatedProducts } from '@/hooks/useTopRatedProducts'
 
-const priceFormatter = new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' })
-const formatPrice = (amount: number) => priceFormatter.format(amount)
-
 export const Home = () => {
   const { data: featured } = useFeaturedProducts()
   const { data: deals } = useDealProducts()
@@ -17,12 +15,12 @@ export const Home = () => {
   const { data: newArrivals } = useNewArrivals()
   const { data: topRated } = useTopRatedProducts()
 
-  const slotA = featured?.[0]
-  const slotB = featured?.[1]
+  const left = featured?.find((product) => product.featuredSlot === 'LEFT')
+  const right = featured?.find((product) => product.featuredSlot === 'RIGHT')
 
   return (
     <>
-      {slotA && (
+      {(left || right) && (
         <section className="relative overflow-hidden grid-noise">
           <div className="pointer-events-none absolute -left-10 -top-20 select-none opacity-[0.04]">
             <h1 className="font-display text-[28vw] uppercase leading-none tracking-tighter">
@@ -48,38 +46,11 @@ export const Home = () => {
                 </Link>
               </div>
             </div>
-            <div className={`col-span-12 grid gap-4 lg:gap-6 ${slotB ? 'sm:grid-cols-2 lg:col-span-7' : 'grid-cols-1 lg:col-span-7'}`}>
-              <Link to={`/product/${slotA.id}`} className="relative block">
-                <div className="aspect-[3/4] overflow-hidden border border-border bg-card">
-                  <img
-                    src={slotA.cover}
-                    alt={slotA.name}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <div className="absolute left-3 top-3 bg-background/70 px-2 py-1 font-mono text-[9px] font-bold backdrop-blur">
-                  REF: {slotA.ref}
-                </div>
-              </Link>
-              {slotB && (
-                <Link to={`/product/${slotB.id}`} className="relative block lg:translate-y-24">
-                  <div className="aspect-[3/4] overflow-hidden border border-border bg-card">
-                    <img
-                      src={slotB.cover}
-                      alt={slotB.name}
-                      loading="lazy"
-                      className="h-full w-full object-cover grayscale-[30%]"
-                    />
-                  </div>
-                  <div className="absolute left-3 top-3 bg-background/70 px-2 py-1 font-mono text-[9px] font-bold backdrop-blur">
-                    REF: {slotB.ref}
-                  </div>
-                  <div className="mt-4 flex justify-between text-xs">
-                    <span className="font-bold uppercase">{slotB.name}</span>
-                    <span className="font-mono text-neon-cyan">{formatPrice(slotB.price)}</span>
-                  </div>
-                </Link>
-              )}
+            <div
+              className={`col-span-12 grid gap-4 lg:col-span-7 lg:gap-6 ${left && right ? 'sm:grid-cols-2' : 'grid-cols-1'}`}
+            >
+              {left && <FeaturedProductCard product={left} />}
+              {right && <FeaturedProductCard product={right} secondary />}
             </div>
           </div>
         </section>

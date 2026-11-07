@@ -39,4 +39,5 @@ export interface CartItemResponse {
   discountPercentage: number
   stock: number
   quantity: number
+  available?: boolean
 }

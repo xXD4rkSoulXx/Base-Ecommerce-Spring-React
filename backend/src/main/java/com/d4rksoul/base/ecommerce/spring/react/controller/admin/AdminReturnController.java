@@ -1,7 +1,7 @@
 package com.d4rksoul.base.ecommerce.spring.react.controller.admin;
 
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.admin.AdminReturnSearchRequest;
-import com.d4rksoul.base.ecommerce.spring.react.dto.request.admin.RejectReturnRequest;
+import com.d4rksoul.base.ecommerce.spring.react.dto.request.admin.AdminRejectReturnRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.PageResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.AdminReturnResponse;
 import com.d4rksoul.base.ecommerce.spring.react.service.admin.AdminReturnService;
@@ -36,7 +36,7 @@ public class AdminReturnController {
     @PreAuthorize("hasAuthority('RETURNS_WRITE')")
     public ResponseEntity<AdminReturnResponse> reject(
             @PathVariable Long id,
-            @Valid @RequestBody RejectReturnRequest request
+            @Valid @RequestBody AdminRejectReturnRequest request
     ) {
         AdminReturnResponse response = adminReturnService.reject(id, request.reason());
 

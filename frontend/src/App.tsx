@@ -1,8 +1,8 @@
 import { RouterProvider } from 'react-router-dom'
-import { router } from '@/routes'
-import { useInitializeAuth } from '@/hooks/useInitializeAuth'
-import { Loading } from '@/pages/Loading'
 import { Toaster } from 'sonner'
+import { router } from '@/routes'
+import { Loading } from '@/pages/Loading'
+import { useInitializeAuth } from '@/hooks/useInitializeAuth'
 
 export const App = () => {
   const isHydrated = useInitializeAuth()

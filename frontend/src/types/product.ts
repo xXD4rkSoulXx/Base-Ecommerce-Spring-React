@@ -1,3 +1,7 @@
+export type FeaturedSlot =
+  | 'LEFT'
+  | 'RIGHT'
+
 export type ProductCategory =
   | 'OUTERWEAR'
   | 'TOPS'
@@ -92,6 +96,7 @@ export interface ProductResponse {
   discountPercentage: number
   category: ProductCategory
   cover: string
+  featuredSlot?: FeaturedSlot
 }
 
 export interface ProductDetailsResponse {

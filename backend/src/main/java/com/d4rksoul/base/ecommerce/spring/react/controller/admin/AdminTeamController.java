@@ -1,8 +1,8 @@
 package com.d4rksoul.base.ecommerce.spring.react.controller.admin;
 
-import com.d4rksoul.base.ecommerce.spring.react.dto.request.admin.AssignRoleRequest;
-import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.TeamMemberResponse;
-import com.d4rksoul.base.ecommerce.spring.react.service.admin.TeamService;
+import com.d4rksoul.base.ecommerce.spring.react.dto.request.admin.AdminAssignRoleRequest;
+import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.AdminTeamMemberResponse;
+import com.d4rksoul.base.ecommerce.spring.react.service.admin.AdminTeamService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,23 +22,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminTeamController {
 
-    private final TeamService teamService;
+    private final AdminTeamService adminTeamService;
 
     @GetMapping
     @PreAuthorize("hasAuthority('TEAM_READ')")
-    public ResponseEntity<List<TeamMemberResponse>> getTeam() {
-        List<TeamMemberResponse> team = teamService.getTeam();
+    public ResponseEntity<List<AdminTeamMemberResponse>> getTeam() {
+        List<AdminTeamMemberResponse> team = adminTeamService.getTeam();
 
         return ResponseEntity.ok(team);
     }
 
     @PutMapping("/role")
     @PreAuthorize("hasAuthority('TEAM_WRITE')")
-    public ResponseEntity<TeamMemberResponse> assignRole(
+    public ResponseEntity<AdminTeamMemberResponse> assignRole(
             @AuthenticationPrincipal Jwt jwt,
-            @Valid @RequestBody AssignRoleRequest request
+            @Valid @RequestBody AdminAssignRoleRequest request
     ) {
-        TeamMemberResponse member = teamService.assignRole(jwt.getSubject(), request);
+        AdminTeamMemberResponse member = adminTeamService.assignRole(jwt.getSubject(), request);
 
         return ResponseEntity.ok(member);
     }
