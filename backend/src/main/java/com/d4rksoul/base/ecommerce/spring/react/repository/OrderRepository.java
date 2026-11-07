@@ -1,5 +1,6 @@
 package com.d4rksoul.base.ecommerce.spring.react.repository;
 
+import com.d4rksoul.base.ecommerce.spring.react.dto.projection.CustomerOrderStatsProjection;
 import com.d4rksoul.base.ecommerce.spring.react.dto.projection.DiscountCodeUsageProjection;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Order;
 import com.d4rksoul.base.ecommerce.spring.react.enums.OrderStatus;
@@ -43,6 +44,22 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     );
 
     long countByDiscountCodeId(Long discountCodeId);
+
+    @Query("""
+        SELECT new com.d4rksoul.base.ecommerce.spring.react.dto.projection.CustomerOrderStatsProjection(
+            o.user.id,
+            COUNT(o),
+            MAX(o.createdAt)
+        )
+        FROM Order o
+        WHERE o.user.id IN :userIds
+        AND o.status IN :statuses
+        GROUP BY o.user.id
+    """)
+    List<CustomerOrderStatsProjection> findCustomerStatsByUserIds(
+            @Param("userIds") Collection<Long> userIds,
+            @Param("statuses") Collection<OrderStatus> statuses
+    );
 
     @Query("""
         SELECT new com.d4rksoul.base.ecommerce.spring.react.dto.projection.DiscountCodeUsageProjection(

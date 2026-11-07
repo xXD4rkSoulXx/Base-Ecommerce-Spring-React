@@ -23,8 +23,10 @@ import { AdminDashboard } from '@/pages/admin/AdminDashboard'
 import { AdminProducts } from '@/pages/admin/AdminProducts'
 import { AdminStock } from '@/pages/admin/AdminStock'
 import { AdminOrders } from '@/pages/admin/AdminOrders'
-import { AdminReturns } from '@/pages/admin/AdminReturns'
 import { AdminOrderDetails } from '@/pages/admin/AdminOrderDetails'
+import { AdminReturns } from '@/pages/admin/AdminReturns'
+import { AdminCustomers } from '@/pages/admin/AdminCustomers'
+import { AdminCustomerDetails } from '@/pages/admin/AdminCustomerDetails'
 import { AdminDiscounts } from '@/pages/admin/AdminDiscounts'
 import { AdminTeam } from '@/pages/admin/AdminTeam'
 import { NoPermission } from '@/pages/NoPermission'
@@ -97,6 +99,13 @@ export const router = createBrowserRouter([
           {
             element: <ProtectedRoute permission="RETURNS_READ" />,
             children: [{ path: 'returns', element: <AdminReturns /> }]
+          },
+          {
+            element: <ProtectedRoute permission="CUSTOMERS_READ" />,
+            children: [
+              { path: 'customers', element: <AdminCustomers /> },
+              { path: 'customers/:id', element: <AdminCustomerDetails /> }
+            ]
           },
           {
             element: <ProtectedRoute permission="DISCOUNTS_READ" />,
