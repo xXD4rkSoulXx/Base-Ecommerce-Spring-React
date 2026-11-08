@@ -8,6 +8,8 @@ import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.AdminOrderDet
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.AdminOrderSummaryResponse;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Order;
 import com.d4rksoul.base.ecommerce.spring.react.entity.OrderShipment;
+import com.d4rksoul.base.ecommerce.spring.react.enums.AuditAction;
+import com.d4rksoul.base.ecommerce.spring.react.enums.AuditEntityType;
 import com.d4rksoul.base.ecommerce.spring.react.enums.OrderStatus;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ShipmentStatus;
 import com.d4rksoul.base.ecommerce.spring.react.exception.OrderNotFoundException;
@@ -46,6 +48,7 @@ public class AdminOrderService {
     private final OrderShipmentRepository orderShipmentRepository;
     private final OrderService orderService;
     private final OrderFulfillmentService orderFulfillmentService;
+    private final AdminAuditLogService adminAuditLogService;
     private final AdminOrderMapper adminOrderMapper;
     private final PageMapper pageMapper;
 
@@ -53,13 +56,15 @@ public class AdminOrderService {
     public PageResponse<AdminOrderSummaryResponse> getOrders(AdminOrderSearchRequest filter) {
         Specification<Order> specification = Specification
                 .where(OrderSpecification.hasStatusIn(
-                        filter.pending() ? OrderStatus.FULFILLMENT_STATUSES : OrderStatus.HISTORY_STATUSES
+                        Boolean.TRUE.equals(filter.pending())
+                                ? OrderStatus.FULFILLMENT_STATUSES
+                                : OrderStatus.HISTORY_STATUSES
                 ))
                 .and(OrderSpecification.hasStatus(filter.status()))
                 .and(OrderSpecification.createdFrom(filter.from()))
                 .and(OrderSpecification.createdTo(filter.to()))
                 .and(OrderSpecification.matchesCustomerSearch(filter.q()))
-                .and(filter.pending()
+                .and(Boolean.TRUE.equals(filter.pending())
                         ? OrderSpecification.orderByFulfillmentPriority()
                         : OrderSpecification.orderByRecentDesc()
                 );
@@ -101,6 +106,8 @@ public class AdminOrderService {
             );
         }
 
+        String change = order.getStatus() + " → " + target;
+
         if (!orderFulfillmentService.startProcessing(id)) {
             throw new InvalidOrderTransitionException(
                     "Order " + id + " was changed in the meantime. Reload and try again."
@@ -110,6 +117,14 @@ public class AdminOrderService {
         if (orderShipmentRepository.existsByOrderId(id)) {
             orderRepository.markManuallyManaged(id);
         }
+
+        adminAuditLogService.register(
+                AuditAction.STATUS_CHANGED,
+                AuditEntityType.ORDER,
+                id,
+                "#" + id,
+                change
+        );
     }
 
     @Transactional
@@ -123,6 +138,8 @@ public class AdminOrderService {
             );
         }
 
+        String change = "Parcel " + shipmentId + ": " + shipment.getStatus() + " → " + target;
+
         if (!orderFulfillmentService.advanceShipment(orderId, shipmentId, shipment.getStatus(), target)) {
             throw new InvalidOrderTransitionException(
                     "Parcel " + shipmentId + " was changed in the meantime. Reload and try again."
@@ -130,5 +147,13 @@ public class AdminOrderService {
         }
 
         orderRepository.markManuallyManaged(orderId);
+
+        adminAuditLogService.register(
+                AuditAction.SHIPMENT_STATUS_CHANGED,
+                AuditEntityType.ORDER,
+                orderId,
+                "#" + orderId,
+                change
+        );
     }
 }

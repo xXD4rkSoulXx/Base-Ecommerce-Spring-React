@@ -7,6 +7,8 @@ import com.d4rksoul.base.ecommerce.spring.react.dto.response.PageResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.AdminProductDetailsResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.AdminProductSummaryResponse;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Product;
+import com.d4rksoul.base.ecommerce.spring.react.enums.AuditAction;
+import com.d4rksoul.base.ecommerce.spring.react.enums.AuditEntityType;
 import com.d4rksoul.base.ecommerce.spring.react.enums.FeaturedSlot;
 import com.d4rksoul.base.ecommerce.spring.react.exception.ProductNotFoundException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.FeaturedSlotTakenException;
@@ -37,6 +39,7 @@ public class AdminProductService {
     private final ProductRepository productRepository;
     private final ProductSkuRepository productSkuRepository;
     private final ProductImageService productImageService;
+    private final AdminAuditLogService adminAuditLogService;
     private final AdminProductMapper adminProductMapper;
     private final PageMapper pageMapper;
 
@@ -50,6 +53,8 @@ public class AdminProductService {
 
         Product product = productRepository.save(adminProductMapper.toEntity(request));
 
+        adminAuditLogService.register(AuditAction.CREATED, AuditEntityType.PRODUCT, product.getId(), product.getRef());
+
         return adminProductMapper.toDetailsDto(product);
     }
 
@@ -60,6 +65,8 @@ public class AdminProductService {
 
         product.setActive(false);
         product.setFeaturedSlot(null);
+
+        adminAuditLogService.register(AuditAction.ARCHIVED, AuditEntityType.PRODUCT, id, product.getRef());
     }
 
     @Transactional
@@ -68,6 +75,8 @@ public class AdminProductService {
                 .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + id));
 
         product.setActive(true);
+
+        adminAuditLogService.register(AuditAction.RESTORED, AuditEntityType.PRODUCT, id, product.getRef());
     }
 
     @Transactional(readOnly = true)
@@ -129,6 +138,8 @@ public class AdminProductService {
 
         validateFeaturedSlot(request.featuredSlot(), id);
         adminProductMapper.updateEntity(product, request);
+
+        adminAuditLogService.register(AuditAction.UPDATED, AuditEntityType.PRODUCT, id, product.getRef());
 
         return adminProductMapper.toDetailsDto(product);
     }

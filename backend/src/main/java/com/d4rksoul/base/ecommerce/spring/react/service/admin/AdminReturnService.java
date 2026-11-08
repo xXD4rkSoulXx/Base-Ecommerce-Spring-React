@@ -5,6 +5,8 @@ import com.d4rksoul.base.ecommerce.spring.react.dto.response.PageResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.AdminReturnResponse;
 import com.d4rksoul.base.ecommerce.spring.react.entity.OrderReturn;
 import com.d4rksoul.base.ecommerce.spring.react.entity.OrderReturnItem;
+import com.d4rksoul.base.ecommerce.spring.react.enums.AuditAction;
+import com.d4rksoul.base.ecommerce.spring.react.enums.AuditEntityType;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ReturnStatus;
 import com.d4rksoul.base.ecommerce.spring.react.exception.ReturnNotAllowedException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.ReturnNotFoundException;
@@ -32,6 +34,7 @@ public class AdminReturnService {
     private final OrderReturnRepository orderReturnRepository;
     private final OrderReturnItemRepository orderReturnItemRepository;
     private final OrderReturnApprovalService orderReturnApprovalService;
+    private final AdminAuditLogService adminAuditLogService;
     private final AdminReturnMapper adminReturnMapper;
     private final PageMapper pageMapper;
 
@@ -40,15 +43,17 @@ public class AdminReturnService {
         OrderReturn orderReturn = orderReturnApprovalService.approve(id)
                 .orElseThrow(() -> unavailable(id));
 
-        return complete(orderReturn);
+        return complete(orderReturn, AuditAction.APPROVED, null);
     }
 
     @Transactional
     public AdminReturnResponse reject(Long id, String reason) {
-        OrderReturn orderReturn = orderReturnApprovalService.reject(id, reason.trim())
+        String trimmedReason = reason.trim();
+
+        OrderReturn orderReturn = orderReturnApprovalService.reject(id, trimmedReason)
                 .orElseThrow(() -> unavailable(id));
 
-        return complete(orderReturn);
+        return complete(orderReturn, AuditAction.REJECTED, trimmedReason);
     }
 
     @Transactional
@@ -56,7 +61,7 @@ public class AdminReturnService {
         OrderReturn orderReturn = orderReturnApprovalService.receive(id)
                 .orElseThrow(() -> unavailable(id));
 
-        return complete(orderReturn);
+        return complete(orderReturn, AuditAction.RECEIVED, null);
     }
 
     @Transactional
@@ -64,7 +69,7 @@ public class AdminReturnService {
         OrderReturn orderReturn = orderReturnApprovalService.refund(id)
                 .orElseThrow(() -> unavailable(id));
 
-        return complete(orderReturn);
+        return complete(orderReturn, AuditAction.REFUNDED, null);
     }
 
     @Transactional(readOnly = true)
@@ -91,8 +96,16 @@ public class AdminReturnService {
         return pageMapper.toDto(responsePage);
     }
 
-    private AdminReturnResponse complete(OrderReturn orderReturn) {
+    private AdminReturnResponse complete(OrderReturn orderReturn, AuditAction action, String details) {
         orderReturnRepository.markManuallyManaged(orderReturn.getId());
+
+        adminAuditLogService.register(
+                action,
+                AuditEntityType.RETURN,
+                orderReturn.getId(),
+                "#" + orderReturn.getId(),
+                details
+        );
 
         List<OrderReturnItem> items = orderReturnItemRepository.findByOrderReturnId(orderReturn.getId());
 

@@ -7,6 +7,8 @@ import com.d4rksoul.base.ecommerce.spring.react.dto.request.admin.AdminUpdateDis
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.PageResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.AdminDiscountCodeResponse;
 import com.d4rksoul.base.ecommerce.spring.react.entity.DiscountCode;
+import com.d4rksoul.base.ecommerce.spring.react.enums.AuditAction;
+import com.d4rksoul.base.ecommerce.spring.react.enums.AuditEntityType;
 import com.d4rksoul.base.ecommerce.spring.react.exception.DiscountCodeAlreadyExistsException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.DiscountCodeNotFoundException;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.PageMapper;
@@ -32,6 +34,7 @@ public class AdminDiscountCodeService {
 
     private final DiscountCodeRepository discountCodeRepository;
     private final OrderRepository orderRepository;
+    private final AdminAuditLogService adminAuditLogService;
     private final AdminDiscountCodeMapper adminDiscountCodeMapper;
     private final PageMapper pageMapper;
 
@@ -43,6 +46,14 @@ public class AdminDiscountCodeService {
 
         DiscountCode discountCode = discountCodeRepository.save(adminDiscountCodeMapper.toEntity(request));
 
+        adminAuditLogService.register(
+                AuditAction.CREATED,
+                AuditEntityType.DISCOUNT_CODE,
+                discountCode.getId(),
+                discountCode.getCode(),
+                discountCode.getDiscountPercentage() + "%"
+        );
+
         return adminDiscountCodeMapper.toDto(discountCode, 0);
     }
 
@@ -52,6 +63,13 @@ public class AdminDiscountCodeService {
                 .orElseThrow(() -> new DiscountCodeNotFoundException("Discount code not found with id: " + id));
 
         discountCode.setActive(true);
+
+        adminAuditLogService.register(
+                AuditAction.ACTIVATED,
+                AuditEntityType.DISCOUNT_CODE,
+                id,
+                discountCode.getCode()
+        );
     }
 
     @Transactional
@@ -60,6 +78,8 @@ public class AdminDiscountCodeService {
                 .orElseThrow(() -> new DiscountCodeNotFoundException("Discount code not found with id: " + id));
 
         discountCode.setActive(false);
+
+        adminAuditLogService.register(AuditAction.DEACTIVATED, AuditEntityType.DISCOUNT_CODE, id, discountCode.getCode());
     }
 
     @Transactional(readOnly = true)
@@ -94,7 +114,17 @@ public class AdminDiscountCodeService {
         DiscountCode discountCode = discountCodeRepository.findById(id)
                 .orElseThrow(() -> new DiscountCodeNotFoundException("Discount code not found with id: " + id));
 
+        String previousPercentage = discountCode.getDiscountPercentage() + "%";
+
         adminDiscountCodeMapper.updateEntity(discountCode, request);
+
+        adminAuditLogService.register(
+                AuditAction.UPDATED,
+                AuditEntityType.DISCOUNT_CODE,
+                id,
+                discountCode.getCode(),
+                previousPercentage + " → " + discountCode.getDiscountPercentage() + "%"
+        );
 
         return adminDiscountCodeMapper.toDto(discountCode, orderRepository.countByDiscountCodeId(id));
     }

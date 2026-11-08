@@ -3,6 +3,8 @@ package com.d4rksoul.base.ecommerce.spring.react.service.admin;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.admin.AdminAssignRoleRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.AdminTeamMemberResponse;
 import com.d4rksoul.base.ecommerce.spring.react.entity.User;
+import com.d4rksoul.base.ecommerce.spring.react.enums.AuditAction;
+import com.d4rksoul.base.ecommerce.spring.react.enums.AuditEntityType;
 import com.d4rksoul.base.ecommerce.spring.react.enums.UserRole;
 import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidTeamChangeException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.UserNotFoundException;
@@ -23,6 +25,7 @@ public class AdminTeamService {
 
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final AdminAuditLogService adminAuditLogService;
     private final UserMapper userMapper;
 
     @Transactional(readOnly = true)
@@ -45,8 +48,18 @@ public class AdminTeamService {
             throw new InvalidTeamChangeException("User already has this role");
         }
 
+        UserRole previousRole = user.getRole();
+
         user.setRole(request.role());
         refreshTokenRepository.deleteAllByUser(user);
+
+        adminAuditLogService.register(
+                AuditAction.ROLE_CHANGED,
+                AuditEntityType.TEAM_MEMBER,
+                user.getId(),
+                user.getEmail(),
+                previousRole + " → " + request.role()
+        );
 
         return userMapper.toTeamMemberDto(user);
     }

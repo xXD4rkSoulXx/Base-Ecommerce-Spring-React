@@ -6,6 +6,7 @@ import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.AdminProductS
 import com.d4rksoul.base.ecommerce.spring.react.dto.result.PackingItemResult;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Product;
 import com.d4rksoul.base.ecommerce.spring.react.entity.ProductSku;
+import com.d4rksoul.base.ecommerce.spring.react.enums.AuditAction;
 import com.d4rksoul.base.ecommerce.spring.react.exception.ProductNotFoundException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.ProductSkuNotFoundException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.ProductSkuAlreadyExistsException;
@@ -29,6 +30,7 @@ public class AdminProductSkuService {
     private final ProductSkuRepository productSkuRepository;
     private final ProductImageService productImageService;
     private final ParcelPackingService parcelPackingService;
+    private final AdminAuditLogService adminAuditLogService;
     private final AdminProductSkuMapper adminProductSkuMapper;
 
     @Transactional
@@ -65,6 +67,8 @@ public class AdminProductSkuService {
 
         ProductSku sku = productSkuRepository.save(adminProductSkuMapper.toEntity(product, request));
 
+        adminAuditLogService.registerVariant(AuditAction.CREATED, sku, null);
+
         String cover = productImageService.findCoversBySkuId(List.of(sku)).get(sku.getId());
 
         return adminProductSkuMapper.toDto(sku, cover);
@@ -76,6 +80,8 @@ public class AdminProductSkuService {
                 .orElseThrow(() -> new ProductSkuNotFoundException("Product SKU not found with id: " + skuId));
 
         sku.setActive(false);
+
+        adminAuditLogService.registerVariant(AuditAction.ARCHIVED, sku, null);
     }
 
     @Transactional
@@ -84,6 +90,8 @@ public class AdminProductSkuService {
                 .orElseThrow(() -> new ProductSkuNotFoundException("Product SKU not found with id: " + skuId));
 
         sku.setActive(true);
+
+        adminAuditLogService.registerVariant(AuditAction.RESTORED, sku, null);
     }
 
     @Transactional(readOnly = true)
@@ -115,6 +123,8 @@ public class AdminProductSkuService {
         ));
 
         adminProductSkuMapper.updateEntity(sku, request);
+
+        adminAuditLogService.registerVariant(AuditAction.UPDATED, sku, null);
 
         String cover = productImageService.findCoversBySkuId(List.of(sku)).get(sku.getId());
 

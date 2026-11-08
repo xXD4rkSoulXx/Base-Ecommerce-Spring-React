@@ -4,6 +4,7 @@ import com.d4rksoul.base.ecommerce.spring.react.dto.request.admin.AdminStockSear
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.PageResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.AdminStockItemResponse;
 import com.d4rksoul.base.ecommerce.spring.react.entity.ProductSku;
+import com.d4rksoul.base.ecommerce.spring.react.enums.AuditAction;
 import com.d4rksoul.base.ecommerce.spring.react.exception.InsufficientStockException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.ProductSkuNotFoundException;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.PageMapper;
@@ -19,6 +20,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Locale;
 import java.util.Map;
 
 @Service
@@ -27,6 +29,7 @@ public class AdminStockService {
 
     private final ProductSkuRepository productSkuRepository;
     private final ProductImageService productImageService;
+    private final AdminAuditLogService adminAuditLogService;
     private final AdminStockMapper adminStockMapper;
     private final PageMapper pageMapper;
 
@@ -37,6 +40,15 @@ public class AdminStockService {
                     ? new InsufficientStockException("Stock cannot go below zero.")
                     : new ProductSkuNotFoundException("Product SKU not found with id: " + skuId);
         }
+
+        ProductSku sku = productSkuRepository.findById(skuId)
+                .orElseThrow(() -> new ProductSkuNotFoundException("Product SKU not found with id: " + skuId));
+
+        adminAuditLogService.registerVariant(
+                AuditAction.STOCK_ADJUSTED,
+                sku,
+                String.format(Locale.ROOT, "%+d (stock now %d)", delta, sku.getStock())
+        );
     }
 
     @Transactional(readOnly = true)
@@ -63,5 +75,14 @@ public class AdminStockService {
         if (productSkuRepository.setStock(skuId, stock) == 0) {
             throw new ProductSkuNotFoundException("Product SKU not found with id: " + skuId);
         }
+
+        adminAuditLogService.registerVariant(
+                AuditAction.STOCK_SET,
+                productSkuRepository.findById(skuId)
+                        .orElseThrow(() -> new ProductSkuNotFoundException(
+                                "Product SKU not found with id: " + skuId
+                        )),
+                "Set to " + stock
+        );
     }
 }

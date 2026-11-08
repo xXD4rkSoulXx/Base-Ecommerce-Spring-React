@@ -20,7 +20,9 @@ import { Account } from '@/pages/Account'
 import { Checkout } from '@/pages/Checkout'
 import { CheckoutSuccess } from '@/pages/CheckoutSucess'
 import { AdminDashboard } from '@/pages/admin/AdminDashboard'
+import { AdminProductCreate } from '@/pages/admin/AdminProductCreate'
 import { AdminProducts } from '@/pages/admin/AdminProducts'
+import { AdminProductEdit } from '@/pages/admin/AdminProductEdit'
 import { AdminStock } from '@/pages/admin/AdminStock'
 import { AdminOrders } from '@/pages/admin/AdminOrders'
 import { AdminOrderDetails } from '@/pages/admin/AdminOrderDetails'
@@ -30,10 +32,9 @@ import { AdminCustomerDetails } from '@/pages/admin/AdminCustomerDetails'
 import { AdminReviews } from '@/pages/admin/AdminReviews'
 import { AdminDiscounts } from '@/pages/admin/AdminDiscounts'
 import { AdminTeam } from '@/pages/admin/AdminTeam'
+import { AdminAuditLog } from '@/pages/admin/AdminAuditLog'
 import { NoPermission } from '@/pages/NoPermission'
 import { NotFound } from '@/pages/NotFound'
-import { AdminProductEdit } from '@/pages/admin/AdminProductEdit'
-import { AdminProductCreate } from '@/pages/admin/AdminProductCreate'
 
 export const router = createBrowserRouter([
   {
@@ -119,6 +120,10 @@ export const router = createBrowserRouter([
           {
             element: <ProtectedRoute permission="TEAM_READ" />,
             children: [{ path: 'team', element: <AdminTeam /> }]
+          },
+          {
+            element: <ProtectedRoute permission="AUDIT_READ" />,
+            children: [{ path: 'audit', element: <AdminAuditLog /> }]
           }
         ]
       }

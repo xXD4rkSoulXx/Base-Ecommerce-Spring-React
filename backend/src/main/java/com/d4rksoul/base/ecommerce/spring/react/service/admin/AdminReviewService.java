@@ -4,6 +4,8 @@ import com.d4rksoul.base.ecommerce.spring.react.dto.request.admin.AdminReviewSea
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.PageResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.AdminReviewResponse;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Review;
+import com.d4rksoul.base.ecommerce.spring.react.enums.AuditAction;
+import com.d4rksoul.base.ecommerce.spring.react.enums.AuditEntityType;
 import com.d4rksoul.base.ecommerce.spring.react.exception.ReviewNotFoundException;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.PageMapper;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.admin.AdminReviewMapper;
@@ -22,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final AdminAuditLogService adminAuditLogService;
     private final AdminReviewMapper adminReviewMapper;
     private final PageMapper pageMapper;
 
@@ -31,6 +34,8 @@ public class AdminReviewService {
                 .orElseThrow(() -> new ReviewNotFoundException("Review not found with id: " + id));
 
         review.setHidden(true);
+
+        adminAuditLogService.register(AuditAction.HIDDEN, AuditEntityType.REVIEW, id, "#" + id);
     }
 
     @Transactional
@@ -39,6 +44,8 @@ public class AdminReviewService {
                 .orElseThrow(() -> new ReviewNotFoundException("Review not found with id: " + id));
 
         review.setHidden(false);
+
+        adminAuditLogService.register(AuditAction.SHOWN, AuditEntityType.REVIEW, id, "#" + id);
     }
 
     @Transactional(readOnly = true)

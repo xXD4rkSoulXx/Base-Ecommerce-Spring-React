@@ -3,6 +3,7 @@ package com.d4rksoul.base.ecommerce.spring.react.service.admin;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.AdminProductSkuImageResponse;
 import com.d4rksoul.base.ecommerce.spring.react.entity.ProductSku;
 import com.d4rksoul.base.ecommerce.spring.react.entity.ProductSkuImage;
+import com.d4rksoul.base.ecommerce.spring.react.enums.AuditAction;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ImageFormat;
 import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidImageException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.ProductSkuImageNotFoundException;
@@ -36,26 +37,25 @@ public class AdminProductSkuImageService {
     private final ProductSkuImageRepository productSkuImageRepository;
     private final OrderItemRepository orderItemRepository;
     private final ImageStorage imageStorage;
+    private final AdminAuditLogService adminAuditLogService;
     private final AdminProductSkuImageMapper adminProductSkuImageMapper;
-
-    @Transactional(readOnly = true)
-    public List<AdminProductSkuImageResponse> getImages(Long productId, Long skuId) {
-        findSku(productId, skuId);
-
-        return productSkuImageRepository.findByProductSkuIdOrderByIdAsc(skuId).stream()
-                .map(adminProductSkuImageMapper::toDto)
-                .toList();
-    }
 
     @Transactional
     public AdminProductSkuImageResponse uploadImage(Long productId, Long skuId, MultipartFile file) {
-        ProductSku sku = findSku(productId, skuId);
+        ProductSku sku = productSkuRepository.findByIdAndProductId(skuId, productId)
+                .orElseThrow(() -> new ProductSkuNotFoundException("Product SKU not found with id: " + skuId));
 
         if (file.isEmpty()) {
             throw new InvalidImageException("Select an image to upload.");
         }
 
-        byte[] content = readContent(file);
+        byte[] content;
+        try {
+            content = file.getBytes();
+        } catch (IOException exception) {
+            throw new UncheckedIOException(exception);
+        }
+
         ImageFormat format = detectFormat(content);
         String url = imageStorage.store(content, format.getExtension());
         boolean cover = !productSkuImageRepository.existsByProductSkuId(skuId);
@@ -64,12 +64,25 @@ public class AdminProductSkuImageService {
                 adminProductSkuImageMapper.toEntity(sku, url, cover)
         );
 
+        adminAuditLogService.registerVariant(AuditAction.IMAGE_UPLOADED, sku, null);
+
         return adminProductSkuImageMapper.toDto(image);
+    }
+
+    @Transactional(readOnly = true)
+    public List<AdminProductSkuImageResponse> getImages(Long productId, Long skuId) {
+        productSkuRepository.findByIdAndProductId(skuId, productId)
+                .orElseThrow(() -> new ProductSkuNotFoundException("Product SKU not found with id: " + skuId));
+
+        return productSkuImageRepository.findByProductSkuIdOrderByIdAsc(skuId).stream()
+                .map(adminProductSkuImageMapper::toDto)
+                .toList();
     }
 
     @Transactional
     public void setCover(Long productId, Long skuId, Long imageId) {
-        findSku(productId, skuId);
+        ProductSku sku = productSkuRepository.findByIdAndProductId(skuId, productId)
+                .orElseThrow(() -> new ProductSkuNotFoundException("Product SKU not found with id: " + skuId));
 
         List<ProductSkuImage> images = productSkuImageRepository.findByProductSkuIdOrderByIdAsc(skuId);
 
@@ -78,11 +91,14 @@ public class AdminProductSkuImageService {
         }
 
         images.forEach(image -> image.setCover(image.getId().equals(imageId)));
+
+        adminAuditLogService.registerVariant(AuditAction.COVER_CHANGED, sku, null);
     }
 
     @Transactional
     public void deleteImage(Long productId, Long skuId, Long imageId) {
-        findSku(productId, skuId);
+        ProductSku sku = productSkuRepository.findByIdAndProductId(skuId, productId)
+                .orElseThrow(() -> new ProductSkuNotFoundException("Product SKU not found with id: " + skuId));
 
         ProductSkuImage image = productSkuImageRepository.findByIdAndProductSkuId(imageId, skuId)
                 .orElseThrow(() -> new ProductSkuImageNotFoundException("Image not found with id: " + imageId));
@@ -96,21 +112,10 @@ public class AdminProductSkuImageService {
 
         productSkuImageRepository.delete(image);
 
+        adminAuditLogService.registerVariant(AuditAction.IMAGE_DELETED, sku, null);
+
         if (!orderItemRepository.existsByImagePath(image.getPath())) {
             imageStorage.delete(image.getPath());
-        }
-    }
-
-    private ProductSku findSku(Long productId, Long skuId) {
-        return productSkuRepository.findByIdAndProductId(skuId, productId)
-                .orElseThrow(() -> new ProductSkuNotFoundException("Product SKU not found with id: " + skuId));
-    }
-
-    private byte[] readContent(MultipartFile file) {
-        try {
-            return file.getBytes();
-        } catch (IOException exception) {
-            throw new UncheckedIOException(exception);
         }
     }
 
