@@ -24,6 +24,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
         )
         FROM Review r
         WHERE r.product.id = :productId
+        AND r.hidden = false
     """)
     Optional<RatingStatsProjection> findRatingStatsByProductId(@Param("productId") Long productId);
 
@@ -98,6 +99,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
         FROM Product p
         JOIN p.reviews r
         WHERE (:category IS NULL OR p.category = :category)
+        AND r.hidden = false
         AND p.active = true
         AND EXISTS (
             SELECT 1
@@ -116,6 +118,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
             FROM Product p2
             JOIN p2.reviews r
             WHERE (:category IS NULL OR p2.category = :category)
+            AND r.hidden = false
             AND p2.active = true
             AND EXISTS (
                 SELECT 1
