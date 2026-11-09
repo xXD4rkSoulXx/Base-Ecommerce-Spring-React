@@ -1,5 +1,6 @@
 package com.d4rksoul.base.ecommerce.spring.react.repository;
 
+import com.d4rksoul.base.ecommerce.spring.react.dto.projection.DailyTotalProjection;
 import com.d4rksoul.base.ecommerce.spring.react.entity.OrderReturn;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ReturnStatus;
 import jakarta.persistence.LockModeType;
@@ -17,6 +18,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,6 +32,8 @@ public interface OrderReturnRepository
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<OrderReturn> findByIdAndStatus(Long id, ReturnStatus status);
+
+    long countByStatusIn(Collection<ReturnStatus> statuses);
 
     List<OrderReturn> findByStatusAndCreatedAtBeforeAndManuallyManagedFalse(
             ReturnStatus status, Instant createdAt
@@ -54,6 +58,39 @@ public interface OrderReturnRepository
     BigDecimal sumRefundAmountByOrderIdAndStatus(
             @Param("orderId") Long orderId,
             @Param("status") ReturnStatus status
+    );
+
+    @Query("""
+        SELECT COALESCE(SUM(r.refundAmount), 0)
+        FROM OrderReturn r
+        WHERE r.status = :status
+        AND r.refundedAt >= :start
+        AND r.refundedAt < :end
+    """)
+    BigDecimal sumRefundAmountInPeriod(
+            @Param("status") ReturnStatus status,
+            @Param("start") Instant start,
+            @Param("end") Instant end
+    );
+
+    @Query("""
+        SELECT new com.d4rksoul.base.ecommerce.spring.react.dto.projection.DailyTotalProjection(
+            EXTRACT(YEAR FROM r.refundedAt),
+            EXTRACT(MONTH FROM r.refundedAt),
+            EXTRACT(DAY FROM r.refundedAt),
+            COALESCE(SUM(r.refundAmount), 0),
+            COUNT(r)
+        )
+        FROM OrderReturn r
+        WHERE r.status = :status
+        AND r.refundedAt >= :start
+        AND r.refundedAt < :end
+        GROUP BY EXTRACT(YEAR FROM r.refundedAt), EXTRACT(MONTH FROM r.refundedAt), EXTRACT(DAY FROM r.refundedAt)
+    """)
+    List<DailyTotalProjection> sumRefundAmountByDay(
+            @Param("status") ReturnStatus status,
+            @Param("start") Instant start,
+            @Param("end") Instant end
     );
 
     @Modifying

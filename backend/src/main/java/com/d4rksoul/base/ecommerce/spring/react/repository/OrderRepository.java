@@ -1,7 +1,10 @@
 package com.d4rksoul.base.ecommerce.spring.react.repository;
 
 import com.d4rksoul.base.ecommerce.spring.react.dto.projection.CustomerOrderStatsProjection;
+import com.d4rksoul.base.ecommerce.spring.react.dto.projection.DailyTotalProjection;
 import com.d4rksoul.base.ecommerce.spring.react.dto.projection.DiscountCodeUsageProjection;
+import com.d4rksoul.base.ecommerce.spring.react.dto.projection.StatusCountProjection;
+import com.d4rksoul.base.ecommerce.spring.react.dto.projection.TopDiscountCodeProjection;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Order;
 import com.d4rksoul.base.ecommerce.spring.react.enums.OrderStatus;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ShipmentStatus;
@@ -17,6 +20,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
@@ -44,6 +48,91 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     );
 
     long countByDiscountCodeId(Long discountCodeId);
+
+    long countByStatusIn(Collection<OrderStatus> statuses);
+
+    @Query("""
+        SELECT COALESCE(SUM(o.totalAmount), 0)
+        FROM Order o
+        WHERE o.status IN :statuses
+        AND o.paidAt >= :start
+        AND o.paidAt < :end
+    """)
+    BigDecimal sumTotalAmountInPeriod(
+            @Param("statuses") Collection<OrderStatus> statuses,
+            @Param("start") Instant start,
+            @Param("end") Instant end
+    );
+
+    @Query("""
+        SELECT COUNT(o)
+        FROM Order o
+        WHERE o.status IN :statuses
+        AND o.paidAt >= :start
+        AND o.paidAt < :end
+    """)
+    long countInPeriod(
+            @Param("statuses") Collection<OrderStatus> statuses,
+            @Param("start") Instant start,
+            @Param("end") Instant end
+    );
+
+    @Query("""
+        SELECT new com.d4rksoul.base.ecommerce.spring.react.dto.projection.DailyTotalProjection(
+            EXTRACT(YEAR FROM o.paidAt),
+            EXTRACT(MONTH FROM o.paidAt),
+            EXTRACT(DAY FROM o.paidAt),
+            COALESCE(SUM(o.totalAmount), 0),
+            COUNT(o)
+        )
+        FROM Order o
+        WHERE o.status IN :statuses
+        AND o.paidAt >= :start
+        AND o.paidAt < :end
+        GROUP BY EXTRACT(YEAR FROM o.paidAt), EXTRACT(MONTH FROM o.paidAt), EXTRACT(DAY FROM o.paidAt)
+    """)
+    List<DailyTotalProjection> sumTotalAmountByDay(
+            @Param("statuses") Collection<OrderStatus> statuses,
+            @Param("start") Instant start,
+            @Param("end") Instant end
+    );
+
+    @Query("""
+        SELECT new com.d4rksoul.base.ecommerce.spring.react.dto.projection.StatusCountProjection(
+            o.status,
+            COUNT(o)
+        )
+        FROM Order o
+        WHERE o.status IN :statuses
+        AND o.paidAt >= :start
+        AND o.paidAt < :end
+        GROUP BY o.status
+    """)
+    List<StatusCountProjection> countByStatusInPeriod(
+            @Param("statuses") Collection<OrderStatus> statuses,
+            @Param("start") Instant start,
+            @Param("end") Instant end
+    );
+
+    @Query("""
+        SELECT new com.d4rksoul.base.ecommerce.spring.react.dto.projection.TopDiscountCodeProjection(
+            d.code,
+            COUNT(o)
+        )
+        FROM Order o
+        JOIN o.discountCode d
+        WHERE o.status IN :statuses
+        AND o.paidAt >= :start
+        AND o.paidAt < :end
+        GROUP BY d.code
+        ORDER BY COUNT(o) DESC, d.code ASC
+    """)
+    List<TopDiscountCodeProjection> findTopDiscountCodes(
+            @Param("statuses") Collection<OrderStatus> statuses,
+            @Param("start") Instant start,
+            @Param("end") Instant end,
+            Pageable pageable
+    );
 
     @Query("""
         SELECT new com.d4rksoul.base.ecommerce.spring.react.dto.projection.CustomerOrderStatsProjection(

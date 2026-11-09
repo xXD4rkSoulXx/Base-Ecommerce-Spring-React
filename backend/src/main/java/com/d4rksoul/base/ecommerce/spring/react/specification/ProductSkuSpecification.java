@@ -51,4 +51,12 @@ public class ProductSkuSpecification {
             return cb.conjunction();
         };
     }
+
+    public static Specification<ProductSku> orderByStockAsc() {
+        return (root, query, cb) -> {
+            query.orderBy(cb.asc(root.get("stock")), cb.asc(root.get("id")));
+
+            return cb.conjunction();
+        };
+    }
 }

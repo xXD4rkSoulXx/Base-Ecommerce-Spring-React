@@ -11,6 +11,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
+
 public interface ReviewRepository extends JpaRepository<Review, Long>, JpaSpecificationExecutor<Review> {
 
     boolean existsByUserIdAndProductId(Long userId, Long productId);
@@ -31,4 +33,21 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, JpaSpecif
     @EntityGraph(attributePaths = {"user", "product"})
     @NonNull
     Page<Review> findAll(@NonNull Specification<Review> specification, @NonNull Pageable pageable);
+
+    @Query("""
+        SELECT COUNT(r)
+        FROM Review r
+        WHERE r.createdAt >= :start
+        AND r.createdAt < :end
+    """)
+    long countInPeriod(@Param("start") Instant start, @Param("end") Instant end);
+
+    @Query("""
+        SELECT AVG(r.rating)
+        FROM Review r
+        WHERE r.hidden = false
+        AND r.createdAt >= :start
+        AND r.createdAt < :end
+    """)
+    Double averageRatingInPeriod(@Param("start") Instant start, @Param("end") Instant end);
 }
