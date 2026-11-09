@@ -1,26 +1,43 @@
 import { useEffect } from 'react'
+import { isDemoSession, unmarkDemoSession } from '@/demo/demoSession'
+import { DEMO_ACCESS_TOKEN, DEMO_USER } from '@/demo/data/people'
+import { startDemo } from '@/demo/startDemo'
 import { refreshAuth } from '@/lib/refreshAuth'
 import { useAuthStore } from '@/store/useAuthStore'
 
 export const useInitializeAuth = () => {
   const isHydrated = useAuthStore((state) => state.isHydrated)
+  const setAuth = useAuthStore((state) => state.setAuth)
   const setHydrated = useAuthStore((state) => state.setHydrated)
 
   useEffect(() => {
     let cancelled = false
 
-    refreshAuth()
-      .catch(() => {})
-      .finally(() => {
-        if (!cancelled) {
-          setHydrated()
+    const initialize = async () => {
+      if (isDemoSession()) {
+        try {
+          await startDemo()
+          setAuth(DEMO_USER, DEMO_ACCESS_TOKEN)
+
+          return
+        } catch {
+          unmarkDemoSession()
         }
-      })
+      }
+
+      await refreshAuth().catch(() => {})
+    }
+
+    initialize().finally(() => {
+      if (!cancelled) {
+        setHydrated()
+      }
+    })
 
     return () => {
       cancelled = true
     }
-  }, [setHydrated])
+  }, [setAuth, setHydrated])
 
   return isHydrated
 }

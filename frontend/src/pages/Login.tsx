@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import type { SubmitEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Lock, Mail } from 'lucide-react'
+import { ArrowRight, Lock, Mail, Play } from 'lucide-react'
 import type { AxiosError } from 'axios'
 import { useLogin } from '@/hooks/useLogin'
+import { useStartDemo } from '@/hooks/useStartDemo'
 import { Field } from '@/components/ui/Field'
 import { FormError } from '@/components/ui/FormError'
 
@@ -12,6 +13,7 @@ export const Login = () => {
   const [password, setPassword] = useState('')
   
   const { mutate, isPending, isError, error } = useLogin()
+  const { mutate: startDemo, isPending: isDemoPending, isError: isDemoError } = useStartDemo()
 
   const errorMessage =
     (error as AxiosError<{ message: string }>)?.response?.data?.message || 'Invalid credentials'
@@ -56,7 +58,7 @@ export const Login = () => {
             name="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            disabled={isPending}
+            disabled={isPending || isDemoPending}
             placeholder="operator@signal.com"
           />
           <Field
@@ -66,18 +68,33 @@ export const Login = () => {
             name="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            disabled={isPending}
+            disabled={isPending || isDemoPending}
             placeholder="••••••••••"
           />
           <button
             type="submit"
-            disabled={isPending}
+            disabled={isPending || isDemoPending}
             className="group flex w-full items-center justify-center gap-3 border border-neon-cyan bg-neon-cyan py-4 text-xs font-bold uppercase tracking-[0.3em] text-primary-foreground transition-all hover:bg-transparent hover:text-neon-cyan disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isPending ? "Authenticating..." : "Authenticate"}
             {!isPending && <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />}
           </button>
         </form>
+        <div className="mt-8 space-y-3 border-t border-border pt-8">
+          {isDemoError && <FormError message="Could not start the demo" />}
+          <button
+            type="button"
+            onClick={() => startDemo()}
+            disabled={isPending || isDemoPending}
+            className="group flex w-full items-center justify-center gap-3 border border-neon-pink py-4 text-xs font-bold uppercase tracking-[0.3em] text-neon-pink transition-all hover:bg-neon-pink hover:text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Play className="h-4 w-4" />
+            {isDemoPending ? 'Loading demo...' : 'Try the admin demo'}
+          </button>
+          <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+            Read-only tour of the admin console with fictional data. No account needed.
+          </p>
+        </div>
         <p className="mt-10 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
            New operator?{" "}
           <Link to="/register" className="text-neon-cyan hover:text-neon-pink">

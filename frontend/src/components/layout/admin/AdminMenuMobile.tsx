@@ -2,6 +2,8 @@ import { useEffect } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { X, ArrowLeft } from 'lucide-react'
 import { useAdminNavItems } from '@/hooks/admin/useAdminNavItems'
+import { useExitDemo } from '@/hooks/useExitDemo'
+import { useAuthStore } from '@/store/useAuthStore'
 
 interface AdminMenuMobileProps {
   open: boolean
@@ -11,6 +13,8 @@ interface AdminMenuMobileProps {
 export const AdminMenuMobile = ({ open, onClose }: AdminMenuMobileProps) => {
   const navigate = useNavigate()
   const adminNavItems = useAdminNavItems()
+  const exitDemo = useExitDemo()
+  const isDemo = useAuthStore((state) => state.user?.role === 'DEMO')
 
   useEffect(() => {
     if (open) {
@@ -20,9 +24,14 @@ export const AdminMenuMobile = ({ open, onClose }: AdminMenuMobileProps) => {
     return () => { document.body.style.overflow = '' }
   }, [open])
 
-  const handleBackToStore = () => {
+  const handleLeave = () => {
     onClose()
-    navigate('/')
+
+    if (isDemo) {
+      exitDemo()
+    } else {
+      navigate('/')
+    }
   }
 
   return (
@@ -40,6 +49,9 @@ export const AdminMenuMobile = ({ open, onClose }: AdminMenuMobileProps) => {
               VELO_CITI
             </NavLink>
             <p className="mt-1 font-mono text-[10px] uppercase tracking-widest text-neon-cyan">Admin Console</p>
+            {isDemo && (
+              <p className="mt-1 font-mono text-[10px] uppercase tracking-widest text-neon-pink">Read-only demo</p>
+            )}
           </div>
           <button
             onClick={onClose}
@@ -68,10 +80,10 @@ export const AdminMenuMobile = ({ open, onClose }: AdminMenuMobileProps) => {
           ))}
         </nav>
         <button
-          onClick={handleBackToStore}
+          onClick={handleLeave}
           className="absolute bottom-6 left-6 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-neon-cyan"
         >
-          <ArrowLeft className="h-3 w-3" /> Back to Store
+          <ArrowLeft className="h-3 w-3" /> {isDemo ? 'Exit demo' : 'Back to Store'}
         </button>
       </aside>
     </div>

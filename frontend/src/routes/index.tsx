@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, redirect } from 'react-router-dom'
 import { Layout } from '@/layouts/Layout'
 import { AdminLayout } from '@/layouts/AdminLayout'
 import { PublicRoute } from '@/layouts/PublicRoute'
@@ -35,10 +35,12 @@ import { AdminTeam } from '@/pages/admin/AdminTeam'
 import { AdminAuditLog } from '@/pages/admin/AdminAuditLog'
 import { NoPermission } from '@/pages/NoPermission'
 import { NotFound } from '@/pages/NotFound'
+import { isDemoSession } from '@/demo/demoSession'
 
 export const router = createBrowserRouter([
   {
     element: <Layout />,
+    loader: () => (isDemoSession() ? redirect('/admin') : null),
     children: [
       { path: '/', element: <Home /> },
       { path: '/shop', element: <Shop /> },
