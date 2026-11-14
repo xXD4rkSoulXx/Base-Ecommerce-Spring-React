@@ -11,7 +11,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
+public interface UserRepository
+    extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
 
     boolean existsByEmail(String email);
 
@@ -31,8 +32,6 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
         AND u.createdAt < :end
     """)
     long countByRoleInPeriod(
-            @Param("role") UserRole role,
-            @Param("start") Instant start,
-            @Param("end") Instant end
+        @Param("role") UserRole role, @Param("start") Instant start, @Param("end") Instant end
     );
 }

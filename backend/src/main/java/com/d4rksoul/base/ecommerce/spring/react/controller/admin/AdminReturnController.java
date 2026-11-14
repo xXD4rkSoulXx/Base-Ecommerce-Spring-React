@@ -35,8 +35,7 @@ public class AdminReturnController {
     @PostMapping("/{id}/reject")
     @PreAuthorize("hasAuthority('RETURNS_WRITE')")
     public ResponseEntity<AdminReturnResponse> reject(
-            @PathVariable Long id,
-            @Valid @RequestBody AdminRejectReturnRequest request
+        @PathVariable Long id, @Valid @RequestBody AdminRejectReturnRequest request
     ) {
         AdminReturnResponse response = adminReturnService.reject(id, request.reason());
 
@@ -62,7 +61,7 @@ public class AdminReturnController {
     @GetMapping
     @PreAuthorize("hasAuthority('RETURNS_READ')")
     public ResponseEntity<PageResponse<AdminReturnResponse>> getReturns(
-            @ModelAttribute AdminReturnSearchRequest filter
+        @ModelAttribute AdminReturnSearchRequest filter
     ) {
         PageResponse<AdminReturnResponse> returns = adminReturnService.getReturns(filter);
 

@@ -1,11 +1,16 @@
 package com.d4rksoul.base.ecommerce.spring.react.dto.projection;
 
 public record ProductStockProjection(
-        Long productId,
+    Long productId,
 
-        Long totalStock,
+    Long totalStock,
 
-        Long skuCount,
+    Long skuCount,
 
-        Long lowStockSkus
-) {}
+    Long lowStockSkus
+) {
+
+    public static ProductStockProjection empty(Long productId) {
+        return new ProductStockProjection(productId, 0L, 0L, 0L);
+    }
+}

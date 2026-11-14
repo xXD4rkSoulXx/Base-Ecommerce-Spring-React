@@ -6,15 +6,19 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record AdminAuditLogSearchRequest(
-        String q,
-        AuditEntityType entityType,
-        AuditAction action,
-        int page,
-        int size
+    String q,
+
+    AuditEntityType entityType,
+
+    AuditAction action,
+
+    int page,
+
+    int size
 ) {
 
     public AdminAuditLogSearchRequest {
         page = Math.max(page, 0);
-        size = size <= 0 || size > 100 ? 20 : size;
+        size = size == 0 ? 20 : Math.clamp(size, 1, 100);
     }
 }

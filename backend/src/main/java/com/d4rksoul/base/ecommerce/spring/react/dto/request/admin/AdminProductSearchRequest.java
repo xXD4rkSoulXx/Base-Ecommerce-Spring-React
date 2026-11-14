@@ -5,20 +5,21 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record AdminProductSearchRequest(
-        String q,
+    String q,
 
-        ProductCategory category,
+    ProductCategory category,
 
-        Boolean lowStock,
+    Boolean lowStock,
 
-        Integer page,
+    Integer page,
 
-        Integer size
+    Integer size
 ) {
 
     public AdminProductSearchRequest {
+        q = q == null || q.isBlank() ? null : q.trim();
         lowStock = Boolean.TRUE.equals(lowStock);
-        page = (page == null) ? 0 : page;
-        size = (size == null) ? 10 : size;
+        page = (page == null) ? 0 : Math.max(page, 0);
+        size = (size == null) ? 10 : Math.clamp(size, 1, 50);
     }
 }

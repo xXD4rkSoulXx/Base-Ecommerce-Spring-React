@@ -42,16 +42,21 @@ public class ReviewService {
         Long userId = currentUser.getId();
 
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " +  productId));
+            .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + productId));
 
-        boolean hasPurchased = orderRepository.existsUserPurchasedProduct(userId, productId, OrderStatus.DELIVERED);
+        boolean hasPurchased = orderRepository
+            .existsUserPurchasedProduct(userId, productId, OrderStatus.DELIVERED);
         if (!hasPurchased) {
-            throw new ProductNotPurchasedException("You can only review products that have been successfully delivered to you.");
+            throw new ProductNotPurchasedException(
+                "You can only review products that have been successfully delivered to you."
+            );
         }
 
         boolean alreadyReviewed = reviewRepository.existsByUserIdAndProductId(userId, productId);
         if (alreadyReviewed) {
-            throw new ProductAlreadyReviewedException("You have already reviewed this product. Only 1 review per product is allowed.");
+            throw new ProductAlreadyReviewedException(
+                "You have already reviewed this product. Only 1 review per product is allowed."
+            );
         }
 
         Review review = reviewMapper.toEntity(request, currentUser, product);
@@ -65,7 +70,8 @@ public class ReviewService {
         User currentUser = userService.getCurrentUser();
         Long userId = currentUser.getId();
 
-        boolean hasPurchased = orderRepository.existsUserPurchasedProduct(userId, productId, OrderStatus.DELIVERED);
+        boolean hasPurchased = orderRepository
+            .existsUserPurchasedProduct(userId, productId, OrderStatus.DELIVERED);
         if (!hasPurchased) {
             return ReviewEligibility.NOT_PURCHASED;
         }
@@ -81,9 +87,7 @@ public class ReviewService {
     @Transactional(readOnly = true)
     public PageResponse<ReviewResponse> getProductReviews(Long productId, ProductReviewsRequest filter) {
         Pageable pageable = PageRequest.of(
-                filter.page(),
-                filter.size(),
-                Sort.by(Sort.Direction.DESC, "createdAt", "id")
+            filter.page(), filter.size(), Sort.by(Sort.Direction.DESC, "createdAt", "id")
         );
 
         Page<Review> reviewPage = reviewRepository.findByProductId(productId, pageable);

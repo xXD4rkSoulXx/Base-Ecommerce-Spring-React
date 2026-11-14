@@ -14,6 +14,7 @@ import java.util.List;
 
 public interface OrderReturnItemRepository extends JpaRepository<OrderReturnItem, Long> {
 
+    @EntityGraph(attributePaths = "orderItem")
     List<OrderReturnItem> findByOrderReturnId(Long orderReturnId);
 
     @EntityGraph(attributePaths = "orderItem")
@@ -30,7 +31,6 @@ public interface OrderReturnItemRepository extends JpaRepository<OrderReturnItem
         GROUP BY ri.orderItem.id
     """)
     List<ReturnedQuantityProjection> sumReturnedQuantities(
-            @Param("orderId") Long orderId,
-            @Param("excluded") Collection<ReturnStatus> excluded
+        @Param("orderId") Long orderId, @Param("excluded") Collection<ReturnStatus> excluded
     );
 }

@@ -7,13 +7,13 @@ import java.util.List;
 
 @Builder
 public record ShippoShipmentRequest(
-        @JsonProperty("address_from")
-        ShippoAddress addressFrom,
+    @JsonProperty("address_from")
+    ShippoAddress addressFrom,
 
-        @JsonProperty("address_to")
-        ShippoAddress addressTo,
+    @JsonProperty("address_to")
+    ShippoAddress addressTo,
 
-        List<ShippoParcel> parcels,
+    List<ShippoParcel> parcels,
 
-        boolean async
+    boolean async
 ) {}

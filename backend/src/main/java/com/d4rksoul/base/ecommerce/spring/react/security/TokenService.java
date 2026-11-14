@@ -1,9 +1,10 @@
 package com.d4rksoul.base.ecommerce.spring.react.security;
 
+import com.d4rksoul.base.ecommerce.spring.react.config.BackendProperties;
+import com.d4rksoul.base.ecommerce.spring.react.constant.Constants;
 import com.d4rksoul.base.ecommerce.spring.react.entity.User;
 import com.d4rksoul.base.ecommerce.spring.react.enums.Permission;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 
 @Service
@@ -19,8 +19,7 @@ import java.util.Base64;
 public class TokenService {
 
     private final JwtEncoder jwtEncoder;
-    @Value("${spring.application.name}")
-    private String jwtIssuer;
+    private final BackendProperties backendProperties;
 
     private final SecureRandom secureRandom = new SecureRandom();
 
@@ -28,19 +27,18 @@ public class TokenService {
         Instant now = Instant.now();
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
-                .issuer(jwtIssuer)
-                .issuedAt(now)
-                .expiresAt(now.plus(15, ChronoUnit.MINUTES))
-                .subject(user.getEmail())
-                .claim("firstName", user.getFirstName())
-                .claim("lastName", user.getLastName())
-                .claim(TokenClaims.ROLE, user.getRole().name())
-                .claim(TokenClaims.PERMISSIONS, user.getRole().getPermissions()
-                        .stream()
-                        .map(Permission::name)
-                        .toList()
-                )
-                .build();
+            .issuer(backendProperties.url())
+            .issuedAt(now)
+            .expiresAt(now.plus(Constants.ACCESS_TOKEN_TTL))
+            .subject(user.getEmail())
+            .claim("firstName", user.getFirstName())
+            .claim("lastName", user.getLastName())
+            .claim("role", user.getRole().name())
+            .claim(
+                "permissions",
+                user.getRole().getPermissions().stream().map(Permission::name).toList()
+            )
+            .build();
 
         return this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }

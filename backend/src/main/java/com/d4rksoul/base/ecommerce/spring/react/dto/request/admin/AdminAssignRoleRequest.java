@@ -6,12 +6,19 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.Locale;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record AdminAssignRoleRequest(
-        @NotBlank(message = "Email is required")
-        @Email(message = "Invalid email format")
-        String email,
+    @NotBlank(message = "Email is required")
+    @Email(message = "Invalid email format")
+    String email,
 
-        @NotNull(message = "Role is required")
-        UserRole role
-) {}
+    @NotNull(message = "Role is required")
+    UserRole role
+) {
+
+    public AdminAssignRoleRequest {
+        email = (email == null) ? null : email.trim().toLowerCase(Locale.ROOT);
+    }
+}

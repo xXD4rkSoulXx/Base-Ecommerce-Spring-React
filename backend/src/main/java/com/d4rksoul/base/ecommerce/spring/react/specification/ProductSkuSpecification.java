@@ -5,15 +5,10 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ProductSkuSpecification {
+import java.util.Locale;
 
-    public static Specification<ProductSku> isActive() {
-        return (root, _, cb) -> cb.and(
-                cb.isTrue(root.get("active")),
-                cb.isTrue(root.get("product").get("active"))
-        );
-    }
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class ProductSkuSpecification {
 
     public static Specification<ProductSku> containsProductNameOrRef(String q) {
         return (root, _, cb) -> {
@@ -21,11 +16,15 @@ public class ProductSkuSpecification {
                 return cb.conjunction();
             }
 
-            String pattern = "%" + q.trim().toLowerCase() + "%";
-
             return cb.or(
-                    cb.like(cb.lower(root.get("product").get("name")), pattern),
-                    cb.like(cb.lower(root.get("product").get("ref")), pattern)
+                cb.like(
+                    cb.lower(root.get("product").get("name")),
+                    "%" + q.trim().toLowerCase(Locale.ROOT) + "%"
+                ),
+                cb.like(
+                    cb.lower(root.get("product").get("ref")),
+                    "%" + q.trim().toLowerCase(Locale.ROOT) + "%"
+                )
             );
         };
     }
@@ -40,12 +39,20 @@ public class ProductSkuSpecification {
         };
     }
 
+    public static Specification<ProductSku> isActive() {
+        return (root, _, cb) ->
+            cb.and(
+                cb.isTrue(root.get("active")),
+                cb.isTrue(root.get("product").get("active"))
+            );
+    }
+
     public static Specification<ProductSku> orderByProductName() {
         return (root, query, cb) -> {
             query.orderBy(
-                    cb.asc(root.get("product").get("name")),
-                    cb.asc(root.get("product").get("id")),
-                    cb.asc(root.get("id"))
+                cb.asc(root.get("product").get("name")),
+                cb.asc(root.get("product").get("id")),
+                cb.asc(root.get("id"))
             );
 
             return cb.conjunction();

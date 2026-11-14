@@ -5,8 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public record ShippoShipmentResponse(
-        @JsonProperty("object_id")
-        String objectId,
+    @JsonProperty("object_id")
+    String objectId,
 
-        List<ShippoRate> rates
-) {}
+    List<ShippoRate> rates
+) {
+
+    public ShippoShipmentResponse {
+        rates = rates == null ? List.of() : rates;
+    }
+}

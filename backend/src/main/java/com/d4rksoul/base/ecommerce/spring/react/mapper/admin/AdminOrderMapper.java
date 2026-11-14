@@ -4,7 +4,6 @@ import com.d4rksoul.base.ecommerce.spring.react.dto.response.OrderDetailsRespons
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.AdminOrderDetailsResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.AdminOrderSummaryResponse;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Order;
-import com.d4rksoul.base.ecommerce.spring.react.entity.User;
 import com.d4rksoul.base.ecommerce.spring.react.enums.OrderStatus;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ShipmentStatus;
 import org.springframework.stereotype.Component;
@@ -17,27 +16,25 @@ public class AdminOrderMapper {
 
     public AdminOrderSummaryResponse toSummaryDto(Order order) {
         return AdminOrderSummaryResponse.builder()
-                .id(order.getId())
-                .status(order.getStatus())
-                .createdAt(order.getCreatedAt())
-                .totalAmount(order.getTotalAmount())
-                .currency(order.getCurrency())
-                .customerEmail(order.getUser().getEmail())
-                .recipientName(order.getRecipientName())
-                .build();
+            .id(order.getId())
+            .status(order.getStatus())
+            .createdAt(order.getCreatedAt())
+            .totalAmount(order.getTotalAmount())
+            .currency(order.getCurrency())
+            .customerEmail(order.getUser().getEmail())
+            .recipientName(order.getRecipientName())
+            .build();
     }
 
     public AdminOrderDetailsResponse toDetailsDto(
-            Order order,
-            OrderDetailsResponse details,
-            OrderStatus nextStatus,
-            Map<Long, List<ShipmentStatus>> shipmentActions
+        Order order,
+        OrderDetailsResponse details,
+        OrderStatus nextStatus,
+        Map<Long, List<ShipmentStatus>> shipmentActions
     ) {
-        User user = order.getUser();
-
         return AdminOrderDetailsResponse.builder()
-                .customerEmail(user.getEmail())
-                .customerName(user.getFirstName() + " " + user.getLastName())
+                .customerEmail(order.getUser().getEmail())
+                .customerName(order.getUser().getFirstName() + " " + order.getUser().getLastName())
                 .nextStatus(nextStatus)
                 .shipmentActions(shipmentActions)
                 .order(details)

@@ -1,30 +1,24 @@
 package com.d4rksoul.base.ecommerce.spring.react.config;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
 @ConfigurationProperties(prefix = "shipping.packing")
-@Getter
-@Setter
-public class ShippingPackingProperties {
-
-    private List<Box> boxes;
+public record ShippingPackingProperties(
+    List<Box> boxes
+) {
 
     public record Box(
-            String name,
+        String name,
 
-            double maxWeightKg,
+        double maxWeightKg,
 
-            double lengthCm,
+        double lengthCm,
 
-            double widthCm,
+        double widthCm,
 
-            double heightCm
+        double heightCm
     ) {
 
         public double volumeCm3() {

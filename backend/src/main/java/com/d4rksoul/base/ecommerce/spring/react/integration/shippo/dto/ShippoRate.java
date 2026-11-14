@@ -3,17 +3,17 @@ package com.d4rksoul.base.ecommerce.spring.react.integration.shippo.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record ShippoRate(
-        @JsonProperty("object_id")
-        String objectId,
+    @JsonProperty("object_id")
+    String objectId,
 
-        String amount,
+    String amount,
 
-        String currency,
+    String currency,
 
-        String provider,
+    String provider,
 
-        ShippoServiceLevel servicelevel,
+    ShippoServiceLevel servicelevel,
 
-        @JsonProperty("estimated_days")
-        Integer estimatedDays
+    @JsonProperty("estimated_days")
+    Integer estimatedDays
 ) {}

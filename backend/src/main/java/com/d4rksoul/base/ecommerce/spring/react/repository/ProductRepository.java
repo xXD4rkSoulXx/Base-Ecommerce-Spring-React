@@ -13,9 +13,11 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
-public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
+public interface ProductRepository
+    extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
 
     @Query("""
         SELECT new com.d4rksoul.base.ecommerce.spring.react.dto.projection.RatingStatsProjection(
@@ -26,7 +28,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
         WHERE r.product.id = :productId
         AND r.hidden = false
     """)
-    Optional<RatingStatsProjection> findRatingStatsByProductId(@Param("productId") Long productId);
+    RatingStatsProjection findRatingStatsByProductId(@Param("productId") Long productId);
 
     @EntityGraph(attributePaths = {"productSkus"})
     @Query("""
@@ -44,18 +46,14 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     Optional<Product> findByFeaturedSlot(FeaturedSlot featuredSlot);
 
-    boolean existsByRef(String ref);
-
-    boolean existsByRefAndIdNot(String ref, Long id);
-
     @Query(
-            value = """
+        value = """
         SELECT p
         FROM Product p
         JOIN p.productSkus sku
         JOIN sku.orderItems oi
         JOIN oi.order o
-        WHERE o.status = :status
+        WHERE o.status IN :statuses
         AND (:category IS NULL OR p.category = :category)
         AND p.active = true
         AND EXISTS (
@@ -64,9 +62,9 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
             WHERE activeSku.product = p AND activeSku.active = true
         )
         GROUP BY p
-        ORDER BY SUM(oi.quantity) DESC
+        ORDER BY SUM(oi.quantity) DESC, p.id ASC
     """,
-            countQuery = """
+        countQuery = """
         SELECT COUNT(p)
         FROM Product p
         WHERE p.id IN (
@@ -75,7 +73,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
             JOIN p2.productSkus sku
             JOIN sku.orderItems oi
             JOIN oi.order o
-            WHERE o.status = :status
+            WHERE o.status IN :statuses
             AND (:category IS NULL OR p2.category = :category)
             AND p2.active = true
             AND EXISTS (
@@ -88,13 +86,13 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     """
     )
     Page<Product> findBestSellersPage(
-            @Param("status") OrderStatus status,
-            @Param("category") ProductCategory category,
-            Pageable pageable
+        @Param("statuses") List<OrderStatus> statuses,
+        @Param("category") ProductCategory category,
+        Pageable pageable
     );
 
     @Query(
-            value = """
+        value = """
         SELECT p
         FROM Product p
         JOIN p.reviews r
@@ -108,9 +106,9 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
         )
         GROUP BY p
         HAVING COUNT(r) >= :minReviews
-        ORDER BY AVG(r.rating) DESC
+        ORDER BY AVG(r.rating) DESC, COUNT(r) DESC, p.id ASC
     """,
-            countQuery = """
+        countQuery = """
         SELECT COUNT(p)
         FROM Product p
         WHERE p.id IN (
@@ -131,8 +129,12 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     """
     )
     Page<Product> findTopRatedPage(
-            @Param("minReviews") long minReviews,
-            @Param("category") ProductCategory category,
-            Pageable pageable
+        @Param("minReviews") long minReviews,
+        @Param("category") ProductCategory category,
+        Pageable pageable
     );
+
+    boolean existsByRef(String ref);
+
+    boolean existsByRefAndIdNot(String ref, Long id);
 }

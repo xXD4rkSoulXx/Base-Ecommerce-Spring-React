@@ -6,12 +6,10 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class UserSpecification {
+import java.util.Locale;
 
-    public static Specification<User> hasRole(UserRole role) {
-        return (root, _, cb) -> cb.equal(root.get("role"), role);
-    }
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class UserSpecification {
 
     public static Specification<User> containsNameOrEmail(String q) {
         return (root, _, cb) -> {
@@ -19,18 +17,18 @@ public class UserSpecification {
                 return cb.conjunction();
             }
 
-            String pattern = "%" + q.trim().toLowerCase() + "%";
-
             return cb.or(
-                    cb.like(cb.lower(root.get("email")), pattern),
-                    cb.like(cb.lower(cb.concat(
-                                cb.concat(root.<String>get("firstName"), " "),
-                                root.<String>get("lastName")
-                            )),
-                            pattern
-                    )
+                cb.like(cb.lower(root.get("email")), "%" + q.trim().toLowerCase(Locale.ROOT) + "%"),
+                cb.like(
+                    cb.lower(cb.concat(cb.concat(root.get("firstName"), " "), root.get("lastName"))),
+                    "%" + q.trim().toLowerCase(Locale.ROOT) + "%"
+                )
             );
         };
+    }
+
+    public static Specification<User> hasRole(UserRole role) {
+        return (root, _, cb) -> cb.equal(root.get("role"), role);
     }
 
     public static Specification<User> orderByRecentDesc() {

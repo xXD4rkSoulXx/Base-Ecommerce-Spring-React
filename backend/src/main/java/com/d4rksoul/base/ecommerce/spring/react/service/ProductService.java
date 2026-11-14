@@ -1,6 +1,6 @@
 package com.d4rksoul.base.ecommerce.spring.react.service;
 
-import com.d4rksoul.base.ecommerce.spring.react.dto.projection.ProductCoverProjection;
+import com.d4rksoul.base.ecommerce.spring.react.constant.Constants;
 import com.d4rksoul.base.ecommerce.spring.react.dto.projection.RatingStatsProjection;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.ProductSearchRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.ProductShopRequest;
@@ -13,7 +13,6 @@ import com.d4rksoul.base.ecommerce.spring.react.exception.ProductNotFoundExcepti
 import com.d4rksoul.base.ecommerce.spring.react.mapper.PageMapper;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.ProductMapper;
 import com.d4rksoul.base.ecommerce.spring.react.repository.ProductRepository;
-import com.d4rksoul.base.ecommerce.spring.react.repository.ProductSkuImageRepository;
 import com.d4rksoul.base.ecommerce.spring.react.specification.ProductSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,14 +24,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final ProductSkuImageRepository productSkuImageRepository;
+    private final ProductSkuImageService productSkuImageService;
     private final ProductMapper productMapper;
     private final PageMapper pageMapper;
 
@@ -41,28 +39,31 @@ public class ProductService {
         Pageable pageable = PageRequest.of(filter.page(), filter.size());
 
         Page<Product> productPage = switch (filter.sortBy()) {
-            case "best_sellers" -> productRepository.findBestSellersPage(
-                    OrderStatus.DELIVERED,
-                    filter.category(),
-                    pageable
-            );
-            case "top_rated" -> productRepository.findTopRatedPage(3, filter.category(), pageable);
+            case "best_sellers" ->
+                productRepository.findBestSellersPage(
+                    OrderStatus.HISTORY_STATUSES, filter.category(), pageable
+                );
+            case "top_rated" ->
+                productRepository.findTopRatedPage(
+                    Constants.TOP_RATED_MIN_RATING, filter.category(), pageable
+                );
             case "discount" -> {
                 Specification<Product> specification = Specification
-                        .where(ProductSpecification.isVisibleInShop())
-                        .and(ProductSpecification.hasCategory(filter.category()))
-                        .and(ProductSpecification.hasDiscount())
-                        .and(ProductSpecification.orderByDiscountDesc());
+                    .where(ProductSpecification.isVisibleInShop())
+                    .and(ProductSpecification.hasCategory(filter.category()))
+                    .and(ProductSpecification.hasDiscount())
+                    .and(ProductSpecification.orderByDiscountDesc());
 
                 yield productRepository.findAll(specification, pageable);
             }
             default -> {
                 Specification<Product> specification = Specification
-                        .where(ProductSpecification.isVisibleInShop())
-                        .and(ProductSpecification.hasCategory(filter.category()));
+                    .where(ProductSpecification.isVisibleInShop())
+                    .and(ProductSpecification.hasCategory(filter.category()));
 
                 Specification<Product> orderSpecification = switch (filter.sortBy()) {
-                    case "price_asc", "price_desc" -> ProductSpecification.orderByEffectivePrice(filter.sortBy());
+                    case "price_asc", "price_desc" ->
+                        ProductSpecification.orderByEffectivePrice(filter.sortBy());
                     default -> ProductSpecification.orderByRecentDesc();
                 };
 
@@ -76,18 +77,9 @@ public class ProductService {
     @Transactional(readOnly = true)
     public ProductDetailsResponse getProductDetails(Long productId) {
         Product product = productRepository.findVisibleDetailsById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + productId));
+            .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + productId));
 
-        if (product.getProductSkus() != null) {
-            product.getProductSkus().forEach(sku -> {
-                if (sku.getProductSkuImages() != null) {
-                    org.hibernate.Hibernate.initialize(sku.getProductSkuImages());
-                }
-            });
-        }
-
-        RatingStatsProjection stats = productRepository.findRatingStatsByProductId(productId)
-                .orElse(new RatingStatsProjection(0.0, 0L));
+        RatingStatsProjection stats = productRepository.findRatingStatsByProductId(productId);
 
         double averageRating = stats.averageRating();
         long totalReviews = stats.totalReviews();
@@ -98,18 +90,17 @@ public class ProductService {
     @Transactional(readOnly = true)
     public List<ProductResponse> getRelatedProducts(Long productId) {
         Product currentProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " +  productId));
+            .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " +  productId));
 
         Specification<Product> specification = Specification
-                .where(ProductSpecification.isVisibleInShop())
-                .and(ProductSpecification.hasCategory(currentProduct.getCategory()))
-                .and(ProductSpecification.hasIdNot(productId))
-                .and(ProductSpecification.orderByRecentDesc());
+            .where(ProductSpecification.isVisibleInShop())
+            .and(ProductSpecification.hasCategory(currentProduct.getCategory()))
+            .and(ProductSpecification.hasIdNot(productId))
+            .and(ProductSpecification.orderByRecentDesc());
 
         List<Product> relatedProducts = productRepository.findAll(
-                    specification,
-                    PageRequest.of(0, 4)
-                ).getContent();
+            specification, PageRequest.of(0, Constants.RELATED_PRODUCTS_LIMIT)
+        ).getContent();
 
         return mapProductsToDto(relatedProducts);
     }
@@ -117,8 +108,8 @@ public class ProductService {
     @Transactional(readOnly = true)
     public List<ProductResponse> getFeaturedProducts() {
         Specification<Product> specification = Specification
-                .where(ProductSpecification.isVisibleInShop())
-                .and(ProductSpecification.hasFeaturedSlot());
+            .where(ProductSpecification.isVisibleInShop())
+            .and(ProductSpecification.hasFeaturedSlot());
 
         List<Product> featuredProducts = productRepository.findAll(specification);
 
@@ -128,25 +119,22 @@ public class ProductService {
     @Transactional(readOnly = true)
     public List<ProductResponse> getDealProducts() {
         Specification<Product> specification = Specification
-                .where(ProductSpecification.isVisibleInShop())
-                .and(ProductSpecification.hasDiscount())
-                .and(ProductSpecification.orderByDiscountDesc());
+            .where(ProductSpecification.isVisibleInShop())
+            .and(ProductSpecification.hasDiscount())
+            .and(ProductSpecification.orderByDiscountDesc());
 
         List<Product> dealProducts = productRepository.findAll(
-                        specification,
-                        PageRequest.of(0, 8)
-                ).getContent();
+            specification, PageRequest.of(0, Constants.HOME_PRODUCTS_LIMIT)
+        ).getContent();
 
         return mapProductsToDto(dealProducts);
     }
 
     @Transactional(readOnly = true)
     public List<ProductResponse> getBestSellers() {
-        Pageable pageable = PageRequest.of(0, 8);
+        Pageable pageable = PageRequest.of(0, Constants.HOME_PRODUCTS_LIMIT);
         List<Product> bestSellers = productRepository.findBestSellersPage(
-                OrderStatus.DELIVERED,
-                null,
-                pageable
+            OrderStatus.HISTORY_STATUSES, null, pageable
         ).getContent();
 
         return mapProductsToDto(bestSellers);
@@ -154,11 +142,9 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public List<ProductResponse> getTopRatedProducts() {
-        Pageable pageable = PageRequest.of(0, 8);
+        Pageable pageable = PageRequest.of(0, Constants.HOME_PRODUCTS_LIMIT);
         List<Product> topRated = productRepository.findTopRatedPage(
-                3,
-                null,
-                pageable
+            Constants.TOP_RATED_MIN_RATING, null, pageable
         ).getContent();
 
         return mapProductsToDto(topRated);
@@ -167,9 +153,9 @@ public class ProductService {
     @Transactional(readOnly = true)
     public PageResponse<ProductResponse> search(ProductSearchRequest filter) {
         Specification<Product> specification = Specification
-                .where(ProductSpecification.isVisibleInShop())
-                .and(ProductSpecification.containsNameOrRef(filter.q()))
-                .and(ProductSpecification.orderByRecentDesc());
+            .where(ProductSpecification.isVisibleInShop())
+            .and(ProductSpecification.containsNameOrRef(filter.q()))
+            .and(ProductSpecification.orderByRecentDesc());
 
         Pageable pageable = PageRequest.of(filter.page(), filter.size());
         Page<Product> productPage = productRepository.findAll(specification, pageable);
@@ -179,37 +165,27 @@ public class ProductService {
 
     private List<ProductResponse> mapProductsToDto(List<Product> products) {
         List<Long> productIds = products.stream()
-                .map(Product::getId)
-                .toList();
+            .map(Product::getId)
+            .toList();
 
-        Map<Long, String> covers = productSkuImageRepository.findCoverByProductIds(productIds)
-                .stream()
-                .collect(Collectors.toMap(
-                        ProductCoverProjection::productId,
-                        ProductCoverProjection::path,
-                        (existing, _) -> existing
-                ));
+        Map<Long, String> covers = productSkuImageService.findCoversByProductId(productIds);
 
         return products.stream()
-                .map(product -> productMapper.toDto(product, covers.get(product.getId())))
-                .toList();
+            .map(product ->
+                productMapper.toDto(product, covers.get(product.getId()))
+            )
+            .toList();
     }
 
     private PageResponse<ProductResponse> mapProductPageToDto(Page<Product> productPage) {
         List<Long> productIds = productPage.getContent().stream()
-                .map(Product::getId)
-                .toList();
+            .map(Product::getId)
+            .toList();
 
-        Map<Long, String> covers = productSkuImageRepository.findCoverByProductIds(productIds)
-                .stream()
-                .collect(Collectors.toMap(
-                        ProductCoverProjection::productId,
-                        ProductCoverProjection::path,
-                        (existing, _) -> existing
-                ));
+        Map<Long, String> covers = productSkuImageService.findCoversByProductId(productIds);
 
         Page<ProductResponse> responsePage = productPage.map(product ->
-                productMapper.toDto(product, covers.get(product.getId()))
+            productMapper.toDto(product, covers.get(product.getId()))
         );
 
         return pageMapper.toDto(responsePage);

@@ -20,17 +20,19 @@ public class OrderController {
 
     private final OrderService orderService;
 
+    @GetMapping
+    public ResponseEntity<PageResponse<OrderSummaryResponse>> getOrders(
+        @ModelAttribute OrderSearchRequest filter
+    ) {
+        PageResponse<OrderSummaryResponse> orders = orderService.getOrders(filter);
+
+        return ResponseEntity.ok(orders);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<OrderDetailsResponse> getOrder(@PathVariable Long id) {
         OrderDetailsResponse order = orderService.getOrder(id);
 
         return ResponseEntity.ok(order);
-    }
-
-    @GetMapping
-    public ResponseEntity<PageResponse<OrderSummaryResponse>> getOrders(@ModelAttribute OrderSearchRequest filter) {
-        PageResponse<OrderSummaryResponse> orders = orderService.getOrders(filter);
-
-        return ResponseEntity.ok(orders);
     }
 }

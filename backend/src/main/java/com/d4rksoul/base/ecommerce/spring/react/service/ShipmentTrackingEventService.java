@@ -2,6 +2,7 @@ package com.d4rksoul.base.ecommerce.spring.react.service;
 
 import com.d4rksoul.base.ecommerce.spring.react.config.ShippingOriginProperties;
 import com.d4rksoul.base.ecommerce.spring.react.entity.OrderShipment;
+import com.d4rksoul.base.ecommerce.spring.react.entity.ShipmentTrackingEvent;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ShipmentStatus;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.ShipmentTrackingEventMapper;
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderShipmentRepository;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,18 +33,25 @@ public class ShipmentTrackingEventService {
 
     @Transactional
     public boolean transition(Long shipmentId, ShipmentStatus from, ShipmentStatus to) {
-        if (orderShipmentRepository.updateStatus(shipmentId, from, to) == 0) {
+        String description = Optional.ofNullable(DESCRIPTIONS.get(to))
+            .orElseThrow(() -> new IllegalArgumentException("No tracking description for status " + to));
+
+        int updatedRows = orderShipmentRepository.updateStatus(shipmentId, from, to);
+        if (updatedRows == 0) {
             return false;
         }
 
         OrderShipment shipment = orderShipmentRepository.getReferenceById(shipmentId);
-        String location = to == ShipmentStatus.IN_TRANSIT
-                ? originProperties.getCity()
-                : shipment.getOrder().getCity();
 
-        shipmentTrackingEventRepository.save(
-                shipmentTrackingEventMapper.toEntity(shipment, to, DESCRIPTIONS.get(to), location, Instant.now())
+        String location = to == ShipmentStatus.IN_TRANSIT
+            ? originProperties.city()
+            : shipment.getOrder().getCity();
+
+        ShipmentTrackingEvent trackingEvent = shipmentTrackingEventMapper.toEntity(
+            shipment, to, description, location, Instant.now()
         );
+
+        shipmentTrackingEventRepository.save(trackingEvent);
 
         return true;
     }

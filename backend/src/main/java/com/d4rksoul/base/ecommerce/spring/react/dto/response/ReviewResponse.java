@@ -8,15 +8,15 @@ import java.time.Instant;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ReviewResponse(
-        Long id,
+    Long id,
 
-        String title,
+    String title,
 
-        String description,
+    String description,
 
-        int rating,
+    int rating,
 
-        String userFullName,
+    String userFullName,
 
-        Instant createdAt
+    Instant createdAt
 ) {}

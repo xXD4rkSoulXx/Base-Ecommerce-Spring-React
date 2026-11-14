@@ -8,9 +8,9 @@ import java.util.List;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record CartResponse(
-        List<CartItemResponse> items,
+    List<CartItemResponse> items,
 
-        String discountCode,
+    String discountCode,
 
-        int discountPercentage
+    int discountPercentage
 ) {}

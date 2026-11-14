@@ -6,7 +6,7 @@ import lombok.Builder;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record AdminDashboardDiscountCodeResponse(
-        String code,
+    String code,
 
-        long orders
+    long orders
 ) {}

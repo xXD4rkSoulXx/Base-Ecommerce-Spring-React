@@ -4,7 +4,7 @@ import lombok.Builder;
 
 @Builder
 public record ShippoTransactionRequest(
-        String rate,
+    String rate,
 
-        boolean async
+    boolean async
 ) {}

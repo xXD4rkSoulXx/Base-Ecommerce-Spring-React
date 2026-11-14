@@ -12,13 +12,13 @@ import java.util.Map;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record AdminOrderDetailsResponse(
-        String customerEmail,
+    String customerEmail,
 
-        String customerName,
+    String customerName,
 
-        OrderStatus nextStatus,
+    OrderStatus nextStatus,
 
-        Map<Long, List<ShipmentStatus>> shipmentActions,
+    Map<Long, List<ShipmentStatus>> shipmentActions,
 
-        OrderDetailsResponse order
+    OrderDetailsResponse order
 ) {}

@@ -14,15 +14,15 @@ public class CartMapper {
 
     public Cart toEntity(User user) {
         return Cart.builder()
-                .user(user)
-                .build();
+            .user(user)
+            .build();
     }
 
     public CartResponse toDto(List<CartItemResponse> items, DiscountCode discountCode) {
         return CartResponse.builder()
-                .items(items)
-                .discountCode(discountCode != null ? discountCode.getCode() : null)
-                .discountPercentage(discountCode != null ? discountCode.getDiscountPercentage() : 0)
-                .build();
+            .items(items)
+            .discountCode(discountCode != null ? discountCode.getCode() : null)
+            .discountPercentage(discountCode != null ? discountCode.getDiscountPercentage() : 0)
+            .build();
     }
 }

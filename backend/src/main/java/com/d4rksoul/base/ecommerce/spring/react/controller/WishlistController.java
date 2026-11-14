@@ -3,6 +3,7 @@ package com.d4rksoul.base.ecommerce.spring.react.controller;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.MergeWishlistRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.ProductResponse;
 import com.d4rksoul.base.ecommerce.spring.react.service.WishlistService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,7 +31,7 @@ public class WishlistController {
     }
 
     @PostMapping("/merge")
-    public ResponseEntity<Void> mergeWishlist(@RequestBody MergeWishlistRequest request) {
+    public ResponseEntity<Void> mergeWishlist(@Valid @RequestBody MergeWishlistRequest request) {
         wishlistService.mergeWishlist(request.productIds());
 
         return ResponseEntity.noContent().build();

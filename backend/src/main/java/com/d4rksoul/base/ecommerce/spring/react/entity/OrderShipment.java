@@ -38,12 +38,15 @@ public class OrderShipment {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "order_id", nullable = false, foreignKey = @ForeignKey(name = "fk_order_shipment_order"))
+    @JoinColumn(name = "order_id", nullable = false, updatable = false,
+        foreignKey = @ForeignKey(name = "fk_order_shipment_order")
+    )
     private Order order;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, updatable = false, unique = true)
     private String shippoTransactionId;
 
+    @Column(updatable = false)
     private String trackingNumber;
 
     @Enumerated(EnumType.STRING)

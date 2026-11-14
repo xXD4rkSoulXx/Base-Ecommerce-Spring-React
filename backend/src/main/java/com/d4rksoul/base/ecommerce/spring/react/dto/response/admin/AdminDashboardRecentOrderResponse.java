@@ -10,13 +10,13 @@ import java.time.Instant;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record AdminDashboardRecentOrderResponse(
-        Long id,
+    Long id,
 
-        String customerName,
+    String customerName,
 
-        OrderStatus status,
+    OrderStatus status,
 
-        BigDecimal totalAmount,
+    BigDecimal totalAmount,
 
-        Instant createdAt
+    Instant createdAt
 ) {}

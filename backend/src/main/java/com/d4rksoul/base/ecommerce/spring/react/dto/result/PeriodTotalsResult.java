@@ -1,11 +1,14 @@
 package com.d4rksoul.base.ecommerce.spring.react.dto.result;
 
+import lombok.Builder;
+
 import java.math.BigDecimal;
 
+@Builder
 public record PeriodTotalsResult(
-        BigDecimal grossRevenue,
+    BigDecimal grossRevenue,
 
-        BigDecimal refunded,
+    BigDecimal refunded,
 
-        long orders
+    long orders
 ) {}

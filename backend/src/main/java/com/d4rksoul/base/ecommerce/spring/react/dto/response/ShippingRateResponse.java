@@ -8,15 +8,15 @@ import java.math.BigDecimal;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ShippingRateResponse(
-        String rateId,
+    String rateId,
 
-        String carrier,
+    String carrier,
 
-        String service,
+    String service,
 
-        BigDecimal amount,
+    BigDecimal amount,
 
-        String currency,
+    String currency,
 
-        String estimatedDays
+    String estimatedDays
 ) {}

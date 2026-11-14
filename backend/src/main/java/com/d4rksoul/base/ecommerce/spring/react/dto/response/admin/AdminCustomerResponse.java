@@ -8,17 +8,17 @@ import java.time.Instant;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record AdminCustomerResponse(
-        Long id,
+    Long id,
 
-        String email,
+    String email,
 
-        String firstName,
+    String firstName,
 
-        String lastName,
+    String lastName,
 
-        Instant createdAt,
+    Instant createdAt,
 
-        long orders,
+    long orders,
 
-        Instant lastOrderAt
+    Instant lastOrderAt
 ) {}

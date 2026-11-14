@@ -9,7 +9,7 @@ import java.time.Instant;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record OrderStatusEventResponse(
-        OrderStatus status,
+    OrderStatus status,
 
-        Instant occurredAt
+    Instant occurredAt
 ) {}

@@ -8,14 +8,21 @@ import jakarta.validation.constraints.Size;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ReviewRequest(
-        @Min(value = 1, message = "Rating must be at least 1")
-        @Max(value = 5, message = "Rating cannot be higher than 5")
-        int rating,
+    @Min(value = 1, message = "Rating must be at least 1")
+    @Max(value = 5, message = "Rating cannot be higher than 5")
+    int rating,
 
-        @NotBlank(message = "Title is required")
-        @Size(max = 100, message = "Title cannot exceed 100 characters")
-        String title,
+    @NotBlank(message = "Title is required")
+    @Size(max = 100, message = "Title cannot exceed 100 characters")
+    String title,
 
-        @NotBlank(message = "Description is required")
-        String description
-) {}
+    @NotBlank(message = "Description is required")
+    @Size(max = 2000, message = "Description cannot exceed 2000 characters")
+    String description
+) {
+
+    public ReviewRequest {
+        title = title == null ? null : title.trim();
+        description = description == null ? null : description.trim();
+    }
+}

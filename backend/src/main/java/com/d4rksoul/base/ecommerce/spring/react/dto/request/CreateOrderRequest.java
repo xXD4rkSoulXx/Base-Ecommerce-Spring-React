@@ -7,10 +7,10 @@ import jakarta.validation.constraints.NotNull;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record CreateOrderRequest(
-        @NotNull
-        @Valid
-        CheckoutAddressRequest address,
+    @NotNull(message = "Address is required")
+    @Valid
+    CheckoutAddressRequest address,
 
-        @NotBlank
-        String rateId
+    @NotBlank(message = "Shipping rate is required")
+    String rateId
 ) {}

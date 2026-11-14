@@ -8,15 +8,15 @@ import java.time.Instant;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record AdminDiscountCodeResponse(
-        Long id,
+    Long id,
 
-        String code,
+    String code,
 
-        int discountPercentage,
+    int discountPercentage,
 
-        boolean active,
+    boolean active,
 
-        long orders,
+    long orders,
 
-        Instant createdAt
+    Instant createdAt
 ) {}

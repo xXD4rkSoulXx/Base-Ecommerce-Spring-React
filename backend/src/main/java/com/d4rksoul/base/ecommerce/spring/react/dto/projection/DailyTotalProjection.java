@@ -3,13 +3,13 @@ package com.d4rksoul.base.ecommerce.spring.react.dto.projection;
 import java.math.BigDecimal;
 
 public record DailyTotalProjection(
-        Integer year,
+    Integer year,
 
-        Integer month,
+    Integer month,
 
-        Integer day,
+    Integer day,
 
-        BigDecimal total,
+    BigDecimal total,
 
-        Long count
+    Long count
 ) {}

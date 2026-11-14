@@ -1,5 +1,6 @@
 package com.d4rksoul.base.ecommerce.spring.react.service.admin;
 
+import com.d4rksoul.base.ecommerce.spring.react.constant.Constants;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.AdminDashboardCountResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.AdminDashboardLowStockResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.AdminDashboardReturnResponse;
@@ -15,6 +16,7 @@ import com.d4rksoul.base.ecommerce.spring.react.specification.ProductSkuSpecific
 import com.d4rksoul.base.ecommerce.spring.react.specification.ReturnSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,52 +34,53 @@ public class AdminDashboardOperationsService {
 
     @Transactional(readOnly = true)
     public AdminDashboardCountResponse getPendingOrders() {
-        return adminDashboardMapper.toCountDto(
-                orderRepository.countByStatusIn(OrderStatus.FULFILLMENT_STATUSES)
-        );
+        long pendingOrders = orderRepository.countByStatusIn(OrderStatus.FULFILLMENT_STATUSES);
+
+        return adminDashboardMapper.toCountDto(pendingOrders);
     }
 
     @Transactional(readOnly = true)
     public AdminDashboardCountResponse getPendingReturns() {
-        return adminDashboardMapper.toCountDto(
-                orderReturnRepository.countByStatusIn(ReturnStatus.PENDING_STATUSES)
-        );
+        long pendingReturns = orderReturnRepository.countByStatusIn(ReturnStatus.PENDING_STATUSES);
+
+        return adminDashboardMapper.toCountDto(pendingReturns);
     }
 
     @Transactional(readOnly = true)
     public AdminDashboardCountResponse getLowStock() {
-        return adminDashboardMapper.toCountDto(productSkuRepository.count(
-                Specification
-                        .where(ProductSkuSpecification.isActive())
-                        .and(ProductSkuSpecification.hasLowStock(
-                                true,
-                                DashboardSupport.LOW_STOCK_THRESHOLD
-                        ))
-        ));
+        Specification<ProductSku> specification = Specification
+            .where(ProductSkuSpecification.isActive())
+            .and(ProductSkuSpecification.hasLowStock(true, Constants.LOW_STOCK_THRESHOLD));
+
+        long lowStockCount = productSkuRepository.count(specification);
+
+        return adminDashboardMapper.toCountDto(lowStockCount);
     }
 
     @Transactional(readOnly = true)
     public List<AdminDashboardReturnResponse> getReturnsToHandle() {
         Specification<OrderReturn> specification = Specification
-                .where(ReturnSpecification.hasStatusIn(ReturnStatus.PENDING_STATUSES))
-                .and(ReturnSpecification.orderByPendingPriority());
+            .where(ReturnSpecification.hasStatusIn(ReturnStatus.PENDING_STATUSES))
+            .and(ReturnSpecification.orderByPendingPriority());
 
-        return orderReturnRepository.findAll(specification, PageRequest.of(0, DashboardSupport.LIST_LIMIT))
-                .getContent().stream()
-                .map(adminDashboardMapper::toReturnDto)
-                .toList();
+        Pageable limit = PageRequest.of(0, Constants.DASHBOARD_LIST_LIMIT);
+
+        return orderReturnRepository.findAll(specification, limit)
+            .map(adminDashboardMapper::toReturnDto)
+            .getContent();
     }
 
     @Transactional(readOnly = true)
     public List<AdminDashboardLowStockResponse> getLowestStock() {
         Specification<ProductSku> specification = Specification
-                .where(ProductSkuSpecification.isActive())
-                .and(ProductSkuSpecification.hasLowStock(true, DashboardSupport.LOW_STOCK_THRESHOLD))
-                .and(ProductSkuSpecification.orderByStockAsc());
+            .where(ProductSkuSpecification.isActive())
+            .and(ProductSkuSpecification.hasLowStock(true, Constants.LOW_STOCK_THRESHOLD))
+            .and(ProductSkuSpecification.orderByStockAsc());
 
-        return productSkuRepository.findAll(specification, PageRequest.of(0, DashboardSupport.LIST_LIMIT))
-                .getContent().stream()
-                .map(adminDashboardMapper::toLowStockDto)
-                .toList();
+        Pageable limit = PageRequest.of(0, Constants.DASHBOARD_LIST_LIMIT);
+
+        return productSkuRepository.findAll(specification, limit)
+            .map(adminDashboardMapper::toLowStockDto)
+            .getContent();
     }
 }

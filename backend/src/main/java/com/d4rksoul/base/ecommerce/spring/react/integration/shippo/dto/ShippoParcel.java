@@ -5,17 +5,17 @@ import lombok.Builder;
 
 @Builder
 public record ShippoParcel(
-        double length,
+    double length,
 
-        double width,
+    double width,
 
-        double height,
+    double height,
 
-        @JsonProperty("distance_unit")
-        String distanceUnit,
+    @JsonProperty("distance_unit")
+    String distanceUnit,
 
-        double weight,
+    double weight,
 
-        @JsonProperty("mass_unit")
-        String massUnit
+    @JsonProperty("mass_unit")
+    String massUnit
 ) {}

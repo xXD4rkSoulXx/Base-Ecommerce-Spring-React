@@ -7,24 +7,25 @@ import java.time.Instant;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record AdminOrderSearchRequest(
-        String q,
+    String q,
 
-        OrderStatus status,
+    OrderStatus status,
 
-        Boolean pending,
+    Boolean pending,
 
-        Instant from,
+    Instant from,
 
-        Instant to,
+    Instant to,
 
-        Integer page,
+    Integer page,
 
-        Integer size
+    Integer size
 ) {
 
     public AdminOrderSearchRequest {
+        q = q == null || q.isBlank() ? null : q.trim();
         pending = Boolean.TRUE.equals(pending);
-        page = (page == null) ? 0 : page;
-        size = (size == null) ? 10 : size;
+        page = (page == null) ? 0 : Math.max(page, 0);
+        size = (size == null) ? 10 : Math.clamp(size, 1, 50);
     }
 }

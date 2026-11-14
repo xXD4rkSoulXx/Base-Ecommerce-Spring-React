@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -29,7 +30,7 @@ public class AdminDiscountCodeController {
     @PostMapping
     @PreAuthorize("hasAuthority('DISCOUNTS_WRITE')")
     public ResponseEntity<AdminDiscountCodeResponse> createDiscountCode(
-            @Valid @RequestBody AdminCreateDiscountCodeRequest request
+        @Valid @RequestBody AdminCreateDiscountCodeRequest request
     ) {
         AdminDiscountCodeResponse discountCode = adminDiscountCodeService.createDiscountCode(request);
 
@@ -55,9 +56,10 @@ public class AdminDiscountCodeController {
     @GetMapping
     @PreAuthorize("hasAuthority('DISCOUNTS_READ')")
     public ResponseEntity<PageResponse<AdminDiscountCodeResponse>> getDiscountCodes(
-            AdminDiscountCodeSearchRequest filter
+        @ModelAttribute AdminDiscountCodeSearchRequest filter
     ) {
-        PageResponse<AdminDiscountCodeResponse> discountCodes = adminDiscountCodeService.getDiscountCodes(filter);
+        PageResponse<AdminDiscountCodeResponse> discountCodes = adminDiscountCodeService
+            .getDiscountCodes(filter);
 
         return ResponseEntity.ok(discountCodes);
     }
@@ -65,8 +67,7 @@ public class AdminDiscountCodeController {
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('DISCOUNTS_WRITE')")
     public ResponseEntity<AdminDiscountCodeResponse> updateDiscountCode(
-            @PathVariable Long id,
-            @Valid @RequestBody AdminUpdateDiscountCodeRequest request
+        @PathVariable Long id, @Valid @RequestBody AdminUpdateDiscountCodeRequest request
     ) {
         AdminDiscountCodeResponse discountCode = adminDiscountCodeService.updateDiscountCode(id, request);
 

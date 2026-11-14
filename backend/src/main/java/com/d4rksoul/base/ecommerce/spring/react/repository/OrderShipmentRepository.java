@@ -6,23 +6,21 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface OrderShipmentRepository extends JpaRepository<OrderShipment, Long> {
 
-    boolean existsByOrderId(Long orderId);
-
-    boolean existsByOrderIdAndStatusNot(Long orderId, ShipmentStatus status);
-
     Optional<OrderShipment> findByIdAndOrderId(Long id, Long orderId);
 
     List<OrderShipment> findByOrderIdOrderByIdAsc(Long orderId);
 
+    boolean existsByOrderId(Long orderId);
+
+    boolean existsByOrderIdAndStatusNot(Long orderId, ShipmentStatus status);
+
     @Modifying
-    @Transactional
     @Query("update OrderShipment s set s.status = :to where s.id = :id and s.status = :from")
     int updateStatus(@Param("id") Long id, @Param("from") ShipmentStatus from, @Param("to") ShipmentStatus to);
 }

@@ -1,4 +1,4 @@
-package com.d4rksoul.base.ecommerce.spring.react.config;
+package com.d4rksoul.base.ecommerce.spring.react.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

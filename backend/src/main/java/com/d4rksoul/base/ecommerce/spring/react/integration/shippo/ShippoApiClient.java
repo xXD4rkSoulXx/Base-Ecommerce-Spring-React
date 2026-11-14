@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestClientResponseException;
 
 @Component
 @RequiredArgsConstructor
@@ -17,27 +18,26 @@ public class ShippoApiClient {
     private final RestClient shippoRestClient;
 
     public ShippoShipmentResponse createShipment(ShippoShipmentRequest request) {
-        try {
-            return shippoRestClient.post()
-                    .uri("/shipments/")
-                    .body(request)
-                    .retrieve()
-                    .body(ShippoShipmentResponse.class);
-        } catch (RestClientException e) {
-            throw new ShippoApiException("Failed to create shipment with Shippo.", e);
-        }
+        return post("/shipments/", request, ShippoShipmentResponse.class, "create shipment");
     }
 
-
     public ShippoTransactionResponse createTransaction(ShippoTransactionRequest request) {
+        return post("/transactions/", request, ShippoTransactionResponse.class, "create transaction");
+    }
+
+    private <T> T post(String uri, Object request, Class<T> responseType, String action) {
         try {
             return shippoRestClient.post()
-                    .uri("/transactions/")
-                    .body(request)
-                    .retrieve()
-                    .body(ShippoTransactionResponse.class);
+                .uri(uri)
+                .body(request)
+                .retrieve()
+                .body(responseType);
+        } catch (RestClientResponseException e) {
+            throw new ShippoApiException(
+                "Shippo rejected the request to " + action + " (" + e.getStatusCode() + "). ", e
+            );
         } catch (RestClientException e) {
-            throw new ShippoApiException("Failed to create transaction with Shippo.", e);
+            throw new ShippoApiException("Failed to " + action + " with Shippo. ", e);
         }
     }
 }

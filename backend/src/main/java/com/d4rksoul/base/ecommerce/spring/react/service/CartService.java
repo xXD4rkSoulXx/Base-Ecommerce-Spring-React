@@ -1,5 +1,6 @@
 package com.d4rksoul.base.ecommerce.spring.react.service;
 
+import com.d4rksoul.base.ecommerce.spring.react.constant.Constants;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.MergeCartItemRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.CartItemResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.CartResponse;
@@ -38,7 +39,7 @@ public class CartService {
     private final DiscountCodeRepository discountCodeRepository;
     private final OrderRepository orderRepository;
     private final UserService userService;
-    private final ProductImageService productImageService;
+    private final ProductSkuImageService productSkuImageService;
     private final CartMapper cartMapper;
     private final CartItemMapper cartItemMapper;
 
@@ -46,26 +47,30 @@ public class CartService {
     public CartResponse addToCart(Long productSkuId, int quantity) {
         User currentUser = userService.getCurrentUser();
         Cart cart = cartRepository.findByUserId(currentUser.getId())
-                .orElseGet(() -> cartRepository.save(cartMapper.toEntity(currentUser)));
+            .orElseGet(() -> cartRepository.save(cartMapper.toEntity(currentUser)));
 
         ProductSku sku = productSkuRepository.findByIdAndActiveTrueAndProductActiveTrue(productSkuId)
-                .orElseThrow(() -> new ProductSkuNotFoundException(
-                        "Product SKU not found with id: " + productSkuId
-                ));
+            .orElseThrow(() -> new ProductSkuNotFoundException(
+                "Product SKU not found with id: " + productSkuId
+            ));
 
         CartItem existingItem = cartItemRepository.findByCartIdAndProductSkuId(cart.getId(), productSkuId)
-                .orElse(null);
-
+            .orElse(null);
         if (existingItem != null) {
-            existingItem.setQuantity(Math.min(existingItem.getQuantity() + quantity, 10));
-            cartItemRepository.save(existingItem);
+            existingItem.setQuantity(
+                Math.min(existingItem.getQuantity() + quantity, Constants.MAX_CART_ITEM_QUANTITY)
+            );
         } else {
-            if (cartItemRepository.countByCartId(cart.getId()) >= 20) {
-                throw new CartLimitException("Cart cannot have more than 20 different items.");
+            long cartItemCount = cartItemRepository.countByCartId(cart.getId());
+            if (cartItemCount >= Constants.MAX_CART_LINES) {
+                throw new CartLimitException(
+                    "Cart cannot have more than " + Constants.MAX_CART_LINES + " different items."
+                );
             }
 
-            CartItem item = cartItemMapper.toEntity(cart, sku, quantity);
-            cartItemRepository.save(item);
+            CartItem cartItem = cartItemMapper.toEntity(cart, sku, quantity);
+
+            cartItemRepository.save(cartItem);
         }
 
         return buildCartResponse(cart);
@@ -79,24 +84,24 @@ public class CartService {
 
         User currentUser = userService.getCurrentUser();
         Cart cart = cartRepository.findByUserId(currentUser.getId())
-                .orElseGet(() -> cartRepository.save(cartMapper.toEntity(currentUser)));
+            .orElseGet(() -> cartRepository.save(cartMapper.toEntity(currentUser)));
 
         long lines = cartItemRepository.countByCartId(cart.getId());
 
         for (MergeCartItemRequest guestItem : guestItems) {
             CartItem existingItem = cartItemRepository
-                    .findByCartIdAndProductSkuId(cart.getId(), guestItem.productSkuId())
-                    .orElse(null);
-
+                .findByCartIdAndProductSkuId(cart.getId(), guestItem.productSkuId())
+                .orElse(null);
             if (existingItem != null) {
-                existingItem.setQuantity(Math.min(existingItem.getQuantity() + guestItem.quantity(), 10));
-                cartItemRepository.save(existingItem);
-            } else if (lines < 20) {
+                existingItem.setQuantity(Math.min(
+                    existingItem.getQuantity() + guestItem.quantity(), Constants.MAX_CART_ITEM_QUANTITY
+                    ));
+            } else if (lines < Constants.MAX_CART_LINES) {
                 Optional<ProductSku> sku = productSkuRepository
-                        .findByIdAndActiveTrueAndProductActiveTrue(guestItem.productSkuId());
-
+                    .findByIdAndActiveTrueAndProductActiveTrue(guestItem.productSkuId());
                 if (sku.isPresent()) {
-                    cartItemRepository.save(cartItemMapper.toEntity(cart, sku.get(), guestItem.quantity()));
+                    CartItem cartItem = cartItemMapper.toEntity(cart, sku.get(), guestItem.quantity());
+                    cartItemRepository.save(cartItem);
                     lines++;
                 }
             }
@@ -107,24 +112,20 @@ public class CartService {
     public CartResponse applyDiscountCode(String code) {
         User currentUser = userService.getCurrentUser();
         Cart cart = cartRepository.findByUserId(currentUser.getId())
-                .orElseGet(() -> cartRepository.save(cartMapper.toEntity(currentUser)));
+            .orElseGet(() -> cartRepository.save(cartMapper.toEntity(currentUser)));
 
         DiscountCode discountCode = discountCodeRepository.findByCode(code.trim().toUpperCase(Locale.ROOT))
-                .filter(DiscountCode::isActive)
-                .orElseThrow(() -> new InvalidDiscountCodeException("Invalid or inactive discount code."));
+            .filter(DiscountCode::isActive)
+            .orElseThrow(() -> new InvalidDiscountCodeException("Invalid or inactive discount code."));
 
         boolean discountCodeAlreadyUsed = orderRepository.existsByUserIdAndDiscountCodeIdAndStatusNotIn(
-                currentUser.getId(),
-                discountCode.getId(),
-                List.of(OrderStatus.PENDING, OrderStatus.FAILED, OrderStatus.CANCELED, OrderStatus.REFUNDED)
+            currentUser.getId(), discountCode.getId(), OrderStatus.DISCOUNT_UNUSED_STATUSES
         );
-
         if (discountCodeAlreadyUsed) {
             throw new InvalidDiscountCodeException("You have already used this discount code.");
         }
 
         cart.setDiscountCode(discountCode);
-        cartRepository.save(cart);
 
         return buildCartResponse(cart);
     }
@@ -151,10 +152,7 @@ public class CartService {
         }
 
         cartItemRepository.findByCartIdAndProductSkuId(cart.getId(), productSkuId)
-                .ifPresent(item -> {
-                    item.setQuantity(quantity);
-                    cartItemRepository.save(item);
-                });
+            .ifPresent(item -> item.setQuantity(quantity));
 
         return buildCartResponse(cart);
     }
@@ -183,7 +181,6 @@ public class CartService {
         }
 
         cart.setDiscountCode(null);
-        cartRepository.save(cart);
 
         return buildCartResponse(cart);
     }
@@ -203,13 +200,15 @@ public class CartService {
     private CartResponse buildCartResponse(Cart cart) {
         List<CartItem> items = cartItemRepository.findByCartIdOrderByIdAsc(cart.getId());
 
-        Map<Long, String> covers = productImageService.findCoversBySkuId(
-                items.stream().map(CartItem::getProductSku).toList()
+        Map<Long, String> covers = productSkuImageService.findCoversBySkuId(
+            items.stream().map(CartItem::getProductSku).toList()
         );
 
         List<CartItemResponse> itemResponses = items.stream()
-                .map(item -> cartItemMapper.toDto(item, covers.get(item.getProductSku().getId())))
-                .toList();
+            .map(item ->
+                cartItemMapper.toDto(item, covers.get(item.getProductSku().getId()))
+            )
+            .toList();
 
         return cartMapper.toDto(itemResponses, cart.getDiscountCode());
     }

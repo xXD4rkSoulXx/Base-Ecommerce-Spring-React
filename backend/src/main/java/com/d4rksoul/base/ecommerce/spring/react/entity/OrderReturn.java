@@ -40,7 +40,9 @@ public class OrderReturn {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "order_id", nullable = false, foreignKey = @ForeignKey(name = "fk_order_return_order"))
+    @JoinColumn(name = "order_id", nullable = false, updatable = false,
+        foreignKey = @ForeignKey(name = "fk_order_return_order")
+    )
     private Order order;
 
     @Enumerated(EnumType.STRING)
@@ -48,12 +50,13 @@ public class OrderReturn {
     private ReturnStatus status;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false, length = 500)
     private ReturnReason reason;
 
-    @Column(updatable = false)
+    @Column(updatable = false, length = 500)
     private String comment;
 
+    @Column(precision = 12, scale = 2)
     private BigDecimal refundAmount;
 
     @Column(unique = true)
@@ -61,10 +64,13 @@ public class OrderReturn {
 
     private Instant refundedAt;
 
+    private Instant rejectedAt;
+
     private Instant approvedAt;
 
     private Instant receivedAt;
 
+    @Column(length = 500)
     private String rejectionReason;
 
     @Column(nullable = false)

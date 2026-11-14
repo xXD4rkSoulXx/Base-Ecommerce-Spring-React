@@ -10,33 +10,33 @@ import org.springframework.stereotype.Component;
 public class AdminAuditLogMapper {
 
     public AuditLog toEntity(
-            String actorEmail,
-            AuditAction action,
-            AuditEntityType entityType,
-            Long entityId,
-            String entityLabel,
-            String details
+        String actorEmail,
+        AuditAction action,
+        AuditEntityType entityType,
+        Long entityId,
+        String entityLabel,
+        String details
     ) {
         return AuditLog.builder()
-                .actorEmail(actorEmail)
-                .action(action)
-                .entityType(entityType)
-                .entityId(entityId)
-                .entityLabel(entityLabel)
-                .details(details)
-                .build();
+            .actorEmail(actorEmail)
+            .action(action)
+            .entityType(entityType)
+            .entityId(entityId)
+            .entityLabel(entityLabel)
+            .details(details)
+            .build();
     }
 
     public AdminAuditLogResponse toDto(AuditLog auditLog) {
         return AdminAuditLogResponse.builder()
-                .id(auditLog.getId())
-                .actorEmail(auditLog.getActorEmail())
-                .action(auditLog.getAction())
-                .entityType(auditLog.getEntityType())
-                .entityId(auditLog.getEntityId())
-                .entityLabel(auditLog.getEntityLabel())
-                .details(auditLog.getDetails())
-                .createdAt(auditLog.getCreatedAt())
-                .build();
+            .id(auditLog.getId())
+            .actorEmail(auditLog.getActorEmail())
+            .action(auditLog.getAction())
+            .entityType(auditLog.getEntityType())
+            .entityId(auditLog.getEntityId())
+            .entityLabel(auditLog.getEntityLabel())
+            .details(auditLog.getDetails())
+            .createdAt(auditLog.getCreatedAt())
+            .build();
     }
 }

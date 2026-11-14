@@ -9,15 +9,15 @@ import java.time.Instant;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record AdminTeamMemberResponse(
-        Long id,
+    Long id,
 
-        String email,
+    String email,
 
-        String firstName,
+    String firstName,
 
-        String lastName,
+    String lastName,
 
-        UserRole role,
+    UserRole role,
 
-        Instant createdAt
+    Instant createdAt
 ) {}

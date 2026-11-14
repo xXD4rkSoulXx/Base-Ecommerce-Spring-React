@@ -33,14 +33,13 @@ public class DiscountCode {
     @Column(updatable = false)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, updatable = false, unique = true)
     private String code;
 
     @Column(nullable = false)
     private int discountPercentage;
 
-    @Builder.Default
-    private boolean active = true;
+    private boolean active;
 
     @Builder.Default
     @OneToMany(mappedBy = "discountCode")

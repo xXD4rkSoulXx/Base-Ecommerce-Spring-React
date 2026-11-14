@@ -1,5 +1,7 @@
 package com.d4rksoul.base.ecommerce.spring.react.dto.response;
 
+import com.d4rksoul.base.ecommerce.spring.react.enums.ProductColor;
+import com.d4rksoul.base.ecommerce.spring.react.enums.ProductSize;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 
@@ -8,29 +10,29 @@ import java.math.BigDecimal;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record CartItemResponse(
-        Long id,
+    Long id,
 
-        Long productSkuId,
+    Long productSkuId,
 
-        Long productId,
+    Long productId,
 
-        String productName,
+    String productName,
 
-        String productRef,
+    String productRef,
 
-        String size,
+    ProductSize size,
 
-        String color,
+    ProductColor color,
 
-        String cover,
+    String cover,
 
-        BigDecimal price,
+    BigDecimal price,
 
-        int discountPercentage,
+    int discountPercentage,
 
-        int stock,
+    int stock,
 
-        int quantity,
+    int quantity,
 
-        boolean available
+    boolean available
 ) {}

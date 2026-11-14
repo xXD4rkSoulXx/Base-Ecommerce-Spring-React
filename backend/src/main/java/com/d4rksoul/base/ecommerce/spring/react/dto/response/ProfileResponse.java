@@ -8,9 +8,9 @@ import java.time.Instant;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ProfileResponse(
-        UserResponse user,
+    UserResponse user,
 
-        Instant createdAt,
+    Instant createdAt,
 
-        long totalOrders
+    long totalOrders
 ) {}

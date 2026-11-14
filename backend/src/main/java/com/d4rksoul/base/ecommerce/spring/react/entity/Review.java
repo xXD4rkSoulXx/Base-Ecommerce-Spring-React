@@ -23,10 +23,8 @@ import java.time.Instant;
 
 @Entity
 @Table(
-        name = "reviews",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_user_product", columnNames = {"user_id", "product_id"})
-        }
+    name = "reviews",
+    uniqueConstraints = @UniqueConstraint(name = "uk_user_product", columnNames = {"user_id", "product_id"})
 )
 @Getter
 @Setter
@@ -46,7 +44,7 @@ public class Review {
     @Column(nullable = false)
     private String title;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Column(columnDefinition = "TEXT", length = 2000, nullable = false)
     private String description;
 
     @Column(nullable = false)

@@ -23,10 +23,10 @@ import java.time.Instant;
 
 @Entity
 @Table(
-        name = "wishlist_items",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_wishlist_product", columnNames = {"wishlist_id", "product_id"})
-        }
+    name = "wishlist_items",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_wishlist_product", columnNames = {"wishlist_id", "product_id"}
+    )
 )
 @Getter
 @Setter
@@ -41,11 +41,15 @@ public class WishlistItem {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "wishlist_id", nullable = false, foreignKey = @ForeignKey(name = "fk_wishlist_item_wishlist"))
+    @JoinColumn(name = "wishlist_id", nullable = false, updatable = false,
+        foreignKey = @ForeignKey(name = "fk_wishlist_item_wishlist")
+    )
     private Wishlist wishlist;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "product_id", nullable = false, foreignKey = @ForeignKey(name = "fk_wishlist_item_product"))
+    @JoinColumn(name = "product_id", nullable = false,
+        foreignKey = @ForeignKey(name = "fk_wishlist_item_product")
+    )
     private Product product;
 
     @CreationTimestamp

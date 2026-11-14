@@ -29,8 +29,7 @@ public class AdminProductSkuController {
     @PostMapping
     @PreAuthorize("hasAuthority('PRODUCTS_WRITE')")
     public ResponseEntity<AdminProductSkuResponse> createSku(
-            @PathVariable Long productId,
-            @Valid @RequestBody AdminCreateProductSkuRequest request
+        @PathVariable Long productId, @Valid @RequestBody AdminCreateProductSkuRequest request
     ) {
         AdminProductSkuResponse sku = adminProductSkuService.createSku(productId, request);
 
@@ -64,9 +63,9 @@ public class AdminProductSkuController {
     @PutMapping("/{skuId}")
     @PreAuthorize("hasAuthority('PRODUCTS_WRITE')")
     public ResponseEntity<AdminProductSkuResponse> updateSku(
-            @PathVariable Long productId,
-            @PathVariable Long skuId,
-            @Valid @RequestBody AdminUpdateProductSkuRequest request
+        @PathVariable Long productId,
+        @PathVariable Long skuId,
+        @Valid @RequestBody AdminUpdateProductSkuRequest request
     ) {
         AdminProductSkuResponse sku = adminProductSkuService.updateSku(productId, skuId, request);
 

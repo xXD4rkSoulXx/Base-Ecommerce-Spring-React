@@ -18,15 +18,23 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface ProductSkuRepository extends JpaRepository<ProductSku, Long>, JpaSpecificationExecutor<ProductSku> {
+public interface ProductSkuRepository
+    extends JpaRepository<ProductSku, Long>, JpaSpecificationExecutor<ProductSku> {
 
-    @Modifying
-    @Query("update ProductSku s set s.stock = s.stock + :quantity where s.id = :id")
-    void incrementStock(@Param("id") Long id, @Param("quantity") int quantity);
+    @Override
+    @EntityGraph(attributePaths = "product")
+    @NonNull
+    Page<ProductSku> findAll(@NonNull Specification<ProductSku> specification, @NonNull Pageable pageable);
 
-    @Modifying
-    @Query("update ProductSku s set s.stock = s.stock - :quantity where s.id = :id and s.stock >= :quantity")
-    int decrementStock(@Param("id") Long id, @Param("quantity") int quantity);
+    List<ProductSku> findByProductIdOrderByIdAsc(Long productId);
+
+    Optional<ProductSku> findByIdAndProductId(Long id, Long productId);
+
+    Optional<ProductSku> findByIdAndActiveTrueAndProductActiveTrue(Long id);
+
+    Optional<ProductSku> findByProductIdAndSizeAndColor(
+        Long productId, ProductSize size, ProductColor color
+    );
 
     @Query("""
         SELECT new com.d4rksoul.base.ecommerce.spring.react.dto.projection.ProductStockProjection(
@@ -40,28 +48,22 @@ public interface ProductSkuRepository extends JpaRepository<ProductSku, Long>, J
         GROUP BY sku.product.id
     """)
     List<ProductStockProjection> summarizeStockByProductIds(
-            @Param("productIds") List<Long> productIds,
-            @Param("threshold") int threshold
+        @Param("productIds") List<Long> productIds, @Param("threshold") int threshold
     );
 
-    @Override
-    @EntityGraph(attributePaths = "product")
-    @NonNull
-    Page<ProductSku> findAll(@NonNull Specification<ProductSku> specification, @NonNull Pageable pageable);
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("update ProductSku s set s.stock = s.stock + :quantity where s.id = :id")
+    void incrementStock(@Param("id") Long id, @Param("quantity") int quantity);
 
-    @Modifying
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("update ProductSku s set s.stock = s.stock - :quantity where s.id = :id and s.stock >= :quantity")
+    int decrementStock(@Param("id") Long id, @Param("quantity") int quantity);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("update ProductSku s set s.stock = s.stock + :delta where s.id = :id and s.stock + :delta >= 0")
     int adjustStock(@Param("id") Long id, @Param("delta") int delta);
 
-    @Modifying
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("update ProductSku s set s.stock = :stock where s.id = :id")
     int setStock(@Param("id") Long id, @Param("stock") int stock);
-
-    List<ProductSku> findByProductIdOrderByIdAsc(Long productId);
-
-    Optional<ProductSku> findByIdAndProductId(Long id, Long productId);
-
-    Optional<ProductSku> findByIdAndActiveTrueAndProductActiveTrue(Long id);
-
-    Optional<ProductSku> findByProductIdAndSizeAndColor(Long productId, ProductSize size, ProductColor color);
 }

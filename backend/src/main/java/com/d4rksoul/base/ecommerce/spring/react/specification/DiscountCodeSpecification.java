@@ -5,8 +5,10 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.Locale;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class DiscountCodeSpecification {
+public final class DiscountCodeSpecification {
 
     public static Specification<DiscountCode> containsCode(String q) {
         return (root, _, cb) -> {
@@ -14,7 +16,7 @@ public class DiscountCodeSpecification {
                 return cb.conjunction();
             }
 
-            return cb.like(cb.lower(root.get("code")), "%" + q.trim().toLowerCase() + "%");
+            return cb.like(cb.lower(root.get("code")), "%" + q.trim().toLowerCase(Locale.ROOT) + "%");
         };
     }
 

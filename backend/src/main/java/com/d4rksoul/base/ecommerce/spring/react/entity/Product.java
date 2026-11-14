@@ -28,10 +28,8 @@ import java.util.List;
 
 @Entity
 @Table(
-        name = "products",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_product_featured_slot", columnNames = {"featured_slot"})
-        }
+    name = "products",
+    uniqueConstraints = @UniqueConstraint(name = "uk_product_featured_slot", columnNames = {"featured_slot"})
 )
 @Getter
 @Setter
@@ -51,12 +49,13 @@ public class Product {
     @Column(nullable = false)
     private String name;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Column(columnDefinition = "TEXT", nullable = false, length = 2000)
     private String description;
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal price;
 
+    @Column(nullable = false)
     private int discountPercentage;
 
     @Enumerated(EnumType.STRING)

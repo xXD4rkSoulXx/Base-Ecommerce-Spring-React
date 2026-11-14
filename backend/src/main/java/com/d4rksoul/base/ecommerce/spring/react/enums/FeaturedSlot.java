@@ -2,5 +2,6 @@ package com.d4rksoul.base.ecommerce.spring.react.enums;
 
 public enum FeaturedSlot {
 
-    LEFT, RIGHT
+    LEFT,
+    RIGHT
 }

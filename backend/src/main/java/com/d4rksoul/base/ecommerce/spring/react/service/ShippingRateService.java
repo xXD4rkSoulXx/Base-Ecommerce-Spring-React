@@ -49,16 +49,14 @@ public class ShippingRateService {
     public List<ShippingRateResponse> getShippingRates(CheckoutAddressRequest destination) {
         User currentUser = userService.getCurrentUser();
         Cart cart = cartRepository.findByUserId(currentUser.getId())
-                .orElseThrow(() -> new EmptyCartException("Your cart is empty."));
+            .orElseThrow(() -> new EmptyCartException("Your cart is empty."));
 
         List<CartItem> cartItems = cartItemRepository.findByCartIdOrderByIdAsc(cart.getId());
-
         if (cartItems.isEmpty()) {
             throw new EmptyCartException("Your cart is empty.");
         }
 
         List<PackingItemResult> packingItems = new ArrayList<>();
-
         for (CartItem cartItem : cartItems) {
             PackingItemResult packingItem = shippingMapper.toPackingItem(cartItem.getProductSku());
 
@@ -67,21 +65,22 @@ public class ShippingRateService {
             }
         }
 
-        List<PackedParcelResult> parcels = parcelPackingService.pack(packingItems).stream()
-                .map(PackedParcelItemsResult::parcel)
-                .toList();
+        List<PackedParcelResult> parcels = parcelPackingService.pack(packingItems)
+            .stream()
+            .map(PackedParcelItemsResult::parcel)
+            .toList();
 
         ShippoAddress addressFrom = shippingMapper.toShippoAddress(originProperties);
         ShippoAddress addressTo = shippingMapper.toShippoAddress(destination);
 
         Map<PackedParcelResult, Long> parcelGroups = parcels.stream()
-                .collect(Collectors.groupingBy(Function.identity(), LinkedHashMap::new, Collectors.counting()));
+            .collect(Collectors.groupingBy(Function.identity(), LinkedHashMap::new, Collectors.counting()));
 
         Map<String, RateAccumulator> aggregated = new LinkedHashMap<>();
 
         for (Map.Entry<PackedParcelResult, Long> parcelGroup : parcelGroups.entrySet()) {
             ShippoShipmentRequest shipmentRequest = shippingMapper.toShipmentRequest(
-                    addressFrom, addressTo, parcelGroup.getKey()
+                addressFrom, addressTo, parcelGroup.getKey()
             );
             ShippoShipmentResponse response = shippoApiClient.createShipment(shipmentRequest);
 
@@ -90,15 +89,14 @@ public class ShippingRateService {
 
             for (ShippoRate rate : rates) {
                 String key = rate.provider() + "|" + rate.servicelevel().name();
-
                 if (!seenInParcel.add(key)) {
                     continue;
                 }
 
                 aggregated.merge(
-                        key,
-                        new RateAccumulator(rate, parcelGroup.getValue().intValue()),
-                        RateAccumulator::combine
+                    key,
+                    new RateAccumulator(rate, parcelGroup.getValue().intValue()),
+                    RateAccumulator::combine
                 );
             }
         }
@@ -106,14 +104,14 @@ public class ShippingRateService {
         int totalParcels = parcels.size();
 
         List<ShippingRateResponse> unifiedRates = aggregated.values().stream()
-                .filter(accumulator -> accumulator.parcelCount == totalParcels)
-                .map(RateAccumulator::toResponse)
-                .toList();
+            .filter(accumulator -> accumulator.parcelCount == totalParcels)
+            .map(RateAccumulator::toResponse)
+            .toList();
 
         if (unifiedRates.isEmpty()) {
             throw new NoUnifiedCarrierException(
-                    "No single carrier can fulfill this order to the given address. " +
-                            "Some items may be too large or heavy to ship together."
+                "No single carrier can fulfill this order to the given address. "
+                    + "Some items may be too large or heavy to ship together."
             );
         }
 
@@ -147,13 +145,13 @@ public class ShippingRateService {
 
         ShippingRateResponse toResponse() {
             return ShippingRateResponse.builder()
-                    .rateId(carrier + "-" + service)
-                    .carrier(carrier)
-                    .service(service)
-                    .amount(amount)
-                    .currency(currency)
-                    .estimatedDays(formatDeliveryDays())
-                    .build();
+                .rateId(carrier + "-" + service)
+                .carrier(carrier)
+                .service(service)
+                .amount(amount)
+                .currency(currency)
+                .estimatedDays(formatDeliveryDays())
+                .build();
         }
 
         private String formatDeliveryDays() {

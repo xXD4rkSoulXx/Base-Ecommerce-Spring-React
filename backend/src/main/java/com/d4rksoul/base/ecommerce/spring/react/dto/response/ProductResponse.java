@@ -10,19 +10,19 @@ import java.math.BigDecimal;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ProductResponse(
-        Long id,
+    Long id,
 
-        String ref,
+    String ref,
 
-        String name,
+    String name,
 
-        BigDecimal price,
+    BigDecimal price,
 
-        int discountPercentage,
+    int discountPercentage,
 
-        ProductCategory category,
+    ProductCategory category,
 
-        String cover,
+    String cover,
 
-        FeaturedSlot featuredSlot
+    FeaturedSlot featuredSlot
 ) {}

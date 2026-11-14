@@ -40,7 +40,9 @@ public class Cart {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false, unique = true, foreignKey = @ForeignKey(name = "fk_cart_user"))
+    @JoinColumn(name = "user_id", nullable = false, unique = true,
+        foreignKey = @ForeignKey(name = "fk_cart_user")
+    )
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)

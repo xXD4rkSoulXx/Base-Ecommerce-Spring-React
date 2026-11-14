@@ -6,9 +6,9 @@ import lombok.Builder;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record AdminDashboardCustomersResponse(
-        long newCustomers,
+    long newCustomers,
 
-        long previousNewCustomers,
+    long previousNewCustomers,
 
-        long totalCustomers
+    long totalCustomers
 ) {}

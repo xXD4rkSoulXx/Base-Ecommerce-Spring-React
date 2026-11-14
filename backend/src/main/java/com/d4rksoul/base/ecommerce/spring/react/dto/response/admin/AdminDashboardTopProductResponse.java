@@ -6,13 +6,13 @@ import lombok.Builder;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record AdminDashboardTopProductResponse(
-        Long productId,
+    Long productId,
 
-        String ref,
+    String ref,
 
-        String name,
+    String name,
 
-        String cover,
+    String cover,
 
-        long unitsSold
+    long unitsSold
 ) {}

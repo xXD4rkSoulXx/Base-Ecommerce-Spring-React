@@ -3,9 +3,9 @@ package com.d4rksoul.base.ecommerce.spring.react.dto.projection;
 import java.time.Instant;
 
 public record CustomerOrderStatsProjection(
-        Long userId,
+    Long userId,
 
-        Long orders,
+    Long orders,
 
-        Instant lastOrderAt
+    Instant lastOrderAt
 ) {}

@@ -6,6 +6,6 @@ import jakarta.validation.constraints.NotNull;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record AdminUpdateOrderStatusRequest(
-        @NotNull(message = "Status is required")
-        OrderStatus status
+    @NotNull(message = "Status is required")
+    OrderStatus status
 ) {}

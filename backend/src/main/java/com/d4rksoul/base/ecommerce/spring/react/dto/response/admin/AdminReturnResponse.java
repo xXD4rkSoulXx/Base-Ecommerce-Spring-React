@@ -12,27 +12,27 @@ import java.util.List;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record AdminReturnResponse(
-        Long id,
+    Long id,
 
-        Long orderId,
+    Long orderId,
 
-        String customerEmail,
+    String customerEmail,
 
-        AdminReturnAddressResponse address,
+    AdminReturnAddressResponse address,
 
-        ReturnStatus status,
+    ReturnStatus status,
 
-        ReturnReason reason,
+    ReturnReason reason,
 
-        String comment,
+    String comment,
 
-        BigDecimal refundAmount,
+    BigDecimal refundAmount,
 
-        String rejectionReason,
+    String rejectionReason,
 
-        Instant createdAt,
+    Instant createdAt,
 
-        Instant refundedAt,
+    Instant refundedAt,
 
-        List<AdminReturnItemResponse> items
+    List<AdminReturnItemResponse> items
 ) {}

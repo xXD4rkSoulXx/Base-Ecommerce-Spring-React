@@ -35,14 +35,18 @@ public class ProductController {
     private final ReviewService reviewService;
 
     @PostMapping("/{id}/review")
-    public ResponseEntity<ReviewResponse> createReview(@PathVariable Long id, @Valid @RequestBody ReviewRequest request) {
+    public ResponseEntity<ReviewResponse> createReview(
+        @PathVariable Long id, @Valid @RequestBody ReviewRequest request
+    ) {
         ReviewResponse response = reviewService.createReview(id, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
-    public ResponseEntity<PageResponse<ProductResponse>> getProducts(@ModelAttribute ProductShopRequest filter) {
+    public ResponseEntity<PageResponse<ProductResponse>> getProducts(
+        @ModelAttribute ProductShopRequest filter
+    ) {
         PageResponse<ProductResponse> productsPage = productService.getProducts(filter);
 
         return ResponseEntity.ok(productsPage);
@@ -66,11 +70,18 @@ public class ProductController {
     public ResponseEntity<ReviewEligibilityResponse> getReviewEligibility(@PathVariable Long id) {
         ReviewEligibility eligibility = reviewService.getReviewEligibility(id);
 
-        return ResponseEntity.ok(ReviewEligibilityResponse.builder().status(eligibility).build());
+        ReviewEligibilityResponse response = ReviewEligibilityResponse
+            .builder()
+            .status(eligibility)
+            .build();
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}/reviews")
-    public ResponseEntity<PageResponse<ReviewResponse>> getProductReviews(@PathVariable Long id, ProductReviewsRequest filter) {
+    public ResponseEntity<PageResponse<ReviewResponse>> getProductReviews(
+        @PathVariable Long id, @ModelAttribute ProductReviewsRequest filter
+    ) {
         PageResponse<ReviewResponse> reviews = reviewService.getProductReviews(id, filter);
 
         return ResponseEntity.ok(reviews);
@@ -92,20 +103,22 @@ public class ProductController {
 
     @GetMapping("/best-sellers")
     public ResponseEntity<List<ProductResponse>> getBestSellers() {
-        List<ProductResponse> deals = productService.getBestSellers();
+        List<ProductResponse> bestSellers = productService.getBestSellers();
 
-        return ResponseEntity.ok(deals);
+        return ResponseEntity.ok(bestSellers);
     }
 
     @GetMapping("/top-rated")
     public ResponseEntity<List<ProductResponse>> getTopRatedProducts() {
-        List<ProductResponse> deals = productService.getTopRatedProducts();
+        List<ProductResponse> topRated = productService.getTopRatedProducts();
 
-        return ResponseEntity.ok(deals);
+        return ResponseEntity.ok(topRated);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<PageResponse<ProductResponse>> search(@ModelAttribute ProductSearchRequest search) {
+    public ResponseEntity<PageResponse<ProductResponse>> search(
+        @ModelAttribute ProductSearchRequest search
+    ) {
         PageResponse<ProductResponse> searchPage = productService.search(search);
 
         return ResponseEntity.ok(searchPage);

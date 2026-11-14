@@ -8,19 +8,19 @@ import java.math.BigDecimal;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record AdminDashboardSummaryResponse(
-        BigDecimal netRevenue,
+    BigDecimal netRevenue,
 
-        BigDecimal previousNetRevenue,
+    BigDecimal previousNetRevenue,
 
-        BigDecimal refunded,
+    BigDecimal refunded,
 
-        BigDecimal previousRefunded,
+    BigDecimal previousRefunded,
 
-        long orders,
+    long orders,
 
-        long previousOrders,
+    long previousOrders,
 
-        BigDecimal averageOrderValue,
+    BigDecimal averageOrderValue,
 
-        BigDecimal previousAverageOrderValue
+    BigDecimal previousAverageOrderValue
 ) {}

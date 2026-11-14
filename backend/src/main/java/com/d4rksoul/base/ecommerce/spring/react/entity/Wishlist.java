@@ -39,7 +39,9 @@ public class Wishlist {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false, unique = true, foreignKey = @ForeignKey(name = "fk_wishlist_user"))
+    @JoinColumn(name = "user_id", nullable = false, unique = true,
+        foreignKey = @ForeignKey(name = "fk_wishlist_user")
+    )
     private User user;
 
     @Builder.Default

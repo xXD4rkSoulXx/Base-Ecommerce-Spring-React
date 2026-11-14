@@ -1,222 +1,60 @@
 package com.d4rksoul.base.ecommerce.spring.react.exception;
 
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.ApiError;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.Instant;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler({
+        InvalidDiscountCodeException.class,
+        UnpackableCartException.class,
+        EmptyCartException.class,
+        InvalidShippingRateException.class,
+        InvalidWebhookSignatureException.class,
+        CartLimitException.class,
+        InvalidReturnRequestException.class,
+        InvalidPasswordChangeException.class,
+        InvalidTeamChangeException.class,
+        InvalidImageException.class,
+        InvalidProductSkuException.class,
+        InvalidStockAdjustmentException.class
+    })
+    public ResponseEntity<ApiError> handleBadRequest(RuntimeException exception) {
+        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidationExceptions(MethodArgumentNotValidException exception) {
         FieldError firstError = exception.getBindingResult().getFieldErrors().getFirst();
         String errorMessage = firstError.getDefaultMessage();
 
-        return buildResponse(HttpStatus.BAD_REQUEST, errorMessage != null ? errorMessage : "Validation error");
-    }
-
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ApiError> handleAccessDeniedException(AccessDeniedException exception) {
-        String message = exception.getMessage() != null
-                ? exception.getMessage()
-                : "You do not have permission to access this resource.";
-
-        return buildResponse(HttpStatus.FORBIDDEN, message);
-    }
-
-    @ExceptionHandler(RefreshTokenException.class)
-    public ResponseEntity<ApiError> handleRefreshTokenExceptions(RefreshTokenException exception) {
-        String message = exception.getMessage() != null
-                ? exception.getMessage()
-                : "Session invalid or expired. Please log in again.";
-
-        return buildResponse(HttpStatus.UNAUTHORIZED, message);
-    }
-
-    @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<ApiError> handleEmailAlreadyExistsException(EmailAlreadyExistsException exception) {
-        return buildResponse(HttpStatus.CONFLICT, exception.getMessage());
-    }
-
-    @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<ApiError> handleInvalidCredentialsException(InvalidCredentialsException exception) {
-        return buildResponse(HttpStatus.UNAUTHORIZED, exception.getMessage());
-    }
-
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ApiError> handleUserNotFoundException(UserNotFoundException exception) {
-        return buildResponse(HttpStatus.NOT_FOUND, exception.getMessage());
-    }
-
-    @ExceptionHandler(ProductNotFoundException.class)
-    public ResponseEntity<ApiError> handleProductNotFoundException(ProductNotFoundException exception) {
-        return buildResponse(HttpStatus.NOT_FOUND, exception.getMessage());
-    }
-
-    @ExceptionHandler(ProductNotPurchasedException.class)
-    public ResponseEntity<ApiError> handleProductNotPurchasedException(ProductNotPurchasedException exception) {
-        return buildResponse(HttpStatus.FORBIDDEN, exception.getMessage());
-    }
-
-    @ExceptionHandler(ProductAlreadyReviewedException.class)
-    public ResponseEntity<ApiError> handleProductAlreadyReviewedException(ProductAlreadyReviewedException exception) {
-        return buildResponse(HttpStatus.CONFLICT, exception.getMessage());
-    }
-
-    @ExceptionHandler(UserNotAuthenticatedException.class)
-    public ResponseEntity<ApiError> handleUserNotAuthenticatedException(UserNotAuthenticatedException exception) {
-        return buildResponse(HttpStatus.UNAUTHORIZED, exception.getMessage());
-    }
-
-    @ExceptionHandler(ProductSkuNotFoundException.class)
-    public ResponseEntity<ApiError> handleProductSkuNotFoundException(ProductSkuNotFoundException exception) {
-        return buildResponse(HttpStatus.NOT_FOUND, exception.getMessage());
-    }
-
-    @ExceptionHandler(InvalidDiscountCodeException.class)
-    public ResponseEntity<ApiError> handleInvalidDiscountCodeException(InvalidDiscountCodeException exception) {
-        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
-    }
-
-    @ExceptionHandler(UnpackableCartException.class)
-    public ResponseEntity<ApiError> handleUnpackableCartException(UnpackableCartException exception) {
-        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
-    }
-
-    @ExceptionHandler(EmptyCartException.class)
-    public ResponseEntity<ApiError> handleEmptyCartException(EmptyCartException exception) {
-        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
-    }
-
-    @ExceptionHandler(ShippoApiException.class)
-    public ResponseEntity<ApiError> handleShippoApiException() {
         return buildResponse(
-                HttpStatus.BAD_GATEWAY,
-                "Shipping options are temporarily unavailable. Please try again in a moment."
+            HttpStatus.BAD_REQUEST, errorMessage != null ? errorMessage : "Validation error"
         );
     }
 
-    @ExceptionHandler(NoUnifiedCarrierException.class)
-    public ResponseEntity<ApiError> handleNoUnifiedCarrierException(NoUnifiedCarrierException exception) {
-        return buildResponse(HttpStatus.UNPROCESSABLE_CONTENT, exception.getMessage());
-    }
-
-    @ExceptionHandler(InsufficientStockException.class)
-    public ResponseEntity<ApiError> handleInsufficientStock(InsufficientStockException ex) {
-        return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
-    }
-
-    @ExceptionHandler(InvalidShippingRateException.class)
-    public ResponseEntity<ApiError> handleInvalidShippingRate(InvalidShippingRateException ex) {
-        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
-    }
-
-    @ExceptionHandler(StripeApiException.class)
-    public ResponseEntity<ApiError> handleStripeApi(StripeApiException ex) {
-        return buildResponse(HttpStatus.BAD_GATEWAY, ex.getMessage());
-    }
-
-    @ExceptionHandler(InvalidWebhookSignatureException.class)
-    public ResponseEntity<ApiError> handleInvalidWebhookSignature(InvalidWebhookSignatureException exception) {
-        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
-    }
-
-    @ExceptionHandler(CartLimitException.class)
-    public ResponseEntity<ApiError> handleCartLimitException(CartLimitException exception) {
-        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
-    }
-
-    @ExceptionHandler(OrderNotFoundException.class)
-    public ResponseEntity<ApiError> handleOrderNotFoundException(OrderNotFoundException exception) {
-        return buildResponse(HttpStatus.NOT_FOUND, exception.getMessage());
-    }
-
-    @ExceptionHandler(InvalidReturnRequestException.class)
-    public ResponseEntity<ApiError> handleInvalidReturnRequest(InvalidReturnRequestException exception) {
-        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
-    }
-
-    @ExceptionHandler(ReturnNotAllowedException.class)
-    public ResponseEntity<ApiError> handleReturnNotAllowed(ReturnNotAllowedException exception) {
-        return buildResponse(HttpStatus.CONFLICT, exception.getMessage());
-    }
-
-    @ExceptionHandler(InvalidPasswordChangeException.class)
-    public ResponseEntity<ApiError> handleInvalidPasswordChange(InvalidPasswordChangeException exception) {
-        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
-    }
-
-    @ExceptionHandler(InvalidTeamChangeException.class)
-    public ResponseEntity<ApiError> handleInvalidTeamChange(InvalidTeamChangeException exception) {
-        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
-    }
-
-    @ExceptionHandler(InvalidOrderTransitionException.class)
-    public ResponseEntity<ApiError> handleInvalidOrderTransition(InvalidOrderTransitionException exception) {
-        return buildResponse(HttpStatus.CONFLICT, exception.getMessage());
-    }
-
-    @ExceptionHandler(ReturnNotFoundException.class)
-    public ResponseEntity<ApiError> handleReturnNotFound(ReturnNotFoundException exception) {
-        return buildResponse(HttpStatus.NOT_FOUND, exception.getMessage());
-    }
-
-    @ExceptionHandler(ProductRefAlreadyExistsException.class)
-    public ResponseEntity<ApiError> handleProductRefAlreadyExists(ProductRefAlreadyExistsException exception) {
-        return buildResponse(HttpStatus.CONFLICT, exception.getMessage());
-    }
-
-    @ExceptionHandler(FeaturedSlotTakenException.class)
-    public ResponseEntity<ApiError> handleFeaturedSlotTaken(FeaturedSlotTakenException exception) {
-        return buildResponse(HttpStatus.CONFLICT, exception.getMessage());
-    }
-
-    @ExceptionHandler(ProductSkuAlreadyExistsException.class)
-    public ResponseEntity<ApiError> handleProductSkuAlreadyExists(ProductSkuAlreadyExistsException exception) {
-        return buildResponse(HttpStatus.CONFLICT, exception.getMessage());
-    }
-
-    @ExceptionHandler(InvalidImageException.class)
-    public ResponseEntity<ApiError> handleInvalidImage(InvalidImageException exception) {
-        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
-    }
-
-    @ExceptionHandler(ProductSkuImageNotFoundException.class)
-    public ResponseEntity<ApiError> handleProductSkuImageNotFound(ProductSkuImageNotFoundException exception) {
-        return buildResponse(HttpStatus.NOT_FOUND, exception.getMessage());
-    }
-
-    @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<ApiError> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException exception) {
-        return buildResponse(HttpStatus.CONTENT_TOO_LARGE, "The image must be at most 5 MB.");
-    }
-
-    @ExceptionHandler(ProductUnavailableException.class)
-    public ResponseEntity<ApiError> handleProductUnavailable(ProductUnavailableException exception) {
-        return buildResponse(HttpStatus.CONFLICT, exception.getMessage());
-    }
-
-    @ExceptionHandler(DiscountCodeNotFoundException.class)
-    public ResponseEntity<ApiError> handleDiscountCodeNotFound(DiscountCodeNotFoundException exception) {
-        return buildResponse(HttpStatus.NOT_FOUND, exception.getMessage());
-    }
-
-    @ExceptionHandler(DiscountCodeAlreadyExistsException.class)
-    public ResponseEntity<ApiError> handleDiscountCodeAlreadyExists(DiscountCodeAlreadyExistsException exception) {
-        return buildResponse(HttpStatus.CONFLICT, exception.getMessage());
-    }
-
-    @ExceptionHandler(ReviewNotFoundException.class)
-    public ResponseEntity<ApiError> handleReviewNotFound(ReviewNotFoundException exception) {
-        return buildResponse(HttpStatus.NOT_FOUND, exception.getMessage());
+    @ExceptionHandler({
+        MethodArgumentTypeMismatchException.class, MissingServletRequestParameterException.class
+    })
+    public ResponseEntity<ApiError> handleInvalidParameter() {
+        return buildResponse(HttpStatus.BAD_REQUEST, "Invalid request parameter");
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -224,18 +62,126 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.BAD_REQUEST, "Malformed request body");
     }
 
+    @ExceptionHandler({
+        EmailAlreadyExistsException.class,
+        ProductAlreadyReviewedException.class,
+        InsufficientStockException.class,
+        ReturnNotAllowedException.class,
+        InvalidOrderTransitionException.class,
+        ProductRefAlreadyExistsException.class,
+        FeaturedSlotTakenException.class,
+        ProductSkuAlreadyExistsException.class,
+        ProductUnavailableException.class,
+        DiscountCodeAlreadyExistsException.class,
+        CheckoutInProgressException.class
+    })
+    public ResponseEntity<ApiError> handleConflict(RuntimeException exception) {
+        return buildResponse(HttpStatus.CONFLICT, exception.getMessage());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiError> handleDataIntegrityViolationException() {
+        return buildResponse(
+            HttpStatus.CONFLICT,
+            "This action conflicts with existing data. Please refresh and try again."
+        );
+    }
+
+    @ExceptionHandler({InvalidCredentialsException.class, UserNotAuthenticatedException.class})
+    public ResponseEntity<ApiError> handleUnauthorized(RuntimeException exception) {
+        return buildResponse(HttpStatus.UNAUTHORIZED, exception.getMessage());
+    }
+
+    @ExceptionHandler(RefreshTokenException.class)
+    public ResponseEntity<ApiError> handleRefreshTokenExceptions(RefreshTokenException exception) {
+        String message = exception.getMessage() != null
+            ? exception.getMessage()
+            : "Session invalid or expired. Please log in again.";
+
+        return buildResponse(HttpStatus.UNAUTHORIZED, message);
+    }
+
+    @ExceptionHandler(ProductNotPurchasedException.class)
+    public ResponseEntity<ApiError> handleProductNotPurchased(ProductNotPurchasedException exception) {
+        return buildResponse(HttpStatus.FORBIDDEN, exception.getMessage());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiError> handleAccessDeniedException(AccessDeniedException exception) {
+        String message = exception.getMessage() != null
+            ? exception.getMessage()
+            : "You do not have permission to access this resource.";
+
+        return buildResponse(HttpStatus.FORBIDDEN, message);
+    }
+
+    @ExceptionHandler({
+        UserNotFoundException.class,
+        ProductNotFoundException.class,
+        ProductSkuNotFoundException.class,
+        ProductSkuImageNotFoundException.class,
+        OrderNotFoundException.class,
+        ReturnNotFoundException.class,
+        DiscountCodeNotFoundException.class,
+        ReviewNotFoundException.class
+    })
+    public ResponseEntity<ApiError> handleNotFound(RuntimeException exception) {
+        return buildResponse(HttpStatus.NOT_FOUND, exception.getMessage());
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiError> handleNoResourceFound() {
+        return buildResponse(HttpStatus.NOT_FOUND, "Resource not found");
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiError> handleMethodNotSupported() {
+        return buildResponse(HttpStatus.METHOD_NOT_ALLOWED, "Method not allowed");
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiError> handleMaxUploadSizeExceeded() {
+        return buildResponse(HttpStatus.CONTENT_TOO_LARGE, "The image must be at most 5 MB.");
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ApiError> handleMediaTypeNotSupported() {
+        return buildResponse(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Unsupported content type");
+    }
+
+    @ExceptionHandler(NoUnifiedCarrierException.class)
+    public ResponseEntity<ApiError> handleNoUnifiedCarrier(NoUnifiedCarrierException exception) {
+        return buildResponse(HttpStatus.UNPROCESSABLE_CONTENT, exception.getMessage());
+    }
+
+    @ExceptionHandler({StripeApiException.class, RefundFailedException.class})
+    public ResponseEntity<ApiError> handleBadGateway(RuntimeException exception) {
+        return buildResponse(HttpStatus.BAD_GATEWAY, exception.getMessage());
+    }
+
+    @ExceptionHandler(ShippoApiException.class)
+    public ResponseEntity<ApiError> handleShippoApiException() {
+        return buildResponse(
+            HttpStatus.BAD_GATEWAY,
+            "Shipping options are temporarily unavailable. Please try again in a moment."
+        );
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneralException() {
-        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred on the server.");
+        return buildResponse(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            "An unexpected error occurred on the server."
+        );
     }
 
     private ResponseEntity<ApiError> buildResponse(HttpStatus status, String message) {
         ApiError error = ApiError.builder()
-                .status(status.value())
-                .error(status.getReasonPhrase())
-                .message(message)
-                .timestamp(Instant.now())
-                .build();
+            .status(status.value())
+            .error(status.getReasonPhrase())
+            .message(message)
+            .timestamp(Instant.now())
+            .build();
 
         return ResponseEntity.status(status).body(error);
     }

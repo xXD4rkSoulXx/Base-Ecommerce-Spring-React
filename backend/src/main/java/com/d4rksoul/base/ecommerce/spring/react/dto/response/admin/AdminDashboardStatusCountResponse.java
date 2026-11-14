@@ -7,7 +7,7 @@ import lombok.Builder;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record AdminDashboardStatusCountResponse(
-        OrderStatus status,
+    OrderStatus status,
 
-        long count
+    long count
 ) {}

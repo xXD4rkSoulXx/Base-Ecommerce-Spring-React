@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.util.Optional;
 
 public interface DiscountCodeRepository
-        extends JpaRepository<DiscountCode, Long>, JpaSpecificationExecutor<DiscountCode> {
+    extends JpaRepository<DiscountCode, Long>, JpaSpecificationExecutor<DiscountCode> {
 
     Optional<DiscountCode> findByCode(String code);
 

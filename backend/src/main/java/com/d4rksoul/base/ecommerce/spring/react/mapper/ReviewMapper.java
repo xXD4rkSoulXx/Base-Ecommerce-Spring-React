@@ -12,22 +12,22 @@ public class ReviewMapper {
 
     public Review toEntity(ReviewRequest request, User user, Product product) {
         return Review.builder()
-                .rating(request.rating())
-                .title(request.title())
-                .description(request.description())
-                .user(user)
-                .product(product)
-                .build();
+            .rating(request.rating())
+            .title(request.title())
+            .description(request.description())
+            .user(user)
+            .product(product)
+            .build();
     }
 
     public ReviewResponse toDto(Review review) {
-        return new ReviewResponse(
-                review.getId(),
-                review.getTitle(),
-                review.getDescription(),
-                review.getRating(),
-                review.getUser().getFirstName() + " " + review.getUser().getLastName(),
-                review.getCreatedAt()
-        );
+        return ReviewResponse.builder()
+            .id(review.getId())
+            .title(review.getTitle())
+            .description(review.getDescription())
+            .rating(review.getRating())
+            .userFullName(review.getUser().getFirstName() + " " + review.getUser().getLastName())
+            .createdAt(review.getCreatedAt())
+            .build();
     }
 }

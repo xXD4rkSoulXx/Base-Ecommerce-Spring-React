@@ -10,7 +10,8 @@ import org.springframework.data.repository.query.Param;
 import java.time.Instant;
 import java.util.List;
 
-public interface ShipmentTrackingEventRepository extends JpaRepository<ShipmentTrackingEvent, Long> {
+public interface ShipmentTrackingEventRepository
+    extends JpaRepository<ShipmentTrackingEvent, Long> {
 
     @Query("""
         SELECT e FROM ShipmentTrackingEvent e
@@ -21,9 +22,10 @@ public interface ShipmentTrackingEventRepository extends JpaRepository<ShipmentT
         AND s.order.manuallyManaged = false
     """)
     List<ShipmentTrackingEvent> findCurrentByStatusAndOccurredAtBefore(
-            @Param("status") ShipmentStatus status,
-            @Param("limit") Instant limit
+        @Param("status") ShipmentStatus status, @Param("limit") Instant limit
     );
 
-    List<ShipmentTrackingEvent> findByShipmentInOrderByOccurredAtAscIdAsc(List<OrderShipment> shipments);
+    List<ShipmentTrackingEvent> findByShipmentInOrderByOccurredAtAscIdAsc(
+        List<OrderShipment> shipments
+    );
 }

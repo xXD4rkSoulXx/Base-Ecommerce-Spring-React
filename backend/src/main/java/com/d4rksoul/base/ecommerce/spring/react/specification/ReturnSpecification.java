@@ -8,10 +8,9 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.Collection;
-import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ReturnSpecification {
+public final class ReturnSpecification {
 
     public static Specification<OrderReturn> hasStatus(ReturnStatus status) {
         return (root, _, cb) -> {
@@ -37,17 +36,16 @@ public class ReturnSpecification {
 
     public static Specification<OrderReturn> orderByPendingPriority() {
         return (root, query, cb) -> {
-            List<ReturnStatus> statuses = ReturnStatus.PENDING_STATUSES;
-            CriteriaBuilder.Case<Integer> priority = cb.selectCase();
+            CriteriaBuilder.SimpleCase<ReturnStatus, Integer> priority = cb.selectCase(root.get("status"));
 
-            for (int i = 0; i < statuses.size(); i++) {
-                priority.when(cb.equal(root.get("status"), statuses.get(i)), i);
+            for (int i = 0; i < ReturnStatus.PENDING_STATUSES.size(); i++) {
+                priority.when(ReturnStatus.PENDING_STATUSES.get(i), i);
             }
 
             query.orderBy(
-                    cb.asc(priority.otherwise(statuses.size())),
-                    cb.asc(root.get("createdAt")),
-                    cb.asc(root.get("id"))
+                cb.asc(priority.otherwise(ReturnStatus.PENDING_STATUSES.size())),
+                cb.asc(root.get("createdAt")),
+                cb.asc(root.get("id"))
             );
 
             return cb.conjunction();

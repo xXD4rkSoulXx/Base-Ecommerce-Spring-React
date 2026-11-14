@@ -8,25 +8,25 @@ import lombok.Builder;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record AdminProductSkuResponse(
-        Long id,
+    Long id,
 
-        ProductSize size,
+    ProductSize size,
 
-        ProductColor color,
+    ProductColor color,
 
-        String cover,
+    String cover,
 
-        int stock,
+    int stock,
 
-        int weight,
+    int weightGrams,
 
-        int length,
+    int lengthCm,
 
-        int width,
+    int widthCm,
 
-        int height,
+    int heightCm,
 
-        int discountPercentage,
+    int discountPercentage,
 
-        boolean active
+    boolean active
 ) {}

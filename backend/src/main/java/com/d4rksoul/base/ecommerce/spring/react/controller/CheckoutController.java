@@ -26,7 +26,7 @@ public class CheckoutController {
 
     @PostMapping("/shipping-rates")
     public ResponseEntity<List<ShippingRateResponse>> getShippingRates(
-            @Valid @RequestBody CheckoutAddressRequest request
+        @Valid @RequestBody CheckoutAddressRequest request
     ) {
         List<ShippingRateResponse> rates = shippingRateService.getShippingRates(request);
 
@@ -34,7 +34,9 @@ public class CheckoutController {
     }
 
     @PostMapping("/session")
-    public ResponseEntity<CheckoutSessionResponse> createSession(@Valid @RequestBody CreateOrderRequest request) {
+    public ResponseEntity<CheckoutSessionResponse> createSession(
+        @Valid @RequestBody CreateOrderRequest request
+    ) {
         CheckoutSessionResponse session = paymentService.createCheckoutSession(request);
 
         return ResponseEntity.ok(session);

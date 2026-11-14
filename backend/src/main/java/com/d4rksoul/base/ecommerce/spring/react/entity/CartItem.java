@@ -23,10 +23,10 @@ import java.time.Instant;
 
 @Entity
 @Table(
-        name = "cart_items",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_cart_product", columnNames = {"cart_id", "product_sku_id"})
-        }
+    name = "cart_items",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_cart_product_sku", columnNames = {"cart_id", "product_sku_id"}
+    )
 )
 @Getter
 @Setter
@@ -41,14 +41,18 @@ public class CartItem {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "product_sku_id", nullable = false, foreignKey = @ForeignKey(name = "fk_cart_item_product_sku"))
+    @JoinColumn(name = "product_sku_id", nullable = false, updatable = false,
+        foreignKey = @ForeignKey(name = "fk_cart_item_product_sku")
+    )
     private ProductSku productSku;
 
     @Column(nullable = false)
     private int quantity;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "cart_id", nullable = false, foreignKey = @ForeignKey(name = "fk_cart_item_cart"))
+    @JoinColumn(name = "cart_id", nullable = false, updatable = false,
+        foreignKey = @ForeignKey(name = "fk_cart_item_cart")
+    )
     private Cart cart;
 
     @CreationTimestamp

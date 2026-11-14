@@ -16,15 +16,15 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = {})
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@NotBlank(message = "Password is required")
-@Size(min = 8, message = "Password must be at least 8 characters long")
+@NotBlank(message = "Password is required.")
+@Size(min = 8, max = 72, message = "Password must be between 8 and 72 characters long.")
 @Pattern(
         regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d).+$",
-        message = "Password must contain uppercase, lowercase and number"
+        message = "Password must contain uppercase, lowercase and number."
 )
 public @interface StrongPassword {
 
-    String message() default "Invalid password";
+    String message() default "Invalid password.";
 
     Class<?>[] groups() default {};
 

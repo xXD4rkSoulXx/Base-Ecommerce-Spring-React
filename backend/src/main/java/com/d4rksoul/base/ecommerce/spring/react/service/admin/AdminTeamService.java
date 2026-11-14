@@ -8,11 +8,12 @@ import com.d4rksoul.base.ecommerce.spring.react.enums.AuditEntityType;
 import com.d4rksoul.base.ecommerce.spring.react.enums.UserRole;
 import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidTeamChangeException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.UserNotFoundException;
-import com.d4rksoul.base.ecommerce.spring.react.mapper.UserMapper;
+import com.d4rksoul.base.ecommerce.spring.react.mapper.admin.AdminTeamMapper;
 import com.d4rksoul.base.ecommerce.spring.react.repository.RefreshTokenRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.UserRepository;
 
 
+import com.d4rksoul.base.ecommerce.spring.react.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,22 +26,27 @@ public class AdminTeamService {
 
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final UserService userService;
     private final AdminAuditLogService adminAuditLogService;
-    private final UserMapper userMapper;
+    private final AdminTeamMapper adminTeamMapper;
 
     @Transactional(readOnly = true)
     public List<AdminTeamMemberResponse> getTeam() {
         List<User> members = userRepository.findByRoleNotOrderByRoleAscEmailAsc(UserRole.CUSTOMER);
 
-        return userMapper.toTeamMemberDtos(members);
+        return members.stream()
+            .map(adminTeamMapper::toDto)
+            .toList();
     }
 
     @Transactional
-    public AdminTeamMemberResponse assignRole(String actorEmail, AdminAssignRoleRequest request) {
-        User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+    public AdminTeamMemberResponse assignRole(AdminAssignRoleRequest request) {
+        User currentUser = userService.getCurrentUser();
 
-        if (user.getEmail().equals(actorEmail)) {
+        User user = userRepository.findByEmail(request.email())
+            .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        if (user.getId().equals(currentUser.getId())) {
             throw new InvalidTeamChangeException("You cannot change your own role");
         }
 
@@ -54,13 +60,13 @@ public class AdminTeamService {
         refreshTokenRepository.deleteAllByUser(user);
 
         adminAuditLogService.register(
-                AuditAction.ROLE_CHANGED,
-                AuditEntityType.TEAM_MEMBER,
-                user.getId(),
-                user.getEmail(),
-                previousRole + " → " + request.role()
+            AuditAction.ROLE_CHANGED,
+            AuditEntityType.TEAM_MEMBER,
+            user.getId(),
+            user.getEmail(),
+            previousRole + " → " + request.role()
         );
 
-        return userMapper.toTeamMemberDto(user);
+        return adminTeamMapper.toDto(user);
     }
 }

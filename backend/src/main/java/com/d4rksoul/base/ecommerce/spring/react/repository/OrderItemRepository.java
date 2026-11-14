@@ -15,8 +15,6 @@ import java.util.List;
 
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 
-    boolean existsByImagePath(String imagePath);
-
     @Query("""
         SELECT new com.d4rksoul.base.ecommerce.spring.react.dto.projection.TopProductProjection(
             p.id,
@@ -35,11 +33,13 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
         ORDER BY SUM(i.quantity) DESC, p.id ASC
     """)
     List<TopProductProjection> findTopProducts(
-            @Param("statuses") Collection<OrderStatus> statuses,
-            @Param("start") Instant start,
-            @Param("end") Instant end,
-            Pageable pageable
+        @Param("statuses") Collection<OrderStatus> statuses,
+        @Param("start") Instant start,
+        @Param("end") Instant end,
+        Pageable pageable
     );
+
+    boolean existsByImagePath(String imagePath);
 
     @Query("""
         SELECT new com.d4rksoul.base.ecommerce.spring.react.dto.projection.CategoryUnitsProjection(
@@ -57,8 +57,8 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
         ORDER BY SUM(i.quantity) DESC
     """)
     List<CategoryUnitsProjection> sumUnitsByCategory(
-            @Param("statuses") Collection<OrderStatus> statuses,
-            @Param("start") Instant start,
-            @Param("end") Instant end
+        @Param("statuses") Collection<OrderStatus> statuses,
+        @Param("start") Instant start,
+        @Param("end") Instant end
     );
 }

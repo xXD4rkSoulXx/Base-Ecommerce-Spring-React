@@ -10,13 +10,13 @@ import java.util.Set;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record UserResponse(
-        String email,
+    String email,
 
-        String firstName,
+    String firstName,
 
-        String lastName,
+    String lastName,
 
-        UserRole role,
+    UserRole role,
 
-        Set<Permission> permissions
+    Set<Permission> permissions
 ) {}

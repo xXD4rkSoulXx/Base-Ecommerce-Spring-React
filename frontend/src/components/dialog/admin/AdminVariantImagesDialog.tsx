@@ -5,7 +5,8 @@ import { ImagePlus, X } from 'lucide-react'
 import { FormError } from '@/components/ui/FormError'
 import { useAdminProductSkuImages } from '@/hooks/admin/useAdminProductSkuImages'
 import { useAdminDeleteProductSkuImage } from '@/hooks/admin/useAdminDeleteProductSkuImage'
-import { useAdminSetProductSkuImageCover } from '@/hooks/admin/useAdminSetProductSkuImageCover'
+import { useAdminSetProductCover } from '@/hooks/admin/useAdminSetProductCover'
+import { useAdminSetSkuCover } from '@/hooks/admin/useAdminSetSkuCover'
 import { useAdminUploadProductSkuImage } from '@/hooks/admin/useAdminUploadProductSkuImage'
 import type { AdminProductSkuResponse } from '@/types/admin/adminProductSku'
 
@@ -23,12 +24,13 @@ const getErrorMessage = (error: unknown, fallback: string) =>
 export const AdminVariantImagesDialog = ({ productId, variant, onClose }: AdminVariantImagesDialogProps) => {
   const { data: images, isLoading, isError } = useAdminProductSkuImages(productId, variant.id)
   const { mutate: uploadImage, isPending: isUploading } = useAdminUploadProductSkuImage(productId, variant.id)
-  const { mutate: setCover, isPending: isSettingCover } = useAdminSetProductSkuImageCover(productId, variant.id)
+  const { mutate: setSkuCover, isPending: isSettingSkuCover } = useAdminSetSkuCover(productId, variant.id)
+  const { mutate: setProductCover, isPending: isSettingProductCover } = useAdminSetProductCover(productId, variant.id)
   const { mutate: deleteImage, isPending: isDeleting } = useAdminDeleteProductSkuImage(productId, variant.id)
   const inputRef = useRef<HTMLInputElement>(null)
   const [error, setError] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
-  const isBusy = isUploading || isSettingCover || isDeleting
+  const isBusy = isUploading || isSettingSkuCover || isSettingProductCover || isDeleting
 
   const sendFile = (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -69,12 +71,21 @@ export const AdminVariantImagesDialog = ({ productId, variant, onClose }: AdminV
     }
   }
 
-  const makeCover = (imageId: number) => {
+  const makeSkuCover = (imageId: number) => {
     setError(null)
 
-    setCover(imageId, {
-      onSuccess: () => toast.success('Cover updated'),
-      onError: (mutationError) => setError(getErrorMessage(mutationError, 'Could not update the cover'))
+    setSkuCover(imageId, {
+      onSuccess: () => toast.success('Variant cover updated'),
+      onError: (mutationError) => setError(getErrorMessage(mutationError, 'Could not update the variant cover'))
+    })
+  }
+
+  const makeProductCover = (imageId: number) => {
+    setError(null)
+
+    setProductCover(imageId, {
+      onSuccess: () => toast.success('Product cover updated'),
+      onError: (mutationError) => setError(getErrorMessage(mutationError, 'Could not update the product cover'))
     })
   }
 
@@ -102,8 +113,9 @@ export const AdminVariantImagesDialog = ({ productId, variant, onClose }: AdminV
           </button>
         </div>
         <p className="mt-3 text-xs text-muted-foreground">
-          JPEG, PNG or WebP, up to 5 MB. The first image becomes the cover, which is the one shown in the
-          shop lists.
+          JPEG, PNG or WebP, up to 5 MB. The variant cover is shown in the cart and in orders; the product
+          cover is shown in the shop lists. The first image of a variant (and of the product) becomes the
+          cover automatically.
         </p>
         <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={selectFile} className="hidden" />
         <button
@@ -151,24 +163,40 @@ export const AdminVariantImagesDialog = ({ productId, variant, onClose }: AdminV
                     loading="lazy"
                     className="h-full w-full object-cover"
                   />
-                  {image.cover && (
-                    <span className="absolute left-2 top-2 bg-neon-cyan px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-primary-foreground">
-                      Cover
-                    </span>
-                  )}
+                  <div className="absolute left-2 top-2 flex flex-col items-start gap-1">
+                    {image.skuCover && (
+                      <span className="bg-neon-cyan px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-primary-foreground">
+                        Variant cover
+                      </span>
+                    )}
+                    {image.productCover && (
+                      <span className="bg-neon-pink px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-primary-foreground">
+                        Product cover
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <div className="flex items-center justify-between gap-2 p-2 text-[10px] font-bold uppercase tracking-widest">
-                  {image.cover ? (
-                    <span />
-                  ) : (
-                    <button
-                      onClick={() => makeCover(image.id)}
-                      disabled={isBusy}
-                      className="hover:text-neon-cyan disabled:opacity-50"
-                    >
-                      Set as cover
-                    </button>
-                  )}
+                <div className="flex items-start justify-between gap-2 p-2 text-[10px] font-bold uppercase tracking-widest">
+                  <div className="flex flex-col items-start gap-1">
+                    {!image.skuCover && (
+                      <button
+                        onClick={() => makeSkuCover(image.id)}
+                        disabled={isBusy}
+                        className="hover:text-neon-cyan disabled:opacity-50"
+                      >
+                        Set as variant cover
+                      </button>
+                    )}
+                    {!image.productCover && (
+                      <button
+                        onClick={() => makeProductCover(image.id)}
+                        disabled={isBusy}
+                        className="hover:text-neon-pink disabled:opacity-50"
+                      >
+                        Set as product cover
+                      </button>
+                    )}
+                  </div>
                   <button
                     onClick={() => remove(image.id)}
                     disabled={isBusy}

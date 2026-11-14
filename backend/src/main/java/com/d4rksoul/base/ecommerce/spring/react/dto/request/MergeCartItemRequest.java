@@ -7,10 +7,10 @@ import jakarta.validation.constraints.NotNull;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record MergeCartItemRequest(
-        @NotNull
-        Long productSkuId,
+    @NotNull(message = "Product is required")
+    Long productSkuId,
 
-        @Min(1)
-        @Max(10)
-        int quantity
+    @Min(value = 1, message = "Quantity must be between 1 and 10")
+    @Max(value = 10, message = "Quantity must be between 1 and 10")
+    int quantity
 ) {}

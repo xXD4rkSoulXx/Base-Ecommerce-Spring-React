@@ -1,6 +1,6 @@
 package com.d4rksoul.base.ecommerce.spring.react.controller.admin;
 
-import com.d4rksoul.base.ecommerce.spring.react.dto.request.UpdateShipmentStatusRequest;
+import com.d4rksoul.base.ecommerce.spring.react.dto.request.admin.AdminUpdateShipmentStatusRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.admin.AdminOrderSearchRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.admin.AdminUpdateOrderStatusRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.PageResponse;
@@ -29,7 +29,7 @@ public class AdminOrderController {
     @GetMapping
     @PreAuthorize("hasAuthority('ORDERS_READ')")
     public ResponseEntity<PageResponse<AdminOrderSummaryResponse>> getOrders(
-            @ModelAttribute AdminOrderSearchRequest filter
+        @ModelAttribute AdminOrderSearchRequest filter
     ) {
         PageResponse<AdminOrderSummaryResponse> orders = adminOrderService.getOrders(filter);
 
@@ -47,8 +47,7 @@ public class AdminOrderController {
     @PutMapping("/{id}/status")
     @PreAuthorize("hasAuthority('ORDERS_WRITE')")
     public ResponseEntity<Void> changeStatus(
-            @PathVariable Long id,
-            @Valid @RequestBody AdminUpdateOrderStatusRequest request
+        @PathVariable Long id, @Valid @RequestBody AdminUpdateOrderStatusRequest request
     ) {
         adminOrderService.changeStatus(id, request.status());
 
@@ -58,9 +57,9 @@ public class AdminOrderController {
     @PutMapping("/{orderId}/shipments/{shipmentId}/status")
     @PreAuthorize("hasAuthority('ORDERS_WRITE')")
     public ResponseEntity<Void> changeShipmentStatus(
-            @PathVariable Long orderId,
-            @PathVariable Long shipmentId,
-            @Valid @RequestBody UpdateShipmentStatusRequest request
+        @PathVariable Long orderId,
+        @PathVariable Long shipmentId,
+        @Valid @RequestBody AdminUpdateShipmentStatusRequest request
     ) {
         adminOrderService.changeShipmentStatus(orderId, shipmentId, request.status());
 

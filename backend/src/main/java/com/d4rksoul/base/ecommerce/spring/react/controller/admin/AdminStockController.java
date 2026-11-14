@@ -29,8 +29,7 @@ public class AdminStockController {
     @PostMapping("/{skuId}/adjustments")
     @PreAuthorize("hasAuthority('STOCK_WRITE')")
     public ResponseEntity<Void> adjustStock(
-            @PathVariable Long skuId,
-            @Valid @RequestBody AdminAdjustStockRequest request
+        @PathVariable Long skuId, @Valid @RequestBody AdminAdjustStockRequest request
     ) {
         adminStockService.adjustStock(skuId, request.delta());
 
@@ -40,7 +39,7 @@ public class AdminStockController {
     @GetMapping
     @PreAuthorize("hasAuthority('STOCK_READ')")
     public ResponseEntity<PageResponse<AdminStockItemResponse>> getStock(
-            @ModelAttribute AdminStockSearchRequest filter
+        @ModelAttribute AdminStockSearchRequest filter
     ) {
         PageResponse<AdminStockItemResponse> stock = adminStockService.getStock(filter);
 
@@ -50,8 +49,7 @@ public class AdminStockController {
     @PutMapping("/{skuId}")
     @PreAuthorize("hasAuthority('STOCK_WRITE')")
     public ResponseEntity<Void> setStock(
-            @PathVariable Long skuId,
-            @Valid @RequestBody AdminSetStockRequest request
+        @PathVariable Long skuId, @Valid @RequestBody AdminSetStockRequest request
     ) {
         adminStockService.setStock(skuId, request.stock());
 

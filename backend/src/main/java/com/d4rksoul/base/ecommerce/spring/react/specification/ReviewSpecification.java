@@ -5,8 +5,10 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.Locale;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ReviewSpecification {
+public final class ReviewSpecification {
 
     public static Specification<Review> containsQuery(String q) {
         return (root, _, cb) -> {
@@ -14,20 +16,27 @@ public class ReviewSpecification {
                 return cb.conjunction();
             }
 
-            String pattern = "%" + q.trim().toLowerCase() + "%";
-
             return cb.or(
-                    cb.like(cb.lower(root.get("product").get("name")), pattern),
-                    cb.like(cb.lower(root.get("product").get("ref")), pattern),
-                    cb.like(cb.lower(root.get("user").get("email")), pattern),
-                    cb.like(
-                            cb.lower(cb.concat(
-                                    cb.concat(root.get("user").<String>get("firstName"), " "),
-                                    root.get("user").<String>get("lastName")
-                            )),
-                            pattern
-                    ),
-                    cb.like(cb.lower(root.get("title")), pattern)
+                cb.like(
+                    cb.lower(root.get("product").get("name")),
+                    "%" + q.trim().toLowerCase(Locale.ROOT) + "%"
+                ),
+                cb.like(
+                    cb.lower(root.get("product").get("ref")),
+                    "%" + q.trim().toLowerCase(Locale.ROOT) + "%"
+                ),
+                cb.like(
+                    cb.lower(root.get("user").get("email")),
+                    "%" + q.trim().toLowerCase(Locale.ROOT) + "%"
+                ),
+                cb.like(
+                    cb.lower(cb.concat(
+                        cb.concat(root.get("user").get("firstName"), " "),
+                        root.get("user").get("lastName")
+                    )),
+                    "%" + q.trim().toLowerCase(Locale.ROOT) + "%"
+                ),
+                cb.like(cb.lower(root.get("title")), "%" + q.trim().toLowerCase(Locale.ROOT) + "%")
             );
         };
     }

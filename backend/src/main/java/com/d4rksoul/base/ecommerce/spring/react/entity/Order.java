@@ -43,7 +43,9 @@ public class Order {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_order_user"))
+    @JoinColumn(name = "user_id", nullable = false, updatable = false,
+        foreignKey = @ForeignKey(name = "fk_order_user")
+    )
     private User user;
 
     @Enumerated(EnumType.STRING)
@@ -51,20 +53,24 @@ public class Order {
     private OrderStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "discount_code_id", foreignKey = @ForeignKey(name = "fk_order_discount_code"))
+    @JoinColumn(name = "discount_code_id", updatable = false,
+        foreignKey = @ForeignKey(name = "fk_order_discount_code")
+    )
     private DiscountCode discountCode;
 
+    @Column(nullable = false, updatable = false)
     private int discountPercentage;
 
-    @Column(nullable = false, length = 3)
+    @Column(nullable = false, updatable = false, length = 3)
     private String currency;
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal taxAmount;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false, precision = 12, scale = 2)
     private BigDecimal shippingCost;
 
+    @Column(precision = 12, scale = 2)
     private BigDecimal totalAmount;
 
     private Instant paidAt;
@@ -72,26 +78,28 @@ public class Order {
     @Column(nullable = false)
     private boolean manuallyManaged;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private String recipientName;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private String addressLine1;
 
+    @Column(updatable = false)
     private String addressLine2;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private String city;
 
+    @Column(updatable = false)
     private String state;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private String postalCode;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private String country;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private String phone;
 
     @Column(unique = true)
@@ -100,10 +108,10 @@ public class Order {
     @Column(unique = true)
     private String stripeCheckoutSessionId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private String shippingCarrier;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private String shippingService;
 
     @Builder.Default

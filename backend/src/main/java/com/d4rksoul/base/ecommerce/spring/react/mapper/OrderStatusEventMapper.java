@@ -13,16 +13,16 @@ public class OrderStatusEventMapper {
 
     public OrderStatusEvent toEntity(Order order, OrderStatus status, Instant occurredAt) {
         return OrderStatusEvent.builder()
-                .order(order)
-                .status(status)
-                .occurredAt(occurredAt)
-                .build();
+            .order(order)
+            .status(status)
+            .occurredAt(occurredAt)
+            .build();
     }
 
     public OrderStatusEventResponse toDto(OrderStatusEvent event) {
         return OrderStatusEventResponse.builder()
-                .status(event.getStatus())
-                .occurredAt(event.getOccurredAt())
-                .build();
+            .status(event.getStatus())
+            .occurredAt(event.getOccurredAt())
+            .build();
     }
 }

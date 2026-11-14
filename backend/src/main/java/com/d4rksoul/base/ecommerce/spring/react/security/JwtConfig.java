@@ -1,6 +1,5 @@
-package com.d4rksoul.base.ecommerce.spring.react.config;
+package com.d4rksoul.base.ecommerce.spring.react.security;
 
-import com.d4rksoul.base.ecommerce.spring.react.security.JwtKeyProvider;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -8,7 +7,6 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -22,7 +20,6 @@ import java.security.interfaces.RSAPublicKey;
 
 @Configuration
 @RequiredArgsConstructor
-@Slf4j
 public class JwtConfig {
 
     private final JwtKeyProvider jwtKeyProvider;
@@ -35,8 +32,8 @@ public class JwtConfig {
     @Bean
     public JwtEncoder jwtEncoder(final KeyPair keyPair) {
         JWK jwk = new RSAKey.Builder((RSAPublicKey) keyPair.getPublic())
-                .privateKey((RSAPrivateKey) keyPair.getPrivate())
-                .build();
+            .privateKey((RSAPrivateKey) keyPair.getPrivate())
+            .build();
         JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
 
         return new NimbusJwtEncoder(jwks);

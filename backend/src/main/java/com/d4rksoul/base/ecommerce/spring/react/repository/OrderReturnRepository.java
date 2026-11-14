@@ -4,6 +4,7 @@ import com.d4rksoul.base.ecommerce.spring.react.dto.projection.DailyTotalProject
 import com.d4rksoul.base.ecommerce.spring.react.entity.OrderReturn;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ReturnStatus;
 import jakarta.persistence.LockModeType;
+import jakarta.persistence.QueryHint;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +15,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
@@ -23,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface OrderReturnRepository
-        extends JpaRepository<OrderReturn, Long>, JpaSpecificationExecutor<OrderReturn> {
+    extends JpaRepository<OrderReturn, Long>, JpaSpecificationExecutor<OrderReturn> {
 
     @Override
     @EntityGraph(attributePaths = {"order", "order.user"})
@@ -31,23 +33,24 @@ public interface OrderReturnRepository
     Page<OrderReturn> findAll(@NonNull Specification<OrderReturn> specification, @NonNull Pageable pageable);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @QueryHints(@QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000"))
     Optional<OrderReturn> findByIdAndStatus(Long id, ReturnStatus status);
 
-    long countByStatusIn(Collection<ReturnStatus> statuses);
-
     List<OrderReturn> findByStatusAndCreatedAtBeforeAndManuallyManagedFalse(
-            ReturnStatus status, Instant createdAt
+        ReturnStatus status, Instant createdAt
     );
 
     List<OrderReturn> findByStatusAndApprovedAtBeforeAndManuallyManagedFalse(
-            ReturnStatus status, Instant approvedAt
+        ReturnStatus status, Instant approvedAt
     );
 
     List<OrderReturn> findByStatusAndReceivedAtBeforeAndManuallyManagedFalse(
-            ReturnStatus status, Instant receivedAt
+        ReturnStatus status, Instant receivedAt
     );
 
     List<OrderReturn> findByOrderIdOrderByCreatedAtAscIdAsc(Long orderId);
+
+    long countByStatusIn(Collection<ReturnStatus> statuses);
 
     @Query("""
         SELECT COALESCE(SUM(r.refundAmount), 0)
@@ -56,8 +59,7 @@ public interface OrderReturnRepository
         AND r.status = :status
     """)
     BigDecimal sumRefundAmountByOrderIdAndStatus(
-            @Param("orderId") Long orderId,
-            @Param("status") ReturnStatus status
+        @Param("orderId") Long orderId, @Param("status") ReturnStatus status
     );
 
     @Query("""
@@ -68,9 +70,7 @@ public interface OrderReturnRepository
         AND r.refundedAt < :end
     """)
     BigDecimal sumRefundAmountInPeriod(
-            @Param("status") ReturnStatus status,
-            @Param("start") Instant start,
-            @Param("end") Instant end
+        @Param("status") ReturnStatus status, @Param("start") Instant start, @Param("end") Instant end
     );
 
     @Query("""
@@ -85,12 +85,11 @@ public interface OrderReturnRepository
         WHERE r.status = :status
         AND r.refundedAt >= :start
         AND r.refundedAt < :end
-        GROUP BY EXTRACT(YEAR FROM r.refundedAt), EXTRACT(MONTH FROM r.refundedAt), EXTRACT(DAY FROM r.refundedAt)
+        GROUP BY EXTRACT(YEAR FROM r.refundedAt), EXTRACT(MONTH FROM r.refundedAt),
+            EXTRACT(DAY FROM r.refundedAt)
     """)
     List<DailyTotalProjection> sumRefundAmountByDay(
-            @Param("status") ReturnStatus status,
-            @Param("start") Instant start,
-            @Param("end") Instant end
+        @Param("status") ReturnStatus status, @Param("start") Instant start, @Param("end") Instant end
     );
 
     @Modifying

@@ -1,5 +1,6 @@
 package com.d4rksoul.base.ecommerce.spring.react.service.admin;
 
+import com.d4rksoul.base.ecommerce.spring.react.constant.Constants;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.admin.AdminDashboardPeriodRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.AdminAuditLogResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.AdminDashboardCustomersResponse;
@@ -13,11 +14,10 @@ import com.d4rksoul.base.ecommerce.spring.react.repository.UserRepository;
 import com.d4rksoul.base.ecommerce.spring.react.specification.AuditLogSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -32,40 +32,37 @@ public class AdminDashboardCommunityService {
 
     @Transactional(readOnly = true)
     public AdminDashboardCustomersResponse getCustomers(AdminDashboardPeriodRequest period) {
-        LocalDate start = DashboardSupport.startOf(period);
-        Instant from = DashboardSupport.toInstant(start);
-        Instant to = DashboardSupport.toInstant(DashboardSupport.endOf());
-        Instant previousFrom = DashboardSupport.toInstant(start.minusDays(period.days()));
+        AdminDashboardSupport.Period range = AdminDashboardSupport.periodOf(period);
 
-        return adminDashboardMapper.toCustomersDto(
-                userRepository.countByRoleInPeriod(UserRole.CUSTOMER, from, to),
-                userRepository.countByRoleInPeriod(UserRole.CUSTOMER, previousFrom, from),
-                userRepository.countByRole(UserRole.CUSTOMER)
-        );
+        long newCustomers = userRepository.countByRoleInPeriod(UserRole.CUSTOMER, range.from(), range.to());
+        long previousNewCustomers = userRepository
+            .countByRoleInPeriod(UserRole.CUSTOMER, range.previousFrom(), range.from());
+        long totalCustomers = userRepository.countByRole(UserRole.CUSTOMER);
+
+        return adminDashboardMapper.toCustomersDto(newCustomers, previousNewCustomers, totalCustomers);
     }
 
     @Transactional(readOnly = true)
     public AdminDashboardReviewsResponse getReviews(AdminDashboardPeriodRequest period) {
-        LocalDate start = DashboardSupport.startOf(period);
-        Instant from = DashboardSupport.toInstant(start);
-        Instant to = DashboardSupport.toInstant(DashboardSupport.endOf());
-        Instant previousFrom = DashboardSupport.toInstant(start.minusDays(period.days()));
+        AdminDashboardSupport.Period range = AdminDashboardSupport.periodOf(period);
+
+        long reviewCount = reviewRepository.countInPeriod(range.from(), range.to());
+        long previousReviewCount = reviewRepository.countInPeriod(range.previousFrom(), range.from());
+        Double averageRating = reviewRepository.averageRatingInPeriod(range.from(), range.to());
+        Double previousAverageRating = reviewRepository
+            .averageRatingInPeriod(range.previousFrom(), range.from());
 
         return adminDashboardMapper.toReviewsDto(
-                reviewRepository.countInPeriod(from, to),
-                reviewRepository.countInPeriod(previousFrom, from),
-                reviewRepository.averageRatingInPeriod(from, to),
-                reviewRepository.averageRatingInPeriod(previousFrom, from)
+            reviewCount, previousReviewCount, averageRating, previousAverageRating
         );
     }
 
     @Transactional(readOnly = true)
     public List<AdminAuditLogResponse> getRecentActivity() {
-        return auditLogRepository.findAll(
-                        AuditLogSpecification.orderByRecentDesc(),
-                        PageRequest.of(0, DashboardSupport.LIST_LIMIT)
-                ).getContent().stream()
-                .map(adminAuditLogMapper::toDto)
-                .toList();
+        Pageable limit = PageRequest.of(0, Constants.DASHBOARD_LIST_LIMIT);
+
+        return auditLogRepository.findAll(AuditLogSpecification.orderByRecentDesc(), limit)
+            .map(adminAuditLogMapper::toDto)
+            .getContent();
     }
 }

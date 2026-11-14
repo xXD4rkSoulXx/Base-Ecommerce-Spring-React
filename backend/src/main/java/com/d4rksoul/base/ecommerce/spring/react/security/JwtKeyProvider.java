@@ -33,56 +33,49 @@ public class JwtKeyProvider {
     public KeyPair getOrInitializeKeyPair() {
         try {
             if (Files.exists(publicKeyPath) && Files.exists(privateKeyPath)) {
-                return loadKeysFromDisk();
+                KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+
+                PublicKey publicKey = keyFactory.generatePublic(
+                    new X509EncodedKeySpec(readPem(publicKeyPath, "PUBLIC KEY"))
+                );
+                PrivateKey privateKey = keyFactory.generatePrivate(
+                    new PKCS8EncodedKeySpec(readPem(privateKeyPath, "PRIVATE KEY"))
+                );
+
+                return new KeyPair(publicKey, privateKey);
             }
 
-            return generateAndSaveKeysToDisk();
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+            keyPairGenerator.initialize(2048);
+            KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+            Files.createDirectories(keysPath);
+
+            writePem(publicKeyPath, "PUBLIC KEY", keyPair.getPublic().getEncoded());
+            writePem(privateKeyPath, "PRIVATE KEY", keyPair.getPrivate().getEncoded());
+
+            return keyPair;
         } catch (GeneralSecurityException | IOException e) {
-            throw new KeyInitializationException("Could not configure cryptographic keys due to a security error", e);
+            throw new KeyInitializationException(
+                "Could not configure cryptographic keys due to a security error. ", e
+            );
         }
     }
 
-    private KeyPair loadKeysFromDisk() throws GeneralSecurityException, IOException {
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+    private byte[] readPem(Path path, String label) throws IOException {
+        String base64 = Files.readString(path)
+            .replace("-----BEGIN " + label + "-----", "")
+            .replace("-----END " + label + "-----", "")
+            .replaceAll("\\s", "");
 
-        String publicPem = Files.readString(publicKeyPath)
-                .replace("-----BEGIN PUBLIC KEY-----", "")
-                .replace("-----END PUBLIC KEY-----", "")
-                .replaceAll("\\s", "");
-
-        byte[] publicBytes = Base64.getDecoder().decode(publicPem);
-        X509EncodedKeySpec publicSpec = new X509EncodedKeySpec(publicBytes);
-        PublicKey publicKey = keyFactory.generatePublic(publicSpec);
-
-        String privatePem = Files.readString(privateKeyPath)
-                .replace("-----BEGIN PRIVATE KEY-----", "")
-                .replace("-----END PRIVATE KEY-----", "")
-                .replaceAll("\\s", "");
-
-        byte[] privateBytes = Base64.getDecoder().decode(privatePem);
-        PKCS8EncodedKeySpec privateSpec = new PKCS8EncodedKeySpec(privateBytes);
-        PrivateKey privateKey = keyFactory.generatePrivate(privateSpec);
-
-        return new KeyPair(publicKey, privateKey);
+        return Base64.getDecoder().decode(base64);
     }
 
-    private KeyPair generateAndSaveKeysToDisk() throws GeneralSecurityException, IOException {
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-        keyPairGenerator.initialize(2048);
-        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+    private void writePem(Path path, String label, byte[] encoded) throws IOException {
+        String pem = "-----BEGIN " + label + "-----\n"
+            + Base64.getMimeEncoder(64, new byte[]{'\n'}).encodeToString(encoded)
+            + "\n-----END " + label + "-----\n";
 
-        Files.createDirectories(keysPath);
-
-        Base64.Encoder encoder = Base64.getMimeEncoder(64, new byte[]{'\n'});
-
-        String encodedPublic = encoder.encodeToString(keyPair.getPublic().getEncoded());
-        String publicPem = "-----BEGIN PUBLIC KEY-----\n" + encodedPublic + "\n-----END PUBLIC KEY-----\n";
-        Files.writeString(publicKeyPath, publicPem);
-
-        String encodedPrivate = encoder.encodeToString(keyPair.getPrivate().getEncoded());
-        String privatePem = "-----BEGIN PRIVATE KEY-----\n" + encodedPrivate + "\n-----END PRIVATE KEY-----\n";
-        Files.writeString(privateKeyPath, privatePem);
-
-        return keyPair;
+        Files.writeString(path, pem);
     }
 }

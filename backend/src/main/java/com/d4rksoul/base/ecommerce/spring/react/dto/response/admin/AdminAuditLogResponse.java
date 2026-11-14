@@ -10,12 +10,19 @@ import java.time.Instant;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record AdminAuditLogResponse(
-        Long id,
-        String actorEmail,
-        AuditAction action,
-        AuditEntityType entityType,
-        Long entityId,
-        String entityLabel,
-        String details,
-        Instant createdAt
+    Long id,
+
+    String actorEmail,
+
+    AuditAction action,
+
+    AuditEntityType entityType,
+
+    Long entityId,
+
+    String entityLabel,
+
+    String details,
+
+    Instant createdAt
 ) {}

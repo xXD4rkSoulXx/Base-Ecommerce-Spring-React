@@ -8,25 +8,25 @@ import java.time.Instant;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record AdminReviewResponse(
-        Long id,
+    Long id,
 
-        Long productId,
+    Long productId,
 
-        String productName,
+    String productName,
 
-        String productRef,
+    String productRef,
 
-        String customerName,
+    String customerName,
 
-        String customerEmail,
+    String customerEmail,
 
-        int rating,
+    int rating,
 
-        String title,
+    String title,
 
-        String description,
+    String description,
 
-        boolean hidden,
+    boolean hidden,
 
-        Instant createdAt
+    Instant createdAt
 ) {}

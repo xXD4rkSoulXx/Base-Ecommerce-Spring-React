@@ -9,17 +9,17 @@ public class AdminReviewMapper {
 
     public AdminReviewResponse toDto(Review review) {
         return AdminReviewResponse.builder()
-                .id(review.getId())
-                .productId(review.getProduct().getId())
-                .productName(review.getProduct().getName())
-                .productRef(review.getProduct().getRef())
-                .customerName(review.getUser().getFirstName() + " " + review.getUser().getLastName())
-                .customerEmail(review.getUser().getEmail())
-                .rating(review.getRating())
-                .title(review.getTitle())
-                .description(review.getDescription())
-                .hidden(review.isHidden())
-                .createdAt(review.getCreatedAt())
-                .build();
+            .id(review.getId())
+            .productId(review.getProduct().getId())
+            .productName(review.getProduct().getName())
+            .productRef(review.getProduct().getRef())
+            .customerName(review.getUser().getFirstName() + " " + review.getUser().getLastName())
+            .customerEmail(review.getUser().getEmail())
+            .rating(review.getRating())
+            .title(review.getTitle())
+            .description(review.getDescription())
+            .hidden(review.isHidden())
+            .createdAt(review.getCreatedAt())
+            .build();
     }
 }

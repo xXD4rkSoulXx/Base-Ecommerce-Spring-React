@@ -38,7 +38,9 @@ public class OrderStatusEvent {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "order_id", nullable = false, foreignKey = @ForeignKey(name = "fk_order_status_event_order"))
+    @JoinColumn(name = "order_id", nullable = false, updatable = false,
+        foreignKey = @ForeignKey(name = "fk_order_status_event_order")
+    )
     private Order order;
 
     @Enumerated(EnumType.STRING)

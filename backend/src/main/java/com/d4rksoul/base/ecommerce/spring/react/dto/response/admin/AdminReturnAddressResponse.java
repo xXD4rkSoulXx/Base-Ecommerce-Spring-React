@@ -6,19 +6,19 @@ import lombok.Builder;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record AdminReturnAddressResponse(
-        String recipientName,
+    String recipientName,
 
-        String addressLine1,
+    String addressLine1,
 
-        String addressLine2,
+    String addressLine2,
 
-        String city,
+    String city,
 
-        String state,
+    String state,
 
-        String postalCode,
+    String postalCode,
 
-        String country,
+    String country,
 
-        String phone
+    String phone
 ) {}

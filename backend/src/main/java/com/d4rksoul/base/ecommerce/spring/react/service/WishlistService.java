@@ -1,6 +1,5 @@
 package com.d4rksoul.base.ecommerce.spring.react.service;
 
-import com.d4rksoul.base.ecommerce.spring.react.dto.projection.ProductCoverProjection;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.ProductResponse;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Product;
 import com.d4rksoul.base.ecommerce.spring.react.entity.User;
@@ -10,7 +9,6 @@ import com.d4rksoul.base.ecommerce.spring.react.exception.ProductNotFoundExcepti
 import com.d4rksoul.base.ecommerce.spring.react.mapper.ProductMapper;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.WishlistMapper;
 import com.d4rksoul.base.ecommerce.spring.react.repository.ProductRepository;
-import com.d4rksoul.base.ecommerce.spring.react.repository.ProductSkuImageRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.WishlistItemRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.WishlistRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,8 +25,8 @@ public class WishlistService {
     private final WishlistRepository wishlistRepository;
     private final WishlistItemRepository wishlistItemRepository;
     private final ProductRepository productRepository;
-    private final ProductSkuImageRepository productSkuImageRepository;
     private final UserService userService;
+    private final ProductSkuImageService productSkuImageService;
     private final ProductMapper productMapper;
     private final WishlistMapper wishlistMapper;
 
@@ -37,15 +34,21 @@ public class WishlistService {
     public void addToWishlist(Long productId) {
         User currentUser = userService.getCurrentUser();
         Wishlist wishlist = wishlistRepository.findByUserId(currentUser.getId())
-                .orElseGet(() -> wishlistRepository.save(wishlistMapper.toEntity(currentUser)));
+            .orElseGet(() -> {
+                Wishlist newWishlist = wishlistMapper.toEntity(currentUser);
 
-        if (wishlistItemRepository.existsByWishlistIdAndProductId(wishlist.getId(), productId)) {
+                return wishlistRepository.save(newWishlist);
+            });
+
+        boolean alreadyInWishlist = wishlistItemRepository
+            .existsByWishlistIdAndProductId(wishlist.getId(), productId);
+        if (alreadyInWishlist) {
             return;
         }
 
         Product product = productRepository.findById(productId)
-                .filter(Product::isActive)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + productId));
+            .filter(Product::isActive)
+            .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + productId));
 
         WishlistItem item = wishlistMapper.toEntity(wishlist, product);
 
@@ -60,26 +63,30 @@ public class WishlistService {
 
         User currentUser = userService.getCurrentUser();
         Wishlist wishlist = wishlistRepository.findByUserId(currentUser.getId())
-                .orElseGet(() -> wishlistRepository.save(wishlistMapper.toEntity(currentUser)));
+            .orElseGet(() -> {
+                Wishlist newWishlist = wishlistMapper.toEntity(currentUser);
+
+                return wishlistRepository.save(newWishlist);
+            });
 
         List<Long> existingProductIds = wishlistItemRepository.findProductIdsByWishlistId(wishlist.getId());
 
         List<Long> productIdsToAdd = guestProductIds.stream()
-                .distinct()
-                .filter(id -> !existingProductIds.contains(id))
-                .toList();
+            .distinct()
+            .filter(id -> !existingProductIds.contains(id))
+            .toList();
 
         if (productIdsToAdd.isEmpty()) {
             return;
         }
 
         List<Product> productsToAdd = productRepository.findAllById(productIdsToAdd).stream()
-                .filter(Product::isActive)
-                .toList();
+            .filter(Product::isActive)
+            .toList();
 
         List<WishlistItem> newItems = productsToAdd.stream()
-                .map(product -> wishlistMapper.toEntity(wishlist, product))
-                .toList();
+            .map(product -> wishlistMapper.toEntity(wishlist, product))
+            .toList();
 
         wishlistItemRepository.saveAll(newItems);
     }
@@ -96,25 +103,21 @@ public class WishlistService {
         List<WishlistItem> items = wishlistItemRepository.findByWishlistId(wishlist.getId());
 
         List<Product> products = items.stream()
-                .map(WishlistItem::getProduct)
-                .filter(Product::isActive)
-                .toList();
+            .map(WishlistItem::getProduct)
+            .filter(Product::isActive)
+            .toList();
 
         List<Long> productIds = products.stream()
-                .map(Product::getId)
-                .toList();
+            .map(Product::getId)
+            .toList();
 
-        Map<Long, String> covers = productSkuImageRepository.findCoverByProductIds(productIds)
-                .stream()
-                .collect(Collectors.toMap(
-                        ProductCoverProjection::productId,
-                        ProductCoverProjection::path,
-                        (existing, _) -> existing
-                ));
+        Map<Long, String> covers = productSkuImageService.findCoversByProductId(productIds);
 
         return products.stream()
-                .map(product -> productMapper.toDto(product, covers.get(product.getId())))
-                .toList();
+            .map(product ->
+                productMapper.toDto(product, covers.get(product.getId()))
+            )
+            .toList();
     }
 
     @Transactional

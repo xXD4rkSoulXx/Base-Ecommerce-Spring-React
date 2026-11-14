@@ -1,5 +1,6 @@
 package com.d4rksoul.base.ecommerce.spring.react.service.admin;
 
+import com.d4rksoul.base.ecommerce.spring.react.constant.Constants;
 import com.d4rksoul.base.ecommerce.spring.react.dto.projection.ProductStockProjection;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.admin.AdminProductRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.admin.AdminProductSearchRequest;
@@ -17,7 +18,7 @@ import com.d4rksoul.base.ecommerce.spring.react.mapper.PageMapper;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.admin.AdminProductMapper;
 import com.d4rksoul.base.ecommerce.spring.react.repository.ProductRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.ProductSkuRepository;
-import com.d4rksoul.base.ecommerce.spring.react.service.ProductImageService;
+import com.d4rksoul.base.ecommerce.spring.react.service.ProductSkuImageService;
 import com.d4rksoul.base.ecommerce.spring.react.specification.ProductSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -38,82 +40,70 @@ public class AdminProductService {
 
     private final ProductRepository productRepository;
     private final ProductSkuRepository productSkuRepository;
-    private final ProductImageService productImageService;
+    private final ProductSkuImageService productSkuImageService;
     private final AdminAuditLogService adminAuditLogService;
     private final AdminProductMapper adminProductMapper;
     private final PageMapper pageMapper;
 
     @Transactional
     public AdminProductDetailsResponse createProduct(AdminProductRequest request) {
-        if (productRepository.existsByRef(request.ref())) {
-            throw new ProductRefAlreadyExistsException("A product with ref " + request.ref() + " already exists.");
+        boolean refAlreadyExists = productRepository.existsByRef(request.ref());
+        if (refAlreadyExists) {
+            throw new ProductRefAlreadyExistsException(
+                "A product with ref " + request.ref() + " already exists."
+            );
         }
 
         validateFeaturedSlot(request.featuredSlot(), null);
 
-        Product product = productRepository.save(adminProductMapper.toEntity(request));
+        Product product = adminProductMapper.toEntity(request);
 
-        adminAuditLogService.register(AuditAction.CREATED, AuditEntityType.PRODUCT, product.getId(), product.getRef());
+        productRepository.save(product);
+
+        adminAuditLogService.register(
+            AuditAction.CREATED, AuditEntityType.PRODUCT, product.getId(), product.getRef()
+        );
 
         return adminProductMapper.toDetailsDto(product);
     }
 
     @Transactional
     public void archiveProduct(Long id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + id));
-
-        product.setActive(false);
-        product.setFeaturedSlot(null);
-
-        adminAuditLogService.register(AuditAction.ARCHIVED, AuditEntityType.PRODUCT, id, product.getRef());
+        setActive(id, false, AuditAction.ARCHIVED);
     }
 
     @Transactional
     public void restoreProduct(Long id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + id));
-
-        product.setActive(true);
-
-        adminAuditLogService.register(AuditAction.RESTORED, AuditEntityType.PRODUCT, id, product.getRef());
+        setActive(id, true, AuditAction.RESTORED);
     }
 
     @Transactional(readOnly = true)
     public PageResponse<AdminProductSummaryResponse> getProducts(AdminProductSearchRequest filter) {
         Specification<Product> specification = Specification
-                .where(ProductSpecification.containsNameOrRef(filter.q()))
-                .and(ProductSpecification.hasCategory(filter.category()))
-                .and(ProductSpecification.hasLowStock(filter.lowStock(), 5))
-                .and(ProductSpecification.orderByRecentDesc());
+            .where(ProductSpecification.containsNameOrRef(filter.q()))
+            .and(ProductSpecification.hasCategory(filter.category()))
+            .and(ProductSpecification.hasLowStock(filter.lowStock(), Constants.LOW_STOCK_THRESHOLD))
+            .and(ProductSpecification.orderByRecentDesc());
 
         Pageable pageable = PageRequest.of(filter.page(), filter.size());
         Page<Product> productsPage = productRepository.findAll(specification, pageable);
 
         List<Long> productIds = productsPage.getContent().stream()
-                .map(Product::getId)
-                .toList();
+            .map(Product::getId)
+            .toList();
 
-        Map<Long, String> covers = productImageService.findCoversByProductId(productIds);
+        Map<Long, String> covers = productSkuImageService.findCoversByProductId(productIds);
         Map<Long, ProductStockProjection> stocks = productSkuRepository
-                .summarizeStockByProductIds(productIds, 5)
-                .stream()
-                .collect(Collectors.toMap(ProductStockProjection::productId, Function.identity()));
+            .summarizeStockByProductIds(productIds, Constants.LOW_STOCK_THRESHOLD)
+            .stream()
+            .collect(Collectors.toMap(ProductStockProjection::productId, Function.identity()));
 
         Page<AdminProductSummaryResponse> responsePage = productsPage.map(product ->
-                adminProductMapper.toSummaryDto(
-                        product,
-                        covers.get(product.getId()),
-                        stocks.getOrDefault(
-                                product.getId(),
-                                new ProductStockProjection(
-                                        product.getId(),
-                                        0L,
-                                        0L,
-                                        0L
-                                )
-                        )
-                )
+            adminProductMapper.toSummaryDto(
+                product,
+                covers.get(product.getId()),
+                stocks.getOrDefault(product.getId(), ProductStockProjection.empty(product.getId()))
+            )
         );
 
         return pageMapper.toDto(responsePage);
@@ -122,22 +112,32 @@ public class AdminProductService {
     @Transactional(readOnly = true)
     public AdminProductDetailsResponse getProduct(Long id) {
         return adminProductMapper.toDetailsDto(
-                productRepository.findById(id)
-                        .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + id))
+            productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + id))
         );
     }
 
     @Transactional
     public AdminProductDetailsResponse updateProduct(Long id, AdminProductRequest request) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + id));
+            .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + id));
 
-        if (productRepository.existsByRefAndIdNot(request.ref(), id)) {
-            throw new ProductRefAlreadyExistsException("A product with ref " + request.ref() + " already exists.");
+        boolean refAlreadyExists = productRepository.existsByRefAndIdNot(request.ref(), id);
+        if (refAlreadyExists) {
+            throw new ProductRefAlreadyExistsException(
+                "A product with ref " + request.ref() + " already exists."
+            );
         }
 
         validateFeaturedSlot(request.featuredSlot(), id);
-        adminProductMapper.updateEntity(product, request);
+
+        product.setRef(request.ref());
+        product.setName(request.name());
+        product.setDescription(request.description());
+        product.setPrice(request.price());
+        product.setDiscountPercentage(request.discountPercentage());
+        product.setCategory(request.category());
+        product.setFeaturedSlot(request.featuredSlot());
 
         adminAuditLogService.register(AuditAction.UPDATED, AuditEntityType.PRODUCT, id, product.getRef());
 
@@ -150,12 +150,25 @@ public class AdminProductService {
         }
 
         productRepository.findByFeaturedSlot(slot)
-                .filter(holder -> !holder.getId().equals(productId))
-                .ifPresent(holder -> {
-                    throw new FeaturedSlotTakenException(
-                            "The " + slot.name().toLowerCase() + " slot is taken by " + holder.getName()
-                                    + ". Remove it first."
-                    );
-                });
+            .filter(holder -> !holder.getId().equals(productId))
+            .ifPresent(holder -> {
+                throw new FeaturedSlotTakenException(
+                    "The " + slot.name().toLowerCase(Locale.ROOT) + " slot is taken by " + holder.getName()
+                        + ". Remove it first."
+                );
+            });
+    }
+
+    private void setActive(Long id, boolean active, AuditAction action) {
+        Product product = productRepository.findById(id)
+            .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + id));
+
+        product.setActive(active);
+
+        if (!active) {
+            product.setFeaturedSlot(null);
+        }
+
+        adminAuditLogService.register(action, AuditEntityType.PRODUCT, id, product.getRef());
     }
 }

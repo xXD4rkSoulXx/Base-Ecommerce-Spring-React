@@ -1,17 +1,20 @@
 package com.d4rksoul.base.ecommerce.spring.react.dto.result;
 
+import lombok.Builder;
+
 import java.math.BigDecimal;
 
+@Builder
 public record StripeCheckoutEventResult(
-        String type,
+    String type,
 
-        String sessionId,
+    String sessionId,
 
-        String paymentStatus,
+    String paymentStatus,
 
-        String paymentIntentId,
+    String paymentIntentId,
 
-        BigDecimal taxAmount,
+    BigDecimal taxAmount,
 
-        BigDecimal totalAmount
+    BigDecimal totalAmount
 ) {}

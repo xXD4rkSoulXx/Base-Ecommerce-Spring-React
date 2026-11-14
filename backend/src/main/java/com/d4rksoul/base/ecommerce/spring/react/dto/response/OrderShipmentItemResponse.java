@@ -6,7 +6,7 @@ import lombok.Builder;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record OrderShipmentItemResponse(
-        Long orderItemId,
+    Long orderItemId,
 
-        int quantity
+    int quantity
 ) {}

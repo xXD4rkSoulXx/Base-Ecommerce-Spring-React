@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,7 +21,9 @@ public class AdminAuditLogController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('AUDIT_READ')")
-    public ResponseEntity<PageResponse<AdminAuditLogResponse>> getAuditLogs(AdminAuditLogSearchRequest filter) {
+    public ResponseEntity<PageResponse<AdminAuditLogResponse>> getAuditLogs(
+        @ModelAttribute AdminAuditLogSearchRequest filter
+    ) {
         PageResponse<AdminAuditLogResponse> auditLogs = adminAuditLogService.getAuditLogs(filter);
 
         return ResponseEntity.ok(auditLogs);

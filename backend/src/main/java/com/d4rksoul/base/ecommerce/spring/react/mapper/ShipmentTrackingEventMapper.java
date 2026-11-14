@@ -12,27 +12,27 @@ import java.time.Instant;
 public class ShipmentTrackingEventMapper {
 
     public ShipmentTrackingEvent toEntity(
-            OrderShipment shipment,
-            ShipmentStatus status,
-            String description,
-            String location,
-            Instant occurredAt
+        OrderShipment shipment,
+        ShipmentStatus status,
+        String description,
+        String location,
+        Instant occurredAt
     ) {
         return ShipmentTrackingEvent.builder()
-                .shipment(shipment)
-                .status(status)
-                .description(description)
-                .location(location)
-                .occurredAt(occurredAt)
-                .build();
+            .shipment(shipment)
+            .status(status)
+            .description(description)
+            .location(location)
+            .occurredAt(occurredAt)
+            .build();
     }
 
     public ShipmentTrackingEventResponse toDto(ShipmentTrackingEvent event) {
         return ShipmentTrackingEventResponse.builder()
-                .status(event.getStatus())
-                .description(event.getDescription())
-                .location(event.getLocation())
-                .occurredAt(event.getOccurredAt())
-                .build();
+            .status(event.getStatus())
+            .description(event.getDescription())
+            .location(event.getLocation())
+            .occurredAt(event.getOccurredAt())
+            .build();
     }
 }

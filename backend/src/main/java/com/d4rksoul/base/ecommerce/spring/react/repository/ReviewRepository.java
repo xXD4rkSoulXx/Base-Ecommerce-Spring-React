@@ -13,17 +13,18 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 
-public interface ReviewRepository extends JpaRepository<Review, Long>, JpaSpecificationExecutor<Review> {
+public interface ReviewRepository
+    extends JpaRepository<Review, Long>, JpaSpecificationExecutor<Review> {
 
     boolean existsByUserIdAndProductId(Long userId, Long productId);
 
     @Query(value = """
-        SELECT r FROM Review r 
-        JOIN FETCH r.user 
+        SELECT r FROM Review r
+        JOIN FETCH r.user
         WHERE r.product.id = :productId
         AND r.hidden = false
     """, countQuery = """
-        SELECT COUNT(r) FROM Review r 
+        SELECT COUNT(r) FROM Review r
         WHERE r.product.id = :productId
         AND r.hidden = false
     """)
@@ -37,7 +38,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, JpaSpecif
     @Query("""
         SELECT COUNT(r)
         FROM Review r
-        WHERE r.createdAt >= :start
+        WHERE r.hidden = false
+        AND r.createdAt >= :start
         AND r.createdAt < :end
     """)
     long countInPeriod(@Param("start") Instant start, @Param("end") Instant end);

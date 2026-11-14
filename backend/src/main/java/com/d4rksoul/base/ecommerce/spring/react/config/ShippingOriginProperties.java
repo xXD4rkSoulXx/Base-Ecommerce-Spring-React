@@ -1,27 +1,20 @@
 package com.d4rksoul.base.ecommerce.spring.react.config;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 
-@Component
 @ConfigurationProperties(prefix = "shipping.origin")
-@Getter
-@Setter
-public class ShippingOriginProperties {
+public record ShippingOriginProperties(
+    String name,
 
-    private String name;
+    String addressLine1,
 
-    private String addressLine1;
+    String city,
 
-    private String city;
+    String state,
 
-    private String state;
+    String postalCode,
 
-    private String postalCode;
+    String country,
 
-    private String country;
-
-    private String phone;
-}
+    String phone
+) {}

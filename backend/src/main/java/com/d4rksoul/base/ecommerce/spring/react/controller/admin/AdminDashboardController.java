@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,7 +38,9 @@ public class AdminDashboardController {
 
     @GetMapping("/summary")
     @PreAuthorize("hasAuthority('ORDERS_READ')")
-    public ResponseEntity<AdminDashboardSummaryResponse> getSummary(AdminDashboardPeriodRequest period) {
+    public ResponseEntity<AdminDashboardSummaryResponse> getSummary(
+        @ModelAttribute AdminDashboardPeriodRequest period
+    ) {
         AdminDashboardSummaryResponse summary = adminDashboardSalesService.getSummary(period);
 
         return ResponseEntity.ok(summary);
@@ -45,7 +48,9 @@ public class AdminDashboardController {
 
     @GetMapping("/sales")
     @PreAuthorize("hasAuthority('ORDERS_READ')")
-    public ResponseEntity<List<AdminDashboardSalesPointResponse>> getSales(AdminDashboardPeriodRequest period) {
+    public ResponseEntity<List<AdminDashboardSalesPointResponse>> getSales(
+        @ModelAttribute AdminDashboardPeriodRequest period
+    ) {
         List<AdminDashboardSalesPointResponse> sales = adminDashboardSalesService.getSales(period);
 
         return ResponseEntity.ok(sales);
@@ -54,10 +59,10 @@ public class AdminDashboardController {
     @GetMapping("/orders-by-status")
     @PreAuthorize("hasAuthority('ORDERS_READ')")
     public ResponseEntity<List<AdminDashboardStatusCountResponse>> getOrdersByStatus(
-            AdminDashboardPeriodRequest period
+        @ModelAttribute AdminDashboardPeriodRequest period
     ) {
         List<AdminDashboardStatusCountResponse> ordersByStatus = adminDashboardSalesService
-                .getOrdersByStatus(period);
+            .getOrdersByStatus(period);
 
         return ResponseEntity.ok(ordersByStatus);
     }
@@ -65,10 +70,10 @@ public class AdminDashboardController {
     @GetMapping("/sales-by-category")
     @PreAuthorize("hasAuthority('ORDERS_READ')")
     public ResponseEntity<List<AdminDashboardCategoryUnitsResponse>> getSalesByCategory(
-            AdminDashboardPeriodRequest period
+        @ModelAttribute AdminDashboardPeriodRequest period
     ) {
         List<AdminDashboardCategoryUnitsResponse> salesByCategory = adminDashboardSalesService
-                .getSalesByCategory(period);
+            .getSalesByCategory(period);
 
         return ResponseEntity.ok(salesByCategory);
     }
@@ -84,7 +89,7 @@ public class AdminDashboardController {
     @GetMapping("/top-products")
     @PreAuthorize("hasAuthority('PRODUCTS_READ')")
     public ResponseEntity<List<AdminDashboardTopProductResponse>> getTopProducts(
-            AdminDashboardPeriodRequest period
+        @ModelAttribute AdminDashboardPeriodRequest period
     ) {
         List<AdminDashboardTopProductResponse> topProducts = adminDashboardSalesService.getTopProducts(period);
 
@@ -94,10 +99,10 @@ public class AdminDashboardController {
     @GetMapping("/top-discount-codes")
     @PreAuthorize("hasAuthority('DISCOUNTS_READ')")
     public ResponseEntity<List<AdminDashboardDiscountCodeResponse>> getTopDiscountCodes(
-            AdminDashboardPeriodRequest period
+        @ModelAttribute AdminDashboardPeriodRequest period
     ) {
         List<AdminDashboardDiscountCodeResponse> topDiscountCodes = adminDashboardSalesService
-                .getTopDiscountCodes(period);
+            .getTopDiscountCodes(period);
 
         return ResponseEntity.ok(topDiscountCodes);
     }
@@ -129,7 +134,8 @@ public class AdminDashboardController {
     @GetMapping("/returns-to-handle")
     @PreAuthorize("hasAuthority('RETURNS_READ')")
     public ResponseEntity<List<AdminDashboardReturnResponse>> getReturnsToHandle() {
-        List<AdminDashboardReturnResponse> returnsToHandle = adminDashboardOperationsService.getReturnsToHandle();
+        List<AdminDashboardReturnResponse> returnsToHandle = adminDashboardOperationsService
+            .getReturnsToHandle();
 
         return ResponseEntity.ok(returnsToHandle);
     }
@@ -144,7 +150,9 @@ public class AdminDashboardController {
 
     @GetMapping("/customers")
     @PreAuthorize("hasAuthority('CUSTOMERS_READ')")
-    public ResponseEntity<AdminDashboardCustomersResponse> getCustomers(AdminDashboardPeriodRequest period) {
+    public ResponseEntity<AdminDashboardCustomersResponse> getCustomers(
+        @ModelAttribute AdminDashboardPeriodRequest period
+    ) {
         AdminDashboardCustomersResponse customers = adminDashboardCommunityService.getCustomers(period);
 
         return ResponseEntity.ok(customers);
@@ -152,7 +160,9 @@ public class AdminDashboardController {
 
     @GetMapping("/reviews")
     @PreAuthorize("hasAuthority('REVIEWS_READ')")
-    public ResponseEntity<AdminDashboardReviewsResponse> getReviews(AdminDashboardPeriodRequest period) {
+    public ResponseEntity<AdminDashboardReviewsResponse> getReviews(
+        @ModelAttribute AdminDashboardPeriodRequest period
+    ) {
         AdminDashboardReviewsResponse reviews = adminDashboardCommunityService.getReviews(period);
 
         return ResponseEntity.ok(reviews);

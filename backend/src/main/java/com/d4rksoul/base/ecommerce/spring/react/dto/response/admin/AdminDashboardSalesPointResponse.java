@@ -9,11 +9,11 @@ import java.time.LocalDate;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record AdminDashboardSalesPointResponse(
-        LocalDate date,
+    LocalDate date,
 
-        BigDecimal sales,
+    BigDecimal sales,
 
-        BigDecimal refunds,
+    BigDecimal refunds,
 
-        long orders
+    long orders
 ) {}

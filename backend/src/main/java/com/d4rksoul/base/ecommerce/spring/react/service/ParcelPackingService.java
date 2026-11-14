@@ -19,36 +19,36 @@ public class ParcelPackingService {
     private final ShippingPackingProperties packingProperties;
 
     public List<PackedParcelItemsResult> pack(List<PackingItemResult> items) {
-        List<ShippingPackingProperties.Box> catalog = packingProperties.getBoxes().stream()
-                .sorted(Comparator.comparingDouble(ShippingPackingProperties.Box::volumeCm3))
-                .toList();
+        List<ShippingPackingProperties.Box> catalog = packingProperties.boxes().stream()
+            .sorted(Comparator.comparingDouble(ShippingPackingProperties.Box::volumeCm3))
+            .toList();
 
         List<PackingItemResult> sortedItems = items.stream()
-                .sorted(Comparator.comparingDouble(PackingItemResult::volumeCm3).reversed())
-                .toList();
+            .sorted(Comparator.comparingDouble(PackingItemResult::volumeCm3).reversed())
+            .toList();
 
         List<OpenBox> openBoxes = new ArrayList<>();
 
         for (PackingItemResult item : sortedItems) {
             OpenBox target = openBoxes.stream()
-                    .filter(box -> box.canFit(item))
-                    .findFirst()
-                    .orElse(null);
-
+                .filter(box -> box.canFit(item))
+                .findFirst()
+                .orElse(null);
             if (target == null) {
                 target = new OpenBox(
-                        catalog.reversed().stream()
-                                .filter(
-                                        box -> item.weightKg() <= box.maxWeightKg()
-                                        && item.volumeCm3() <= box.volumeCm3()
-                                )
-                                .findFirst()
-                                .orElseThrow(() -> new UnpackableCartException(
-                                        "No configured box is large enough for an item weighing " + item.weightKg()
-                                                + "kg with dimensions " + item.lengthCm() + "x" + item.widthCm()
-                                                + "x" + item.heightCm() + "cm."
-                                )
-                        ));
+                    catalog.reversed().stream()
+                        .filter(box ->
+                            item.weightKg() <= box.maxWeightKg() && item.volumeCm3() <= box.volumeCm3()
+                        )
+                        .findFirst()
+                        .orElseThrow(() -> new UnpackableCartException(
+                            "No configured box is large enough for an item weighing " + item.weightKg()
+                                + "kg with dimensions " + item.lengthCm() + "x" + item.widthCm()
+                                + "x" + item.heightCm() + "cm."
+                            )
+                        )
+                );
+
                 openBoxes.add(target);
             }
 
@@ -56,8 +56,8 @@ public class ParcelPackingService {
         }
 
         return openBoxes.stream()
-                .map(box -> box.toPackedParcel(catalog))
-                .toList();
+            .map(box -> box.toPackedParcel(catalog))
+            .toList();
     }
 
     private static class OpenBox {
@@ -89,19 +89,24 @@ public class ParcelPackingService {
 
         PackedParcelItemsResult toPackedParcel(List<ShippingPackingProperties.Box> catalog) {
             ShippingPackingProperties.Box fitted = catalog.stream()
-                    .filter(box -> packedWeightKg <= box.maxWeightKg() && packedVolumeCm3 <= box.volumeCm3())
-                    .findFirst()
-                    .orElse(definition);
+                .filter(box ->
+                        packedWeightKg <= box.maxWeightKg() && packedVolumeCm3 <= box.volumeCm3()
+                )
+                .findFirst()
+                .orElse(definition);
 
-            PackedParcelResult parcel = new PackedParcelResult(
-                    fitted.name(),
-                    packedWeightKg,
-                    fitted.lengthCm(),
-                    fitted.widthCm(),
-                    fitted.heightCm()
-            );
+            PackedParcelResult parcel = PackedParcelResult.builder()
+                .boxName(fitted.name())
+                .weightKg(packedWeightKg)
+                .lengthCm(fitted.lengthCm())
+                .widthCm(fitted.widthCm())
+                .heightCm(fitted.heightCm())
+                .build();
 
-            return new PackedParcelItemsResult(parcel, List.copyOf(items));
+            return PackedParcelItemsResult.builder()
+                .parcel(parcel)
+                .items(List.copyOf(items))
+                .build();
         }
     }
 }

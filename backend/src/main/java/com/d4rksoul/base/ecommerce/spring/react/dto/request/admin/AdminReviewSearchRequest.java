@@ -4,18 +4,18 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record AdminReviewSearchRequest(
-        String q,
+    String q,
 
-        Boolean hidden,
+    Boolean hidden,
 
-        int page,
+    int page,
 
-        int size
+    int size
 ) {
 
     public AdminReviewSearchRequest {
         q = q == null || q.isBlank() ? null : q.trim();
         page = Math.max(page, 0);
-        size = size <= 0 ? 10 : Math.min(size, 50);
+        size = Math.clamp(size, 1, 50);
     }
 }

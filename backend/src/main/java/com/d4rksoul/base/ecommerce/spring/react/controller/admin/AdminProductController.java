@@ -30,7 +30,7 @@ public class AdminProductController {
     @PostMapping
     @PreAuthorize("hasAuthority('PRODUCTS_WRITE')")
     public ResponseEntity<AdminProductDetailsResponse> createProduct(
-            @Valid @RequestBody AdminProductRequest request
+        @Valid @RequestBody AdminProductRequest request
     ) {
         AdminProductDetailsResponse product = adminProductService.createProduct(request);
 
@@ -56,7 +56,7 @@ public class AdminProductController {
     @GetMapping
     @PreAuthorize("hasAuthority('PRODUCTS_READ')")
     public ResponseEntity<PageResponse<AdminProductSummaryResponse>> getProducts(
-            @ModelAttribute AdminProductSearchRequest filter
+        @ModelAttribute AdminProductSearchRequest filter
     ) {
         PageResponse<AdminProductSummaryResponse> products = adminProductService.getProducts(filter);
 
@@ -74,8 +74,7 @@ public class AdminProductController {
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('PRODUCTS_WRITE')")
     public ResponseEntity<AdminProductDetailsResponse> updateProduct(
-            @PathVariable Long id,
-            @Valid @RequestBody AdminProductRequest request
+        @PathVariable Long id, @Valid @RequestBody AdminProductRequest request
     ) {
         AdminProductDetailsResponse product = adminProductService.updateProduct(id, request);
 

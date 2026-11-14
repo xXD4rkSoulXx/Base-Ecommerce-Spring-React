@@ -29,9 +29,7 @@ public class AdminProductSkuImageController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAuthority('PRODUCTS_WRITE')")
     public ResponseEntity<AdminProductSkuImageResponse> uploadImage(
-            @PathVariable Long productId,
-            @PathVariable Long skuId,
-            @RequestParam("file") MultipartFile file
+        @PathVariable Long productId, @PathVariable Long skuId, @RequestParam("file") MultipartFile file
     ) {
         AdminProductSkuImageResponse image = adminProductSkuImageService.uploadImage(productId, skuId, file);
 
@@ -41,22 +39,29 @@ public class AdminProductSkuImageController {
     @GetMapping
     @PreAuthorize("hasAuthority('PRODUCTS_READ')")
     public ResponseEntity<List<AdminProductSkuImageResponse>> getImages(
-            @PathVariable Long productId,
-            @PathVariable Long skuId
+        @PathVariable Long productId, @PathVariable Long skuId
     ) {
         List<AdminProductSkuImageResponse> images = adminProductSkuImageService.getImages(productId, skuId);
 
         return ResponseEntity.ok(images);
     }
 
-    @PutMapping("/{imageId}/cover")
+    @PutMapping("/{imageId}/product-cover")
     @PreAuthorize("hasAuthority('PRODUCTS_WRITE')")
-    public ResponseEntity<Void> setCover(
-            @PathVariable Long productId,
-            @PathVariable Long skuId,
-            @PathVariable Long imageId
+    public ResponseEntity<Void> setProductCover(
+        @PathVariable Long productId, @PathVariable Long skuId, @PathVariable Long imageId
     ) {
-        adminProductSkuImageService.setCover(productId, skuId, imageId);
+        adminProductSkuImageService.setProductCover(productId, skuId, imageId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{imageId}/sku-cover")
+    @PreAuthorize("hasAuthority('PRODUCTS_WRITE')")
+    public ResponseEntity<Void> setSkuCover(
+        @PathVariable Long productId, @PathVariable Long skuId, @PathVariable Long imageId
+    ) {
+        adminProductSkuImageService.setSkuCover(productId, skuId, imageId);
 
         return ResponseEntity.noContent().build();
     }
@@ -64,9 +69,7 @@ public class AdminProductSkuImageController {
     @DeleteMapping("/{imageId}")
     @PreAuthorize("hasAuthority('PRODUCTS_WRITE')")
     public ResponseEntity<Void> deleteImage(
-            @PathVariable Long productId,
-            @PathVariable Long skuId,
-            @PathVariable Long imageId
+        @PathVariable Long productId, @PathVariable Long skuId, @PathVariable Long imageId
     ) {
         adminProductSkuImageService.deleteImage(productId, skuId, imageId);
 

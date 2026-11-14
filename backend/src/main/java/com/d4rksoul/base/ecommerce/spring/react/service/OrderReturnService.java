@@ -1,9 +1,10 @@
 package com.d4rksoul.base.ecommerce.spring.react.service;
 
+import com.d4rksoul.base.ecommerce.spring.react.constant.Constants;
+import com.d4rksoul.base.ecommerce.spring.react.dto.projection.ReturnedQuantityProjection;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.CreateReturnItemRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.CreateReturnRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.OrderReturnResponse;
-import com.d4rksoul.base.ecommerce.spring.react.dto.result.ReturnEligibilityResult;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Order;
 import com.d4rksoul.base.ecommerce.spring.react.entity.OrderItem;
 import com.d4rksoul.base.ecommerce.spring.react.entity.OrderReturn;
@@ -27,7 +28,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
@@ -39,8 +39,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class OrderReturnService {
-
-    private static final Duration RETURN_WINDOW = Duration.ofDays(14);
 
     private final OrderRepository orderRepository;
     private final OrderReturnRepository orderReturnRepository;
@@ -54,7 +52,6 @@ public class OrderReturnService {
     @Transactional
     public OrderReturnResponse requestReturn(Long orderId, CreateReturnRequest request) {
         String comment = StringUtils.hasText(request.comment()) ? request.comment().trim() : null;
-
         if (request.reason() == ReturnReason.OTHER && comment == null) {
             throw new InvalidReturnRequestException("Please describe the reason for the return.");
         }
@@ -62,23 +59,30 @@ public class OrderReturnService {
         User user = userService.getCurrentUser();
 
         Order order = orderRepository
-                .findByIdAndUserIdAndStatusIn(orderId, user.getId(), List.of(OrderStatus.DELIVERED))
-                .orElseThrow(() -> new OrderNotFoundException("No delivered order found with id: " + orderId));
+            .findByIdAndUserIdAndStatusIn(orderId, user.getId(), List.of(OrderStatus.DELIVERED))
+            .orElseThrow(() -> new OrderNotFoundException("No delivered order found with id: " + orderId));
 
         Instant deliveredAt = orderStatusEventRepository
-                .findFirstByOrderIdAndStatusOrderByOccurredAtAsc(orderId, OrderStatus.DELIVERED)
-                .map(OrderStatusEvent::getOccurredAt)
-                .orElseThrow(() -> new ReturnNotAllowedException("The delivery date of this order is unknown."));
+            .findFirstByOrderIdAndStatusOrderByOccurredAtAsc(
+                orderId, OrderStatus.DELIVERED
+            )
+            .map(OrderStatusEvent::getOccurredAt)
+            .orElseThrow(() -> new ReturnNotAllowedException("The delivery date of this order is unknown."));
 
-        if (Instant.now().isAfter(deliveredAt.plus(RETURN_WINDOW))) {
+        if (Instant.now().isAfter(deliveredAt.plus(Constants.RETURN_WINDOW))) {
             throw new ReturnNotAllowedException("The 14-day return period for this order has expired.");
         }
 
         Map<Long, OrderItem> orderItemsById = order.getOrderItems().stream()
-                .collect(Collectors.toMap(OrderItem::getId, Function.identity()));
-        Map<Long, Long> returnedByItemId = orderReturnItemMapper.toReturnedQuantities(
-                orderReturnItemRepository.sumReturnedQuantities(orderId, ReturnStatus.INACTIVE_STATUSES)
-        );
+            .collect(Collectors.toMap(OrderItem::getId, Function.identity()));
+
+        Map<Long, Long> returnedByItemId = orderReturnItemRepository
+            .sumReturnedQuantities(orderId, ReturnStatus.INACTIVE_STATUSES)
+            .stream()
+            .collect(Collectors.toMap(
+                ReturnedQuantityProjection::orderItemId,
+                ReturnedQuantityProjection::quantity
+            ));
 
         Set<Long> seen = new HashSet<>();
 
@@ -87,7 +91,7 @@ public class OrderReturnService {
 
             if (orderItem == null) {
                 throw new InvalidReturnRequestException(
-                        "Item " + item.orderItemId() + " does not belong to this order."
+                    "Item " + item.orderItemId() + " does not belong to this order."
                 );
             }
 
@@ -95,62 +99,36 @@ public class OrderReturnService {
                 throw new InvalidReturnRequestException("Each item can only appear once in a return.");
             }
 
-            long available = orderItem.getQuantity() - returnedByItemId.getOrDefault(item.orderItemId(), 0L);
-
+            long available = orderItem.getQuantity()
+                - returnedByItemId.getOrDefault(item.orderItemId(), 0L);
             if (item.quantity() > available) {
                 throw new InvalidReturnRequestException(
-                        "Cannot return " + item.quantity() + " of " + orderItem.getProductName()
-                                + ", only " + available + " left to return."
+                    "Cannot return " + item.quantity() + " of " + orderItem.getProductName()
+                        + ", only " + available + " left to return."
                 );
             }
         }
 
-        if (!orderStatusEventService.transition(orderId, OrderStatus.DELIVERED, OrderStatus.RETURN_REQUESTED)) {
+        boolean transitioned = orderStatusEventService
+            .transition(orderId, OrderStatus.DELIVERED, OrderStatus.RETURN_REQUESTED);
+        if (!transitioned) {
             throw new ReturnNotAllowedException("This order is no longer eligible for return.");
         }
 
-        OrderReturn orderReturn = orderReturnRepository.save(
-                orderReturnMapper.toEntity(order, request.reason(), comment)
-        );
+        OrderReturn orderReturn = orderReturnMapper.toEntity(order, request.reason(), comment);
+
+        orderReturnRepository.save(orderReturn);
 
         List<OrderReturnItem> returnItems = orderReturnItemRepository.saveAll(
-                orderReturnItemMapper.toEntities(orderReturn, orderItemsById, request.items())
+            request.items().stream()
+                .map(item -> orderReturnItemMapper.toEntity(
+                    orderReturn,
+                    orderItemsById.get(item.orderItemId()),
+                    item.quantity()
+                ))
+                .toList()
         );
 
         return orderReturnMapper.toDto(orderReturn, returnItems);
-    }
-
-    @Transactional(readOnly = true)
-    public List<OrderReturnResponse> getReturns(Long orderId) {
-        List<OrderReturn> returns = orderReturnRepository.findByOrderIdOrderByCreatedAtAscIdAsc(orderId);
-        List<OrderReturnItem> items = orderReturnItemRepository.findByOrderReturnInOrderByIdAsc(returns);
-
-        return orderReturnMapper.toDtos(returns, items);
-    }
-
-    @Transactional(readOnly = true)
-    public ReturnEligibilityResult getEligibility(Order order, List<OrderStatusEvent> events) {
-        Instant deadline = events.stream()
-                .filter(event -> event.getStatus() == OrderStatus.DELIVERED)
-                .map(OrderStatusEvent::getOccurredAt)
-                .findFirst()
-                .map(deliveredAt -> deliveredAt.plus(RETURN_WINDOW))
-                .orElse(null);
-
-        if (order.getStatus() != OrderStatus.DELIVERED || deadline == null || Instant.now().isAfter(deadline)) {
-            return new ReturnEligibilityResult(null, Map.of());
-        }
-
-        Map<Long, Long> returnedByItemId = orderReturnItemMapper.toReturnedQuantities(
-                orderReturnItemRepository.sumReturnedQuantities(order.getId(), ReturnStatus.INACTIVE_STATUSES)
-        );
-
-        Map<Long, Long> returnableByItemId = order.getOrderItems().stream()
-                .collect(Collectors.toMap(
-                        OrderItem::getId,
-                        item -> item.getQuantity() - returnedByItemId.getOrDefault(item.getId(), 0L)
-                ));
-
-        return new ReturnEligibilityResult(deadline, returnableByItemId);
     }
 }

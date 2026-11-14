@@ -1,6 +1,6 @@
 package com.d4rksoul.base.ecommerce.spring.react.storage;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.d4rksoul.base.ecommerce.spring.react.config.StorageProperties;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -15,12 +15,9 @@ public class LocalImageStorage implements ImageStorage {
     private final Path root;
     private final String urlPrefix;
 
-    public LocalImageStorage(
-            @Value("${app.storage.upload-dir}") String uploadDir,
-            @Value("${app.storage.public-base-url}") String publicBaseUrl
-    ) {
-        this.root = Path.of(uploadDir).toAbsolutePath().normalize();
-        this.urlPrefix = publicBaseUrl + "/uploads/";
+    public LocalImageStorage(StorageProperties properties) {
+        this.root = Path.of(properties.uploadDir()).toAbsolutePath().normalize();
+        this.urlPrefix = properties.publicBaseUrl() + "/uploads/";
     }
 
     @Override

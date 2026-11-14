@@ -6,11 +6,11 @@ import com.d4rksoul.base.ecommerce.spring.react.dto.response.UserResponse;
 import com.d4rksoul.base.ecommerce.spring.react.entity.User;
 import com.d4rksoul.base.ecommerce.spring.react.enums.OrderStatus;
 import com.d4rksoul.base.ecommerce.spring.react.exception.UserNotAuthenticatedException;
-import com.d4rksoul.base.ecommerce.spring.react.exception.UserNotFoundException;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.UserMapper;
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -27,18 +27,17 @@ public class UserService {
     private final UserMapper userMapper;
 
     @Transactional(readOnly = true)
-    public ProfileResponse getProfile(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
-        long totalOrders = orderRepository.countByUserIdAndStatusIn(user.getId(), OrderStatus.HISTORY_STATUSES);
+    public ProfileResponse getProfile() {
+        User user = getCurrentUser();
+        long totalOrders = orderRepository
+            .countByUserIdAndStatusIn(user.getId(), OrderStatus.HISTORY_STATUSES);
 
         return userMapper.toProfileDto(user, totalOrders);
     }
 
     @Transactional
-    public UserResponse updateProfile(String email, UpdateProfileRequest request) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+    public UserResponse updateProfile(UpdateProfileRequest request) {
+        User user = getCurrentUser();
 
         user.setFirstName(request.firstName().trim());
         user.setLastName(request.lastName().trim());
@@ -47,11 +46,14 @@ public class UserService {
     }
 
     public User getCurrentUser() {
-        Jwt jwt = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-                .map(auth -> (Jwt) auth.getPrincipal())
-                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
+        Jwt jwt = Optional
+            .ofNullable(SecurityContextHolder.getContext().getAuthentication())
+            .map(Authentication::getPrincipal)
+            .filter(Jwt.class::isInstance)
+            .map(Jwt.class::cast)
+            .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
 
         return userRepository.findByEmail(jwt.getSubject())
-                .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
+            .orElseThrow(() -> new UserNotAuthenticatedException("User is not authenticated"));
     }
 }

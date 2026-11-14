@@ -1,11 +1,11 @@
 package com.d4rksoul.base.ecommerce.spring.react.dto.projection;
 
 public record TopProductProjection(
-        Long productId,
+    Long productId,
 
-        String ref,
+    String ref,
 
-        String name,
+    String name,
 
-        Long unitsSold
+    Long unitsSold
 ) {}

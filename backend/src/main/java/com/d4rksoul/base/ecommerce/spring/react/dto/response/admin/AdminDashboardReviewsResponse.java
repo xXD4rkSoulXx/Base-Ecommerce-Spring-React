@@ -6,11 +6,11 @@ import lombok.Builder;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record AdminDashboardReviewsResponse(
-        long newReviews,
+    long newReviews,
 
-        long previousNewReviews,
+    long previousNewReviews,
 
-        Double averageRating,
+    Double averageRating,
 
-        Double previousAverageRating
+    Double previousAverageRating
 ) {}

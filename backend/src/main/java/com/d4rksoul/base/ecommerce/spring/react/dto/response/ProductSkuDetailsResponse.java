@@ -1,5 +1,7 @@
 package com.d4rksoul.base.ecommerce.spring.react.dto.response;
 
+import com.d4rksoul.base.ecommerce.spring.react.enums.ProductColor;
+import com.d4rksoul.base.ecommerce.spring.react.enums.ProductSize;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 
@@ -8,15 +10,15 @@ import java.util.List;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ProductSkuDetailsResponse(
-        Long id,
+    Long id,
 
-        String size,
+    ProductSize size,
 
-        String color,
+    ProductColor color,
 
-        int stock,
+    int stock,
 
-        int discountPercentage,
+    int discountPercentage,
 
-        List<String> paths
+    List<String> paths
 ) {}

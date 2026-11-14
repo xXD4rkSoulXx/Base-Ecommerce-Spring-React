@@ -7,20 +7,21 @@ import com.d4rksoul.base.ecommerce.spring.react.dto.request.LoginRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.RegisterRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.UserResponse;
 import com.d4rksoul.base.ecommerce.spring.react.entity.User;
-import com.d4rksoul.base.ecommerce.spring.react.enums.UserRole;
 import com.d4rksoul.base.ecommerce.spring.react.exception.EmailAlreadyExistsException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidCredentialsException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidPasswordChangeException;
-import com.d4rksoul.base.ecommerce.spring.react.exception.UserNotFoundException;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.AuthenticationMapper;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.UserMapper;
 import com.d4rksoul.base.ecommerce.spring.react.repository.RefreshTokenRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.UserRepository;
 import com.d4rksoul.base.ecommerce.spring.react.security.TokenService;
-import jakarta.transaction.Transactional;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -29,29 +30,39 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final TokenService tokenService;
+    private final UserService userService;
+    private final RefreshTokenService refreshTokenService;
     private final AuthenticationMapper authenticationMapper;
     private final UserMapper userMapper;
-    private final TokenService tokenService;
-    private final RefreshTokenService refreshTokenService;
+
+    private String dummyPasswordHash;
+
+    @PostConstruct
+    void init() {
+        dummyPasswordHash = passwordEncoder.encode(UUID.randomUUID().toString());
+    }
 
     @Transactional
     public void register(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.email())) {
+        boolean emailAlreadyRegistered = userRepository.existsByEmail(request.email());
+        if (emailAlreadyRegistered) {
             throw new EmailAlreadyExistsException("Email address is already registered");
         }
 
-        User user = authenticationMapper.toEntity(request);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole(UserRole.CUSTOMER);
+        String encodedPassword = passwordEncoder.encode(request.password());
+        User user = authenticationMapper.toEntity(request, encodedPassword);
 
         userRepository.save(user);
     }
 
     public LoginResult login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
+        User user = userRepository.findByEmail(request.email()).orElse(null);
 
-        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+        String storedHash = user != null ? user.getPassword() : dummyPasswordHash;
+        boolean passwordMatches = passwordEncoder.matches(request.password(), storedHash);
+
+        if (user == null || !passwordMatches) {
             throw new InvalidCredentialsException("Invalid email or password");
         }
 
@@ -61,31 +72,34 @@ public class AuthenticationService {
 
         UserResponse userResponse = userMapper.toDto(user);
 
-        return new LoginResult(userResponse, accessToken, refreshToken);
+        return authenticationMapper.toLoginResult(userResponse, accessToken, refreshToken);
     }
 
     public LoginResult refresh(String oldRefreshToken) {
         RotateRefreshTokenResult result = refreshTokenService.rotate(oldRefreshToken);
 
-        String newRefreshToken = result.newRefreshToken();
+        String newRefreshToken = result.rawRefreshToken();
         String accessToken = tokenService.generateAccessToken(result.user());
 
         UserResponse userResponse = userMapper.toDto(result.user());
 
-        return new LoginResult(userResponse, accessToken, newRefreshToken);
+        return authenticationMapper.toLoginResult(userResponse, accessToken, newRefreshToken);
     }
 
     @Transactional
-    public void changePassword(String email, ChangePasswordRequest request) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+    public void changePassword(ChangePasswordRequest request) {
+        User user = userService.getCurrentUser();
 
-        if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
+        boolean currentPasswordCorrect = passwordEncoder.matches(request.currentPassword(), user.getPassword());
+        if (!currentPasswordCorrect) {
             throw new InvalidPasswordChangeException("Current password is incorrect");
         }
 
-        if (passwordEncoder.matches(request.newPassword(), user.getPassword())) {
-            throw new InvalidPasswordChangeException("New password must be different from the current password");
+        boolean sameAsCurrent = passwordEncoder.matches(request.newPassword(), user.getPassword());
+        if (sameAsCurrent) {
+            throw new InvalidPasswordChangeException(
+                "New password must be different from the current password"
+            );
         }
 
         user.setPassword(passwordEncoder.encode(request.newPassword()));
@@ -98,9 +112,8 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public void logoutAllByUser(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+    public void logoutAllByUser() {
+        User user = userService.getCurrentUser();
 
         refreshTokenRepository.deleteAllByUser(user);
     }

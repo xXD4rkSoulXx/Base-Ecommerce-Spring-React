@@ -9,11 +9,11 @@ import java.time.Instant;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ShipmentTrackingEventResponse(
-        ShipmentStatus status,
+    ShipmentStatus status,
 
-        String description,
+    String description,
 
-        String location,
+    String location,
 
-        Instant occurredAt
+    Instant occurredAt
 ) {}

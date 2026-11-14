@@ -7,8 +7,8 @@ import jakarta.validation.constraints.NotNull;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record AdminUpdateDiscountCodeRequest(
-        @NotNull(message = "Discount is required")
-        @Min(value = 1, message = "Discount must be between 1 and 100")
-        @Max(value = 100, message = "Discount must be between 1 and 100")
-        Integer discountPercentage
+    @NotNull(message = "Discount is required")
+    @Min(value = 1, message = "Discount must be between 1 and 100")
+    @Max(value = 100, message = "Discount must be between 1 and 100")
+    Integer discountPercentage
 ) {}

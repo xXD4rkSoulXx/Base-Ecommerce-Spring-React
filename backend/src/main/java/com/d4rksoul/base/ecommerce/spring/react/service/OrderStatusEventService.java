@@ -1,6 +1,7 @@
 package com.d4rksoul.base.ecommerce.spring.react.service;
 
 import com.d4rksoul.base.ecommerce.spring.react.entity.Order;
+import com.d4rksoul.base.ecommerce.spring.react.entity.OrderStatusEvent;
 import com.d4rksoul.base.ecommerce.spring.react.enums.OrderStatus;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.OrderStatusEventMapper;
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderRepository;
@@ -21,13 +22,16 @@ public class OrderStatusEventService {
 
     @Transactional
     public boolean transition(Long orderId, OrderStatus from, OrderStatus to) {
-        if (orderRepository.updateStatus(orderId, from, to) == 0) {
+        int updatedRows = orderRepository.updateStatus(orderId, from, to);
+        if (updatedRows == 0) {
             return false;
         }
 
         Order order = orderRepository.getReferenceById(orderId);
 
-        orderStatusEventRepository.save(orderStatusEventMapper.toEntity(order, to, Instant.now()));
+        OrderStatusEvent statusEvent = orderStatusEventMapper.toEntity(order, to, Instant.now());
+
+        orderStatusEventRepository.save(statusEvent);
 
         return true;
     }

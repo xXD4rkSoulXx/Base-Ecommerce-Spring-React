@@ -7,8 +7,10 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.Locale;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class AuditLogSpecification {
+public final class AuditLogSpecification {
 
     public static Specification<AuditLog> containsQuery(String q) {
         return (root, _, cb) -> {
@@ -16,11 +18,15 @@ public class AuditLogSpecification {
                 return cb.conjunction();
             }
 
-            String pattern = "%" + q.trim().toLowerCase() + "%";
-
             return cb.or(
-                    cb.like(cb.lower(root.get("actorEmail")), pattern),
-                    cb.like(cb.lower(root.get("entityLabel")), pattern)
+                    cb.like(
+                        cb.lower(root.get("actorEmail")),
+                        "%" + q.trim().toLowerCase(Locale.ROOT) + "%"
+                    ),
+                    cb.like(
+                        cb.lower(root.get("entityLabel")),
+                        "%" + q.trim().toLowerCase(Locale.ROOT) + "%"
+                    )
             );
         };
     }

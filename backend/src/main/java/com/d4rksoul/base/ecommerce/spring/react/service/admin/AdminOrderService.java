@@ -18,8 +18,10 @@ import com.d4rksoul.base.ecommerce.spring.react.mapper.PageMapper;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.admin.AdminOrderMapper;
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderShipmentRepository;
-import com.d4rksoul.base.ecommerce.spring.react.service.OrderFulfillmentService;
 import com.d4rksoul.base.ecommerce.spring.react.service.OrderService;
+import com.d4rksoul.base.ecommerce.spring.react.service.OrderShipmentService;
+import com.d4rksoul.base.ecommerce.spring.react.service.OrderStatusEventService;
+import com.d4rksoul.base.ecommerce.spring.react.service.ShipmentTrackingEventService;
 import com.d4rksoul.base.ecommerce.spring.react.specification.OrderSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -38,16 +40,18 @@ import java.util.stream.Collectors;
 public class AdminOrderService {
 
     private static final Map<ShipmentStatus, List<ShipmentStatus>> SHIPMENT_TRANSITIONS = Map.of(
-            ShipmentStatus.PRE_TRANSIT, List.of(ShipmentStatus.IN_TRANSIT),
-            ShipmentStatus.IN_TRANSIT, List.of(ShipmentStatus.OUT_FOR_DELIVERY),
-            ShipmentStatus.OUT_FOR_DELIVERY, List.of(ShipmentStatus.FAILURE, ShipmentStatus.DELIVERED),
-            ShipmentStatus.FAILURE, List.of(ShipmentStatus.OUT_FOR_DELIVERY, ShipmentStatus.DELIVERED)
+        ShipmentStatus.PRE_TRANSIT, List.of(ShipmentStatus.IN_TRANSIT),
+        ShipmentStatus.IN_TRANSIT, List.of(ShipmentStatus.OUT_FOR_DELIVERY),
+        ShipmentStatus.OUT_FOR_DELIVERY, List.of(ShipmentStatus.FAILURE, ShipmentStatus.DELIVERED),
+        ShipmentStatus.FAILURE, List.of(ShipmentStatus.OUT_FOR_DELIVERY, ShipmentStatus.DELIVERED)
     );
 
     private final OrderRepository orderRepository;
     private final OrderShipmentRepository orderShipmentRepository;
     private final OrderService orderService;
-    private final OrderFulfillmentService orderFulfillmentService;
+    private final OrderShipmentService orderShipmentService;
+    private final OrderStatusEventService orderStatusEventService;
+    private final ShipmentTrackingEventService shipmentTrackingEventService;
     private final AdminAuditLogService adminAuditLogService;
     private final AdminOrderMapper adminOrderMapper;
     private final PageMapper pageMapper;
@@ -55,23 +59,23 @@ public class AdminOrderService {
     @Transactional(readOnly = true)
     public PageResponse<AdminOrderSummaryResponse> getOrders(AdminOrderSearchRequest filter) {
         Specification<Order> specification = Specification
-                .where(OrderSpecification.hasStatusIn(
-                        Boolean.TRUE.equals(filter.pending())
-                                ? OrderStatus.FULFILLMENT_STATUSES
-                                : OrderStatus.HISTORY_STATUSES
-                ))
-                .and(OrderSpecification.hasStatus(filter.status()))
-                .and(OrderSpecification.createdFrom(filter.from()))
-                .and(OrderSpecification.createdTo(filter.to()))
-                .and(OrderSpecification.matchesCustomerSearch(filter.q()))
-                .and(Boolean.TRUE.equals(filter.pending())
-                        ? OrderSpecification.orderByFulfillmentPriority()
-                        : OrderSpecification.orderByRecentDesc()
-                );
+            .where(OrderSpecification.hasStatusIn(
+                Boolean.TRUE.equals(filter.pending())
+                    ? OrderStatus.FULFILLMENT_STATUSES
+                    : OrderStatus.HISTORY_STATUSES
+            ))
+            .and(OrderSpecification.hasStatus(filter.status()))
+            .and(OrderSpecification.createdFrom(filter.from()))
+            .and(OrderSpecification.createdTo(filter.to()))
+            .and(OrderSpecification.matchesCustomerSearch(filter.q()))
+            .and(Boolean.TRUE.equals(filter.pending())
+                ? OrderSpecification.orderByFulfillmentPriority()
+                : OrderSpecification.orderByRecentDesc()
+            );
 
         Pageable pageable = PageRequest.of(filter.page(), filter.size());
         Page<AdminOrderSummaryResponse> ordersPage = orderRepository.findAll(specification, pageable)
-                .map(adminOrderMapper::toSummaryDto);
+            .map(adminOrderMapper::toSummaryDto);
 
         return pageMapper.toDto(ordersPage);
     }
@@ -79,18 +83,17 @@ public class AdminOrderService {
     @Transactional(readOnly = true)
     public AdminOrderDetailsResponse getOrder(Long id) {
         Order order = orderRepository.findByIdAndStatusIn(id, OrderStatus.HISTORY_STATUSES)
-                .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + id));
+            .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + id));
 
         OrderDetailsResponse details = orderService.buildDetails(order);
         OrderStatus nextStatus = order.getStatus() == OrderStatus.PAID ? OrderStatus.PROCESSING : null;
+
         Map<Long, List<ShipmentStatus>> shipmentActions = details.shipments().stream()
-                .collect(Collectors.toMap(
-                        OrderShipmentResponse::id,
-                        shipment -> SHIPMENT_TRANSITIONS.getOrDefault(
-                                shipment.status(),
-                                List.of()
-                        )
-                ));
+            .collect(Collectors.toMap(
+                OrderShipmentResponse::id,
+                shipment ->
+                    SHIPMENT_TRANSITIONS.getOrDefault(shipment.status(), List.of())
+            ));
 
         return adminOrderMapper.toDetailsDto(order, details, nextStatus, shipmentActions);
     }
@@ -98,62 +101,77 @@ public class AdminOrderService {
     @Transactional
     public void changeStatus(Long id, OrderStatus target) {
         Order order = orderRepository.findByIdAndStatusIn(id, OrderStatus.HISTORY_STATUSES)
-                .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + id));
+            .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + id));
 
         if (order.getStatus() != OrderStatus.PAID || target != OrderStatus.PROCESSING) {
             throw new InvalidOrderTransitionException(
-                    "Order " + id + " cannot move from " + order.getStatus() + " to " + target + "."
+                "Order " + id + " cannot move from " + order.getStatus() + " to " + target + "."
             );
         }
 
-        String change = order.getStatus() + " → " + target;
-
-        if (!orderFulfillmentService.startProcessing(id)) {
+        boolean transitioned = orderStatusEventService
+            .transition(id, OrderStatus.PAID, OrderStatus.PROCESSING);
+        if (!transitioned) {
             throw new InvalidOrderTransitionException(
-                    "Order " + id + " was changed in the meantime. Reload and try again."
+                "Order " + id + " was changed in the meantime. Reload and try again."
             );
         }
 
-        if (orderShipmentRepository.existsByOrderId(id)) {
+        orderShipmentService.purchaseLabels(id);
+
+        boolean hasShipments = orderShipmentRepository.existsByOrderId(id);
+        if (hasShipments) {
             orderRepository.markManuallyManaged(id);
         }
 
         adminAuditLogService.register(
-                AuditAction.STATUS_CHANGED,
-                AuditEntityType.ORDER,
-                id,
-                "#" + id,
-                change
+            AuditAction.STATUS_CHANGED,
+            AuditEntityType.ORDER,
+            id,
+            "#" + id,
+            order.getStatus() + " → " + target
         );
     }
 
     @Transactional
     public void changeShipmentStatus(Long orderId, Long shipmentId, ShipmentStatus target) {
         OrderShipment shipment = orderShipmentRepository.findByIdAndOrderId(shipmentId, orderId)
-                .orElseThrow(() -> new OrderNotFoundException("Parcel not found with id: " + shipmentId));
+            .orElseThrow(() -> new OrderNotFoundException("Parcel not found with id: " + shipmentId));
 
         if (!SHIPMENT_TRANSITIONS.getOrDefault(shipment.getStatus(), List.of()).contains(target)) {
             throw new InvalidOrderTransitionException(
-                    "Parcel " + shipmentId + " cannot move from " + shipment.getStatus() + " to " + target + "."
+                "Parcel " + shipmentId + " cannot move from " + shipment.getStatus() + " to " + target + "."
             );
         }
 
-        String change = "Parcel " + shipmentId + ": " + shipment.getStatus() + " → " + target;
-
-        if (!orderFulfillmentService.advanceShipment(orderId, shipmentId, shipment.getStatus(), target)) {
+        boolean transitioned = shipmentTrackingEventService
+            .transition(shipmentId, shipment.getStatus(), target);
+        if (!transitioned) {
             throw new InvalidOrderTransitionException(
-                    "Parcel " + shipmentId + " was changed in the meantime. Reload and try again."
+                "Parcel " + shipmentId + " was changed in the meantime. Reload and try again."
             );
+        }
+
+        if (target == ShipmentStatus.IN_TRANSIT) {
+            orderStatusEventService.transition(orderId, OrderStatus.PROCESSING, OrderStatus.SHIPPED);
+        }
+
+        if (target == ShipmentStatus.DELIVERED) {
+            boolean hasUndeliveredShipments = orderShipmentRepository
+                .existsByOrderIdAndStatusNot(orderId, ShipmentStatus.DELIVERED);
+            if (!hasUndeliveredShipments) {
+                orderStatusEventService.transition(orderId, OrderStatus.SHIPPED, OrderStatus.DELIVERED);
+            }
         }
 
         orderRepository.markManuallyManaged(orderId);
 
         adminAuditLogService.register(
-                AuditAction.SHIPMENT_STATUS_CHANGED,
-                AuditEntityType.ORDER,
-                orderId,
-                "#" + orderId,
-                change
+            AuditAction.SHIPMENT_STATUS_CHANGED,
+            AuditEntityType.ORDER,
+            orderId,
+            "#" + orderId,
+            "Parcel " + shipmentId + ": " + shipment.getStatus() + " → " + target
         );
     }
 }

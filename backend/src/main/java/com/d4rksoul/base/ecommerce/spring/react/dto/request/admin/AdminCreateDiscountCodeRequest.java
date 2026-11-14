@@ -11,17 +11,17 @@ import java.util.Locale;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record AdminCreateDiscountCodeRequest(
-        @NotBlank(message = "Code is required")
-        @Pattern(
-                regexp = "[A-Z0-9_-]{3,20}",
-                message = "Code must have 3 to 20 characters: letters, numbers, - or _"
-        )
-        String code,
+    @NotBlank(message = "Code is required")
+    @Pattern(
+        regexp = "[A-Z0-9_-]{3,20}",
+        message = "Code must have 3 to 20 characters: letters, numbers, - or _"
+    )
+    String code,
 
-        @NotNull(message = "Discount is required")
-        @Min(value = 1, message = "Discount must be between 1 and 100")
-        @Max(value = 100, message = "Discount must be between 1 and 100")
-        Integer discountPercentage
+    @NotNull(message = "Discount is required")
+    @Min(value = 1, message = "Discount must be between 1 and 100")
+    @Max(value = 100, message = "Discount must be between 1 and 100")
+    Integer discountPercentage
 ) {
 
     public AdminCreateDiscountCodeRequest {

@@ -6,19 +6,20 @@ import java.time.Instant;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record OrderSearchRequest(
-        String q,
+    String q,
 
-        Instant from,
+    Instant from,
 
-        Instant to,
+    Instant to,
 
-        Integer page,
+    Integer page,
 
-        Integer size
+    Integer size
 ) {
 
     public OrderSearchRequest {
-        page = (page == null) ? 0 : page;
-        size = (size == null) ? 10 : size;
+        q = q == null || q.isBlank() ? null : q.trim();
+        page = (page == null) ? 0 : Math.max(page, 0);
+        size = (size == null) ? 10 : Math.clamp(size, 1, 50);
     }
 }

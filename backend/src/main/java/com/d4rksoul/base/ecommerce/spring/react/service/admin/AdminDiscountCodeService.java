@@ -40,18 +40,23 @@ public class AdminDiscountCodeService {
 
     @Transactional
     public AdminDiscountCodeResponse createDiscountCode(AdminCreateDiscountCodeRequest request) {
-        if (discountCodeRepository.existsByCode(request.code())) {
-            throw new DiscountCodeAlreadyExistsException("Discount code " + request.code() + " already exists.");
+        boolean codeAlreadyExists = discountCodeRepository.existsByCode(request.code());
+        if (codeAlreadyExists) {
+            throw new DiscountCodeAlreadyExistsException(
+                "Discount code " + request.code() + " already exists."
+            );
         }
 
-        DiscountCode discountCode = discountCodeRepository.save(adminDiscountCodeMapper.toEntity(request));
+        DiscountCode discountCode = adminDiscountCodeMapper.toEntity(request);
+
+        discountCodeRepository.save(discountCode);
 
         adminAuditLogService.register(
-                AuditAction.CREATED,
-                AuditEntityType.DISCOUNT_CODE,
-                discountCode.getId(),
-                discountCode.getCode(),
-                discountCode.getDiscountPercentage() + "%"
+            AuditAction.CREATED,
+            AuditEntityType.DISCOUNT_CODE,
+            discountCode.getId(),
+            discountCode.getCode(),
+            discountCode.getDiscountPercentage() + "%"
         );
 
         return adminDiscountCodeMapper.toDto(discountCode, 0);
@@ -59,51 +64,40 @@ public class AdminDiscountCodeService {
 
     @Transactional
     public void activateDiscountCode(Long id) {
-        DiscountCode discountCode = discountCodeRepository.findById(id)
-                .orElseThrow(() -> new DiscountCodeNotFoundException("Discount code not found with id: " + id));
-
-        discountCode.setActive(true);
-
-        adminAuditLogService.register(
-                AuditAction.ACTIVATED,
-                AuditEntityType.DISCOUNT_CODE,
-                id,
-                discountCode.getCode()
-        );
+        setActive(id, true, AuditAction.ACTIVATED);
     }
 
     @Transactional
     public void deactivateDiscountCode(Long id) {
-        DiscountCode discountCode = discountCodeRepository.findById(id)
-                .orElseThrow(() -> new DiscountCodeNotFoundException("Discount code not found with id: " + id));
-
-        discountCode.setActive(false);
-
-        adminAuditLogService.register(AuditAction.DEACTIVATED, AuditEntityType.DISCOUNT_CODE, id, discountCode.getCode());
+        setActive(id, false, AuditAction.DEACTIVATED);
     }
 
     @Transactional(readOnly = true)
     public PageResponse<AdminDiscountCodeResponse> getDiscountCodes(AdminDiscountCodeSearchRequest filter) {
         Specification<DiscountCode> specification = Specification
-                .where(DiscountCodeSpecification.containsCode(filter.q()))
-                .and(DiscountCodeSpecification.hasActive(filter.active()))
-                .and(DiscountCodeSpecification.orderByRecentDesc());
+            .where(DiscountCodeSpecification.containsCode(filter.q()))
+            .and(DiscountCodeSpecification.hasActive(filter.active()))
+            .and(DiscountCodeSpecification.orderByRecentDesc());
 
         Pageable pageable = PageRequest.of(filter.page(), filter.size());
         Page<DiscountCode> discountCodesPage = discountCodeRepository.findAll(specification, pageable);
 
         List<Long> discountCodeIds = discountCodesPage.getContent().stream()
-                .map(DiscountCode::getId)
-                .toList();
+            .map(DiscountCode::getId)
+            .toList();
 
-        Map<Long, Long> orders = orderRepository.countOrdersByDiscountCodeIds(discountCodeIds).stream()
-                .collect(Collectors.toMap(
-                        DiscountCodeUsageProjection::discountCodeId,
-                        DiscountCodeUsageProjection::orders
-                ));
+        Map<Long, Long> ordersByCodeId = orderRepository
+            .countOrdersByDiscountCodeIds(discountCodeIds)
+            .stream()
+            .collect(Collectors.toMap(
+                DiscountCodeUsageProjection::discountCodeId,
+                DiscountCodeUsageProjection::orders
+            ));
 
         Page<AdminDiscountCodeResponse> responsePage = discountCodesPage.map(discountCode ->
-                adminDiscountCodeMapper.toDto(discountCode, orders.getOrDefault(discountCode.getId(), 0L))
+            adminDiscountCodeMapper.toDto(
+                discountCode, ordersByCodeId.getOrDefault(discountCode.getId(), 0L)
+            )
         );
 
         return pageMapper.toDto(responsePage);
@@ -112,20 +106,27 @@ public class AdminDiscountCodeService {
     @Transactional
     public AdminDiscountCodeResponse updateDiscountCode(Long id, AdminUpdateDiscountCodeRequest request) {
         DiscountCode discountCode = discountCodeRepository.findById(id)
-                .orElseThrow(() -> new DiscountCodeNotFoundException("Discount code not found with id: " + id));
+            .orElseThrow(() -> new DiscountCodeNotFoundException("Discount code not found with id: " + id));
 
-        String previousPercentage = discountCode.getDiscountPercentage() + "%";
-
-        adminDiscountCodeMapper.updateEntity(discountCode, request);
+        discountCode.setDiscountPercentage(request.discountPercentage());
 
         adminAuditLogService.register(
-                AuditAction.UPDATED,
-                AuditEntityType.DISCOUNT_CODE,
-                id,
-                discountCode.getCode(),
-                previousPercentage + " → " + discountCode.getDiscountPercentage() + "%"
+            AuditAction.UPDATED,
+            AuditEntityType.DISCOUNT_CODE,
+            id,
+            discountCode.getCode(),
+            discountCode.getDiscountPercentage() + "% → " + request.discountPercentage() + "%"
         );
 
         return adminDiscountCodeMapper.toDto(discountCode, orderRepository.countByDiscountCodeId(id));
+    }
+
+    private void setActive(Long id, boolean active, AuditAction action) {
+        DiscountCode discountCode = discountCodeRepository.findById(id)
+            .orElseThrow(() -> new DiscountCodeNotFoundException("Discount code not found with id: " + id));
+
+        discountCode.setActive(active);
+
+        adminAuditLogService.register(action, AuditEntityType.DISCOUNT_CODE, id, discountCode.getCode());
     }
 }

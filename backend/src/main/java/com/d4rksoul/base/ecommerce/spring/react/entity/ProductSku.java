@@ -31,10 +31,10 @@ import java.util.List;
 
 @Entity
 @Table(
-        name = "product_skus",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_product_size_color", columnNames = {"product_id", "size", "color"})
-        }
+    name = "product_skus",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_product_size_color", columnNames = {"product_id", "size", "color"}
+    )
 )
 @Getter
 @Setter
@@ -49,7 +49,9 @@ public class ProductSku {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "product_id", nullable = false, foreignKey = @ForeignKey(name = "fk_product_sku_product"))
+    @JoinColumn(name = "product_id", nullable = false, updatable = false,
+        foreignKey = @ForeignKey(name = "fk_product_sku_product")
+    )
     private Product product;
 
     @Enumerated(EnumType.STRING)
@@ -64,17 +66,18 @@ public class ProductSku {
     private int stock;
 
     @Column(nullable = false)
-    private int weight;
+    private int weightGrams;
 
     @Column(nullable = false)
-    private int length;
+    private int lengthCm;
 
     @Column(nullable = false)
-    private int width;
+    private int widthCm;
 
     @Column(nullable = false)
-    private int height;
+    private int heightCm;
 
+    @Column(nullable = false)
     private int discountPercentage;
 
     @Builder.Default

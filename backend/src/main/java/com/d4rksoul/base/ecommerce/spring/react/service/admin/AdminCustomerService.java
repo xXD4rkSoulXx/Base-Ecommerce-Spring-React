@@ -25,8 +25,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.d4rksoul.base.ecommerce.spring.react.enums.OrderStatus.HISTORY_STATUSES;
@@ -44,29 +46,21 @@ public class AdminCustomerService {
     @Transactional(readOnly = true)
     public PageResponse<AdminCustomerResponse> getCustomers(AdminCustomerSearchRequest filter) {
         Specification<User> specification = Specification
-                .where(UserSpecification.hasRole(UserRole.CUSTOMER))
-                .and(UserSpecification.containsNameOrEmail(filter.q()))
-                .and(UserSpecification.orderByRecentDesc());
+            .where(UserSpecification.hasRole(UserRole.CUSTOMER))
+            .and(UserSpecification.containsNameOrEmail(filter.q()))
+            .and(UserSpecification.orderByRecentDesc());
 
         Pageable pageable = PageRequest.of(filter.page(), filter.size());
         Page<User> usersPage = userRepository.findAll(specification, pageable);
 
         List<Long> userIds = usersPage.getContent().stream()
-                .map(User::getId)
-                .toList();
+            .map(User::getId)
+            .toList();
 
-        Map<Long, CustomerOrderStatsProjection> customerStats = orderRepository.findCustomerStatsByUserIds(
-                        userIds, HISTORY_STATUSES
-                ).stream()
-                .collect(
-                        Collectors.toMap(
-                                CustomerOrderStatsProjection::userId,
-                                stats -> stats
-                        )
-                );
+        Map<Long, CustomerOrderStatsProjection> customerStats = findStatsByUserId(userIds);
 
         Page<AdminCustomerResponse> responsePage = usersPage.map(user ->
-                adminCustomerMapper.toDto(user, customerStats.get(user.getId()))
+            adminCustomerMapper.toDto(user, customerStats.get(user.getId()))
         );
 
         return pageMapper.toDto(responsePage);
@@ -75,35 +69,34 @@ public class AdminCustomerService {
     @Transactional(readOnly = true)
     public AdminCustomerResponse getCustomer(Long id) {
         User user = userRepository.findByIdAndRole(id, UserRole.CUSTOMER)
-                .orElseThrow(() -> new UserNotFoundException("Customer not found"));
+            .orElseThrow(() -> new UserNotFoundException("Customer not found"));
 
-        Map<Long, CustomerOrderStatsProjection> customerStats = orderRepository.findCustomerStatsByUserIds(
-                        List.of(id), HISTORY_STATUSES
-                ).stream()
-                .collect(
-                        Collectors.toMap(
-                                CustomerOrderStatsProjection::userId,
-                                stats -> stats
-                        )
-                );
+        CustomerOrderStatsProjection stats = findStatsByUserId(List.of(id)).get(id);
 
-        return adminCustomerMapper.toDto(user, customerStats.get(id));
+        return adminCustomerMapper.toDto(user, stats);
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<OrderSummaryResponse> getCustomerOrders(Long id, AdminCustomerOrderSearchRequest filter) {
+    public PageResponse<OrderSummaryResponse> getCustomerOrders(
+        Long id, AdminCustomerOrderSearchRequest filter
+    ) {
         userRepository.findByIdAndRole(id, UserRole.CUSTOMER)
-                .orElseThrow(() -> new UserNotFoundException("Customer not found"));
+            .orElseThrow(() -> new UserNotFoundException("Customer not found"));
 
         Specification<Order> specification = Specification
-                .where(OrderSpecification.belongsToUser(id))
-                .and(OrderSpecification.hasStatusIn(HISTORY_STATUSES))
-                .and(OrderSpecification.orderByRecentDesc());
+            .where(OrderSpecification.belongsToUser(id))
+            .and(OrderSpecification.hasStatusIn(HISTORY_STATUSES))
+            .and(OrderSpecification.orderByRecentDesc());
 
         Pageable pageable = PageRequest.of(filter.page(), filter.size());
         Page<OrderSummaryResponse> ordersPage = orderRepository.findAll(specification, pageable)
-                .map(orderMapper::toSummaryDto);
+            .map(orderMapper::toSummaryDto);
 
         return pageMapper.toDto(ordersPage);
+    }
+
+    private Map<Long, CustomerOrderStatsProjection> findStatsByUserId(Collection<Long> userIds) {
+        return orderRepository.findCustomerStatsByUserIds(userIds, HISTORY_STATUSES).stream()
+            .collect(Collectors.toMap(CustomerOrderStatsProjection::userId, Function.identity()));
     }
 }

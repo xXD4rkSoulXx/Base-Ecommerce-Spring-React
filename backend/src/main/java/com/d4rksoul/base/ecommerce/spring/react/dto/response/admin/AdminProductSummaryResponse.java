@@ -10,27 +10,27 @@ import java.math.BigDecimal;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record AdminProductSummaryResponse(
-        Long id,
+    Long id,
 
-        String ref,
+    String ref,
 
-        String name,
+    String name,
 
-        ProductCategory category,
+    ProductCategory category,
 
-        BigDecimal price,
+    BigDecimal price,
 
-        int discountPercentage,
+    int discountPercentage,
 
-        FeaturedSlot featuredSlot,
+    FeaturedSlot featuredSlot,
 
-        boolean active,
+    boolean active,
 
-        String cover,
+    String cover,
 
-        long totalStock,
+    long totalStock,
 
-        long skuCount,
+    long skuCount,
 
-        long lowStockSkus
+    long lowStockSkus
 ) {}

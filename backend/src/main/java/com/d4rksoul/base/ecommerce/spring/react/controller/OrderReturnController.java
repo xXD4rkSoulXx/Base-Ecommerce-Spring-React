@@ -22,8 +22,7 @@ public class OrderReturnController {
 
     @PostMapping
     public ResponseEntity<OrderReturnResponse> requestReturn(
-            @PathVariable Long orderId,
-            @Valid @RequestBody CreateReturnRequest request
+        @PathVariable Long orderId, @Valid @RequestBody CreateReturnRequest request
     ) {
         OrderReturnResponse response = orderReturnService.requestReturn(orderId, request);
 

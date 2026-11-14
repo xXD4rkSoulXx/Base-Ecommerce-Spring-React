@@ -10,13 +10,13 @@ import java.time.Instant;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record OrderSummaryResponse(
-        Long id,
+    Long id,
 
-        OrderStatus status,
+    OrderStatus status,
 
-        Instant createdAt,
+    Instant createdAt,
 
-        BigDecimal totalAmount,
+    BigDecimal totalAmount,
 
-        String currency
+    String currency
 ) {}

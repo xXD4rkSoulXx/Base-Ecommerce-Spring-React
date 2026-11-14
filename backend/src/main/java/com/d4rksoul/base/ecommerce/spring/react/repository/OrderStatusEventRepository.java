@@ -11,5 +11,7 @@ public interface OrderStatusEventRepository extends JpaRepository<OrderStatusEve
 
     List<OrderStatusEvent> findByOrderIdOrderByOccurredAtAscIdAsc(Long orderId);
 
-    Optional<OrderStatusEvent> findFirstByOrderIdAndStatusOrderByOccurredAtAsc(Long orderId, OrderStatus status);
+    Optional<OrderStatusEvent> findFirstByOrderIdAndStatusOrderByOccurredAtAsc(
+        Long orderId, OrderStatus status
+    );
 }

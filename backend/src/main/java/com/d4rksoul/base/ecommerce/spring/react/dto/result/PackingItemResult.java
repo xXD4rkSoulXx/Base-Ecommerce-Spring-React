@@ -1,15 +1,18 @@
 package com.d4rksoul.base.ecommerce.spring.react.dto.result;
 
+import lombok.Builder;
+
+@Builder
 public record PackingItemResult(
-        Long productSkuId,
+    Long productSkuId,
 
-        double weightKg,
+    double weightKg,
 
-        double lengthCm,
+    double lengthCm,
 
-        double widthCm,
+    double widthCm,
 
-        double heightCm
+    double heightCm
 ) {
 
     public double volumeCm3() {

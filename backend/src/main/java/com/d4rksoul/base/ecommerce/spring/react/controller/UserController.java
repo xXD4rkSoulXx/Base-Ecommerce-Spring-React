@@ -7,8 +7,6 @@ import com.d4rksoul.base.ecommerce.spring.react.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,18 +21,15 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<ProfileResponse> getProfile(@AuthenticationPrincipal Jwt jwt) {
-        ProfileResponse profile = userService.getProfile(jwt.getSubject());
+    public ResponseEntity<ProfileResponse> getProfile() {
+        ProfileResponse profile = userService.getProfile();
 
         return ResponseEntity.ok(profile);
     }
 
     @PatchMapping
-    public ResponseEntity<UserResponse> updateProfile(
-            @AuthenticationPrincipal Jwt jwt,
-            @Valid @RequestBody UpdateProfileRequest request
-    ) {
-        UserResponse user = userService.updateProfile(jwt.getSubject(), request);
+    public ResponseEntity<UserResponse> updateProfile(@Valid @RequestBody UpdateProfileRequest request) {
+        UserResponse user = userService.updateProfile(request);
 
         return ResponseEntity.ok(user);
     }

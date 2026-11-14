@@ -6,9 +6,11 @@ import lombok.Builder;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record AdminProductSkuImageResponse(
-        Long id,
+    Long id,
 
-        String path,
+    String path,
 
-        boolean cover
+    boolean skuCover,
+
+    boolean productCover
 ) {}

@@ -16,6 +16,8 @@ import com.d4rksoul.base.ecommerce.spring.react.storage.ImageStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -43,7 +45,7 @@ public class AdminProductSkuImageService {
     @Transactional
     public AdminProductSkuImageResponse uploadImage(Long productId, Long skuId, MultipartFile file) {
         ProductSku sku = productSkuRepository.findByIdAndProductId(skuId, productId)
-                .orElseThrow(() -> new ProductSkuNotFoundException("Product SKU not found with id: " + skuId));
+            .orElseThrow(() -> new ProductSkuNotFoundException("Product SKU not found with id: " + skuId));
 
         if (file.isEmpty()) {
             throw new InvalidImageException("Select an image to upload.");
@@ -56,13 +58,23 @@ public class AdminProductSkuImageService {
             throw new UncheckedIOException(exception);
         }
 
-        ImageFormat format = detectFormat(content);
-        String url = imageStorage.store(content, format.getExtension());
-        boolean cover = !productSkuImageRepository.existsByProductSkuId(skuId);
+        String path = imageStorage.store(content, detectFormat(content).getExtension());
 
-        ProductSkuImage image = productSkuImageRepository.save(
-                adminProductSkuImageMapper.toEntity(sku, url, cover)
-        );
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCompletion(int status) {
+                if (status == STATUS_ROLLED_BACK) {
+                    imageStorage.delete(path);
+                }
+            }
+        });
+
+        boolean skuCover = !productSkuImageRepository.existsByProductSkuId(skuId);
+        boolean productCover = !productSkuImageRepository.existsByProductSkuProductId(productId);
+
+        ProductSkuImage image = adminProductSkuImageMapper.toEntity(sku, path, skuCover, productCover);
+
+        productSkuImageRepository.save(image);
 
         adminAuditLogService.registerVariant(AuditAction.IMAGE_UPLOADED, sku, null);
 
@@ -72,51 +84,76 @@ public class AdminProductSkuImageService {
     @Transactional(readOnly = true)
     public List<AdminProductSkuImageResponse> getImages(Long productId, Long skuId) {
         productSkuRepository.findByIdAndProductId(skuId, productId)
-                .orElseThrow(() -> new ProductSkuNotFoundException("Product SKU not found with id: " + skuId));
+            .orElseThrow(() -> new ProductSkuNotFoundException("Product SKU not found with id: " + skuId));
 
-        return productSkuImageRepository.findByProductSkuIdOrderByIdAsc(skuId).stream()
-                .map(adminProductSkuImageMapper::toDto)
-                .toList();
+        return productSkuImageRepository.findByProductSkuIdOrderByIdAsc(skuId)
+            .stream()
+            .map(adminProductSkuImageMapper::toDto)
+            .toList();
     }
 
     @Transactional
-    public void setCover(Long productId, Long skuId, Long imageId) {
-        ProductSku sku = productSkuRepository.findByIdAndProductId(skuId, productId)
-                .orElseThrow(() -> new ProductSkuNotFoundException("Product SKU not found with id: " + skuId));
+    public void setProductCover(Long productId, Long skuId, Long imageId) {
+        changeCover(productId, skuId, imageId, "Product cover", () -> {
+            productSkuImageRepository.clearProductCover(productId);
+            productSkuImageRepository.markProductCover(imageId);
+        });
+    }
 
-        List<ProductSkuImage> images = productSkuImageRepository.findByProductSkuIdOrderByIdAsc(skuId);
-
-        if (images.stream().noneMatch(image -> image.getId().equals(imageId))) {
-            throw new ProductSkuImageNotFoundException("Image not found with id: " + imageId);
-        }
-
-        images.forEach(image -> image.setCover(image.getId().equals(imageId)));
-
-        adminAuditLogService.registerVariant(AuditAction.COVER_CHANGED, sku, null);
+    @Transactional
+    public void setSkuCover(Long productId, Long skuId, Long imageId) {
+        changeCover(productId, skuId, imageId, "Variant cover", () -> {
+            productSkuImageRepository.clearSkuCover(skuId);
+            productSkuImageRepository.markSkuCover(imageId);
+        });
     }
 
     @Transactional
     public void deleteImage(Long productId, Long skuId, Long imageId) {
         ProductSku sku = productSkuRepository.findByIdAndProductId(skuId, productId)
-                .orElseThrow(() -> new ProductSkuNotFoundException("Product SKU not found with id: " + skuId));
+            .orElseThrow(() -> new ProductSkuNotFoundException("Product SKU not found with id: " + skuId));
 
         ProductSkuImage image = productSkuImageRepository.findByIdAndProductSkuId(imageId, skuId)
-                .orElseThrow(() -> new ProductSkuImageNotFoundException("Image not found with id: " + imageId));
-
-        if (image.isCover()) {
-            productSkuImageRepository.findByProductSkuIdOrderByIdAsc(skuId).stream()
-                    .filter(other -> !other.getId().equals(imageId))
-                    .findFirst()
-                    .ifPresent(next -> next.setCover(true));
-        }
+            .orElseThrow(() -> new ProductSkuImageNotFoundException("Image not found with id: " + imageId));
 
         productSkuImageRepository.delete(image);
+        productSkuImageRepository.flush();
+
+        if (image.isSkuCover()) {
+            productSkuImageRepository.findFirstByProductSkuIdOrderByIdAsc(skuId)
+                .ifPresent(next -> productSkuImageRepository.markSkuCover(next.getId()));
+        }
+
+        if (image.isProductCover()) {
+            productSkuImageRepository.findFirstByProductSkuProductIdOrderByIdAsc(productId)
+                .ifPresent(next -> productSkuImageRepository.markProductCover(next.getId()));
+        }
 
         adminAuditLogService.registerVariant(AuditAction.IMAGE_DELETED, sku, null);
 
-        if (!orderItemRepository.existsByImagePath(image.getPath())) {
-            imageStorage.delete(image.getPath());
+        boolean usedByOrders = orderItemRepository.existsByImagePath(image.getPath());
+        if (!usedByOrders) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    imageStorage.delete(image.getPath());
+                }
+            });
         }
+    }
+
+    private void changeCover(
+        Long productId, Long skuId, Long imageId, String coverType, Runnable update
+    ) {
+        ProductSku sku = productSkuRepository.findByIdAndProductId(skuId, productId)
+            .orElseThrow(() -> new ProductSkuNotFoundException("Product SKU not found with id: " + skuId));
+
+        productSkuImageRepository.findByIdAndProductSkuId(imageId, skuId)
+            .orElseThrow(() -> new ProductSkuImageNotFoundException("Image not found with id: " + imageId));
+
+        update.run();
+
+        adminAuditLogService.registerVariant(AuditAction.COVER_CHANGED, sku, coverType);
     }
 
     private ImageFormat detectFormat(byte[] content) {
@@ -128,10 +165,10 @@ public class AdminProductSkuImageService {
             return ImageFormat.PNG;
         }
 
-        if (content.length >= 12
-                && Arrays.equals(content, 0, 4, RIFF, 0, 4)
-                && Arrays.equals(content, 8, 12, WEBP, 0, 4)
-        ) {
+        boolean isWebp = content.length >= 12
+            && Arrays.equals(content, 0, 4, RIFF, 0, 4)
+            && Arrays.equals(content, 8, 12, WEBP, 0, 4);
+        if (isWebp) {
             return ImageFormat.WEBP;
         }
 
@@ -140,6 +177,8 @@ public class AdminProductSkuImageService {
 
     private boolean startsWith(byte[] content, byte[] signature) {
         return content.length >= signature.length
-                && Arrays.equals(content, 0, signature.length, signature, 0, signature.length);
+            && Arrays.equals(
+                content, 0, signature.length, signature, 0, signature.length
+            );
     }
 }

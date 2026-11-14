@@ -55,8 +55,7 @@ public class CartController {
 
     @PutMapping("/{productSkuId}")
     public ResponseEntity<CartResponse> updateQuantity(
-            @PathVariable Long productSkuId,
-            @Valid @RequestBody UpdateCartItemRequest request
+        @PathVariable Long productSkuId, @Valid @RequestBody UpdateCartItemRequest request
     ) {
         CartResponse cart = cartService.updateQuantity(productSkuId, request.quantity());
 

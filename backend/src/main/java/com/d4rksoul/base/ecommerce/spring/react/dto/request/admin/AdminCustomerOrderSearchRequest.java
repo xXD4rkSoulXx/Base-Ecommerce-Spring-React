@@ -4,13 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record AdminCustomerOrderSearchRequest(
-        int page,
+    int page,
 
-        int size
+    int size
 ) {
 
     public AdminCustomerOrderSearchRequest {
         page = Math.max(page, 0);
-        size = size <= 0 ? 10 : Math.min(size, 50);
+        size = Math.clamp(size, 1, 50);
     }
 }

@@ -23,10 +23,10 @@ import java.time.Instant;
 
 @Entity
 @Table(
-        name = "order_return_items",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_return_order_item", columnNames = {"order_return_id", "order_item_id"})
-        }
+    name = "order_return_items",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_return_order_item", columnNames = {"order_return_id", "order_item_id"}
+    )
 )
 @Getter
 @Setter
@@ -41,14 +41,18 @@ public class OrderReturnItem {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "order_return_id", nullable = false, foreignKey = @ForeignKey(name = "fk_return_item_return"))
+    @JoinColumn(name = "order_return_id", nullable = false, updatable = false,
+        foreignKey = @ForeignKey(name = "fk_return_item_return")
+    )
     private OrderReturn orderReturn;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "order_item_id", nullable = false, foreignKey = @ForeignKey(name = "fk_return_item_order_item"))
+    @JoinColumn(name = "order_item_id", nullable = false, updatable = false,
+        foreignKey = @ForeignKey(name = "fk_return_item_order_item")
+    )
     private OrderItem orderItem;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private int quantity;
 
     @CreationTimestamp

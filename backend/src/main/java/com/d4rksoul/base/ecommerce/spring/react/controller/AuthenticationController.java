@@ -1,5 +1,6 @@
 package com.d4rksoul.base.ecommerce.spring.react.controller;
 
+import com.d4rksoul.base.ecommerce.spring.react.constant.Constants;
 import com.d4rksoul.base.ecommerce.spring.react.dto.request.ChangePasswordRequest;
 import com.d4rksoul.base.ecommerce.spring.react.dto.result.LoginResult;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.LoginResponse;
@@ -15,8 +16,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +23,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.Duration;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -44,19 +45,12 @@ public class AuthenticationController {
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         LoginResult result = authenticationService.login(request);
 
-        ResponseCookie refreshTokenCookie = buildRefreshTokenCookie(
-                result.refreshToken(),
-                30L * 24 * 60 * 60
-        );
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
-                .body(new LoginResponse(result.user(), result.accessToken()));
+        return buildLoginResponse(result);
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<LoginResponse> refresh(
-            @CookieValue(name = "refreshToken", required = false) String rawOldRefreshToken
+        @CookieValue(name = "refreshToken", required = false) String rawOldRefreshToken
     ) {
         if (rawOldRefreshToken == null) {
             throw new InvalidRefreshTokenException("No active session");
@@ -64,67 +58,66 @@ public class AuthenticationController {
 
         LoginResult result = authenticationService.refresh(rawOldRefreshToken);
 
-        ResponseCookie newRefreshTokenCookie = buildRefreshTokenCookie(
-                result.refreshToken(),
-                30L * 24 * 60 * 60
-        );
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, newRefreshTokenCookie.toString())
-                .body(new LoginResponse(result.user(), result.accessToken()));
+        return buildLoginResponse(result);
     }
 
     @PutMapping("/password")
-    public ResponseEntity<Void> changePassword(
-            @AuthenticationPrincipal Jwt jwt,
-            @Valid @RequestBody ChangePasswordRequest request
-    ) {
-        authenticationService.changePassword(jwt.getSubject(), request);
+    public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
+        authenticationService.changePassword(request);
 
-        ResponseCookie cleanCookie = buildRefreshTokenCookie("", 0);
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cleanCookie.toString())
-                .build();
+        return buildSessionClearedResponse();
     }
 
     @DeleteMapping("/logout")
     public ResponseEntity<Void> logout(
-            @CookieValue(name = "refreshToken", required = false) String rawRefreshToken
+        @CookieValue(name = "refreshToken", required = false) String rawRefreshToken
     ) {
         if (rawRefreshToken != null) {
             authenticationService.logout(rawRefreshToken);
         }
 
-        ResponseCookie cleanCookie = buildRefreshTokenCookie("", 0);
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cleanCookie.toString())
-                .build();
+        return buildSessionClearedResponse();
     }
 
     @DeleteMapping("/logout-all")
-    public ResponseEntity<Void> logoutAllByUser(@AuthenticationPrincipal Jwt jwt) {
-        String email = jwt.getSubject();
+    public ResponseEntity<Void> logoutAllByUser() {
+        authenticationService.logoutAllByUser();
 
-        authenticationService.logoutAllByUser(email);
-
-        ResponseCookie cleanCookie = buildRefreshTokenCookie("", 0);
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cleanCookie.toString())
-                .build();
+        return buildSessionClearedResponse();
     }
 
-    private ResponseCookie buildRefreshTokenCookie(String value, long maxAgeSeconds) {
+    private ResponseEntity<LoginResponse> buildLoginResponse(LoginResult result) {
+        ResponseCookie refreshTokenCookie = buildRefreshTokenCookie(
+            result.refreshToken(), Constants.REFRESH_TOKEN_TTL
+        );
+
+        LoginResponse body = LoginResponse.builder()
+            .user(result.user())
+            .accessToken(result.accessToken())
+            .build();
+
+        return ResponseEntity.ok()
+            .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+            .body(body);
+    }
+
+    private ResponseEntity<Void> buildSessionClearedResponse() {
+        ResponseCookie cleanCookie = buildRefreshTokenCookie("", Duration.ZERO);
+
+        return ResponseEntity.ok()
+            .header(HttpHeaders.SET_COOKIE, cleanCookie.toString())
+            .build();
+    }
+
+    private ResponseCookie buildRefreshTokenCookie(String value, Duration maxAge) {
         boolean isProd = environment.acceptsProfiles(Profiles.of("prod"));
 
         return ResponseCookie.from("refreshToken", value)
-                .httpOnly(true)
-                .secure(isProd)
-                .path("/api/auth")
-                .maxAge(maxAgeSeconds)
-                .sameSite(isProd ? "None" : "Lax")
-                .build();
+            .httpOnly(true)
+            .secure(isProd)
+            .path("/api/auth")
+            .maxAge(maxAge)
+            .sameSite(isProd ? "None" : "Lax")
+            .build();
     }
 }

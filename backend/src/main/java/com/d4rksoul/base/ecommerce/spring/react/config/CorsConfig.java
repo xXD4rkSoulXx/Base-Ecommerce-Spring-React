@@ -1,6 +1,5 @@
 package com.d4rksoul.base.ecommerce.spring.react.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -12,21 +11,14 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
 
-    @Value("${CORS_ORIGINS}")
-    private String allowedOrigins;
-
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource(CorsProperties properties) {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of(allowedOrigins));
+        configuration.setAllowedOrigins(properties.allowedOrigins());
         configuration.setAllowedMethods(List.of("POST", "GET", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of(
-                "Authorization",
-                "Content-Type",
-                "X-XSRF-TOKEN",
-                "X-Requested-With",
-                "Cache-Control"
+            "Authorization", "Content-Type", "X-XSRF-TOKEN", "X-Requested-With", "Cache-Control"
         ));
         configuration.setAllowCredentials(true);
 

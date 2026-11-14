@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Min;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record UpdateCartItemRequest(
-        @Min(1)
-        @Max(10)
-        int quantity
+    @Min(value = 1, message = "Quantity must be between 1 and 10")
+    @Max(value = 10, message = "Quantity must be between 1 and 10")
+    int quantity
 ) {}

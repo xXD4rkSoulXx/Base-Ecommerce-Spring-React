@@ -9,12 +9,13 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 
 public record CreateReturnRequest(
-        @NotNull(message = "Return reason is required.")
-        ReturnReason reason,
+    @NotNull(message = "Return reason is required.")
+    ReturnReason reason,
 
-        @Size(max = 500, message = "Comment cannot exceed 500 characters.")
-        String comment,
+    @Size(max = 500, message = "Comment cannot exceed 500 characters.")
+    String comment,
 
-        @NotEmpty(message = "Select at least one item to return.")
-        List<@Valid CreateReturnItemRequest> items
+    @NotEmpty(message = "Select at least one item to return.")
+    @Size(max = 50, message = "Too many items.")
+    List<@NotNull(message = "Items cannot be null.") @Valid CreateReturnItemRequest> items
 ) {}

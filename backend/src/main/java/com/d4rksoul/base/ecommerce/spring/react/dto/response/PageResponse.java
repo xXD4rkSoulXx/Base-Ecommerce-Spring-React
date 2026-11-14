@@ -8,17 +8,17 @@ import java.util.List;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record PageResponse<T>(
-        List<T> content,
+    List<T> content,
 
-        int page,
+    int page,
 
-        int size,
+    int size,
 
-        long totalElements,
+    long totalElements,
 
-        int totalPages,
+    int totalPages,
 
-        boolean first,
+    boolean first,
 
-        boolean last
+    boolean last
 ) {}

@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,7 +24,9 @@ public class AdminCustomerController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('CUSTOMERS_READ')")
-    public ResponseEntity<PageResponse<AdminCustomerResponse>> getCustomers(AdminCustomerSearchRequest filter) {
+    public ResponseEntity<PageResponse<AdminCustomerResponse>> getCustomers(
+        @ModelAttribute AdminCustomerSearchRequest filter
+    ) {
         PageResponse<AdminCustomerResponse> customers = adminCustomerService.getCustomers(filter);
 
         return ResponseEntity.ok(customers);
@@ -38,10 +41,9 @@ public class AdminCustomerController {
     }
 
     @GetMapping("/{id}/orders")
-    @PreAuthorize("hasAuthority('CUSTOMERS_READ')")
+    @PreAuthorize("hasAuthority('CUSTOMERS_READ') and hasAuthority('ORDERS_READ')")
     public ResponseEntity<PageResponse<OrderSummaryResponse>> getCustomerOrders(
-            @PathVariable Long id,
-            AdminCustomerOrderSearchRequest filter
+        @PathVariable Long id, @ModelAttribute AdminCustomerOrderSearchRequest filter
     ) {
         PageResponse<OrderSummaryResponse> orders = adminCustomerService.getCustomerOrders(id, filter);
 

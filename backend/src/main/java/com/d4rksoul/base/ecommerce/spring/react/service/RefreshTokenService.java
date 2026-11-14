@@ -1,5 +1,6 @@
 package com.d4rksoul.base.ecommerce.spring.react.service;
 
+import com.d4rksoul.base.ecommerce.spring.react.constant.Constants;
 import com.d4rksoul.base.ecommerce.spring.react.dto.result.RotateRefreshTokenResult;
 import com.d4rksoul.base.ecommerce.spring.react.entity.RefreshToken;
 import com.d4rksoul.base.ecommerce.spring.react.entity.User;
@@ -11,12 +12,11 @@ import com.d4rksoul.base.ecommerce.spring.react.mapper.RefreshTokenMapper;
 import com.d4rksoul.base.ecommerce.spring.react.repository.RefreshTokenRepository;
 import com.d4rksoul.base.ecommerce.spring.react.security.HashService;
 import com.d4rksoul.base.ecommerce.spring.react.security.TokenService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -27,27 +27,24 @@ public class RefreshTokenService {
     private final HashService hashService;
     private final RefreshTokenMapper refreshTokenMapper;
 
-    @Transactional
     public void create(User user, String rawToken) {
         String hashedToken = hashService.hash(rawToken);
-        Instant expiresAt = Instant.now().plus(30, ChronoUnit.DAYS);
+        Instant expiresAt = Instant.now().plus(Constants.REFRESH_TOKEN_TTL);
 
         RefreshToken refreshToken = refreshTokenMapper.toEntity(user, hashedToken, expiresAt);
 
         refreshTokenRepository.save(refreshToken);
     }
 
-    @Transactional(dontRollbackOn = RefreshTokenException.class)
+    @Transactional(noRollbackFor = RefreshTokenException.class)
     public RotateRefreshTokenResult rotate(String rawOldToken) {
         String hashedOldToken = hashService.hash(rawOldToken);
 
         RefreshToken storedToken = refreshTokenRepository.findByToken(hashedOldToken)
-                .orElseThrow(() -> new InvalidRefreshTokenException("Invalid session"));
-
-        User user = storedToken.getUser();
+            .orElseThrow(() -> new InvalidRefreshTokenException("Invalid session"));
 
         if (storedToken.isRevoked()) {
-            refreshTokenRepository.deleteAllByUser(user);
+            refreshTokenRepository.deleteAllByUser(storedToken.getUser());
             throw new RefreshTokenReuseException("Security breach detected. All sessions revoked.");
         }
 
@@ -56,13 +53,17 @@ public class RefreshTokenService {
             throw new RefreshTokenExpiredException("Session expired. Please log in again.");
         }
 
-        storedToken.setRevoked(true);
-        refreshTokenRepository.save(storedToken);
+        int updatedRows = refreshTokenRepository.revoke(storedToken.getId());
+        if (updatedRows == 0) {
+            refreshTokenRepository.deleteAllByUser(storedToken.getUser());
+            throw new RefreshTokenReuseException("Security breach detected. All sessions revoked.");
+        }
 
         String rawNewToken = tokenService.generateRefreshToken();
-        this.create(user, rawNewToken);
 
-        return new RotateRefreshTokenResult(user, rawNewToken);
+        create(storedToken.getUser(), rawNewToken);
+
+        return refreshTokenMapper.toRotateResult(storedToken.getUser(), rawNewToken);
     }
 
     @Transactional

@@ -11,53 +11,53 @@ import java.util.List;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record OrderDetailsResponse(
-        Long id,
+    Long id,
 
-        OrderStatus status,
+    OrderStatus status,
 
-        Instant createdAt,
+    Instant createdAt,
 
-        String currency,
+    String currency,
 
-        String discountCode,
+    String discountCode,
 
-        BigDecimal subtotal,
+    BigDecimal subtotal,
 
-        BigDecimal discountAmount,
+    BigDecimal discountAmount,
 
-        BigDecimal shippingCost,
+    BigDecimal shippingCost,
 
-        BigDecimal taxAmount,
+    BigDecimal taxAmount,
 
-        BigDecimal totalAmount,
+    BigDecimal totalAmount,
 
-        String shippingCarrier,
+    String shippingCarrier,
 
-        String shippingService,
+    String shippingService,
 
-        String recipientName,
+    String recipientName,
 
-        String addressLine1,
+    String addressLine1,
 
-        String addressLine2,
+    String addressLine2,
 
-        String city,
+    String city,
 
-        String state,
+    String state,
 
-        String postalCode,
+    String postalCode,
 
-        String country,
+    String country,
 
-        String phone,
+    String phone,
 
-        List<OrderStatusEventResponse> events,
+    List<OrderStatusEventResponse> events,
 
-        List<OrderShipmentResponse> shipments,
+    List<OrderShipmentResponse> shipments,
 
-        Instant returnableUntil,
+    Instant returnableUntil,
 
-        List<OrderReturnResponse> returns,
+    List<OrderReturnResponse> returns,
 
-        List<OrderItemResponse> items
+    List<OrderItemResponse> items
 ) {}

@@ -9,13 +9,13 @@ import java.util.List;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record OrderShipmentResponse(
-        Long id,
+    Long id,
 
-        String trackingNumber,
+    String trackingNumber,
 
-        ShipmentStatus status,
+    ShipmentStatus status,
 
-        List<OrderShipmentItemResponse> items,
+    List<OrderShipmentItemResponse> items,
 
-        List<ShipmentTrackingEventResponse> events
+    List<ShipmentTrackingEventResponse> events
 ) {}

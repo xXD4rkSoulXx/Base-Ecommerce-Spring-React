@@ -4,8 +4,6 @@ import com.d4rksoul.base.ecommerce.spring.react.dto.response.OrderItemResponse;
 import com.d4rksoul.base.ecommerce.spring.react.entity.CartItem;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Order;
 import com.d4rksoul.base.ecommerce.spring.react.entity.OrderItem;
-import com.d4rksoul.base.ecommerce.spring.react.entity.Product;
-import com.d4rksoul.base.ecommerce.spring.react.entity.ProductSku;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -15,46 +13,48 @@ import java.math.RoundingMode;
 public class OrderItemMapper {
 
     public OrderItem toEntity(Order order, CartItem cartItem, String imagePath) {
-        ProductSku sku = cartItem.getProductSku();
-        Product product = sku.getProduct();
-
-        int discountPercentage = sku.getDiscountPercentage() > 0
-                ? sku.getDiscountPercentage()
-                : product.getDiscountPercentage();
-
         return OrderItem.builder()
-                .order(order)
-                .productSku(sku)
-                .quantity(cartItem.getQuantity())
-                .price(product.getPrice())
-                .discountPercentage(discountPercentage)
-                .productName(product.getName())
-                .color(String.valueOf(sku.getColor()))
-                .size(String.valueOf(sku.getSize()))
-                .imagePath(imagePath)
-                .build();
+            .order(order)
+            .productSku(cartItem.getProductSku())
+            .quantity(cartItem.getQuantity())
+            .price(cartItem.getProductSku().getProduct().getPrice())
+            .discountPercentage(
+                cartItem.getProductSku().getDiscountPercentage() > 0
+                    ? cartItem.getProductSku().getDiscountPercentage()
+                    : cartItem.getProductSku().getProduct().getDiscountPercentage()
+            )
+            .productName(cartItem.getProductSku().getProduct().getName())
+            .color(cartItem.getProductSku().getColor())
+            .size(cartItem.getProductSku().getSize())
+            .imagePath(imagePath)
+            .weightGrams(cartItem.getProductSku().getWeightGrams())
+            .lengthCm(cartItem.getProductSku().getLengthCm())
+            .widthCm(cartItem.getProductSku().getWidthCm())
+            .heightCm(cartItem.getProductSku().getHeightCm())
+            .build();
     }
 
     public OrderItemResponse toDto(OrderItem item, int returnableQuantity) {
-        BigDecimal unitPrice = toUnitPrice(item);
-
         return OrderItemResponse.builder()
-                .id(item.getId())
-                .ref(item.getProductSku().getProduct().getRef())
-                .productName(item.getProductName())
-                .color(item.getColor())
-                .size(item.getSize())
-                .imagePath(item.getImagePath())
-                .quantity(item.getQuantity())
-                .unitPrice(unitPrice)
-                .lineTotal(unitPrice.multiply(BigDecimal.valueOf(item.getQuantity())))
-                .returnableQuantity(returnableQuantity)
-                .build();
-    }
-
-    public BigDecimal toUnitPrice(OrderItem item) {
-        return item.getPrice()
-                .multiply(BigDecimal.valueOf(100L - item.getDiscountPercentage()))
-                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+            .id(item.getId())
+            .ref(item.getProductSku().getProduct().getRef())
+            .productName(item.getProductName())
+            .color(item.getColor())
+            .size(item.getSize())
+            .imagePath(item.getImagePath())
+            .quantity(item.getQuantity())
+            .unitPrice(
+                item.getPrice()
+                    .multiply(BigDecimal.valueOf(100L - item.getDiscountPercentage()))
+                    .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP)
+            )
+            .lineTotal(
+                item.getPrice()
+                    .multiply(BigDecimal.valueOf(100L - item.getDiscountPercentage()))
+                    .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP)
+                    .multiply(BigDecimal.valueOf(item.getQuantity()))
+            )
+            .returnableQuantity(returnableQuantity)
+            .build();
     }
 }

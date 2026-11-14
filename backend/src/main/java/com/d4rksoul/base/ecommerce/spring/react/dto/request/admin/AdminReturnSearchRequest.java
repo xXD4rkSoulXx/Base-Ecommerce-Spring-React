@@ -5,18 +5,18 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record AdminReturnSearchRequest(
-        ReturnStatus status,
+    ReturnStatus status,
 
-        Boolean pending,
+    Boolean pending,
 
-        Integer page,
+    Integer page,
 
-        Integer size
+    Integer size
 ) {
 
     public AdminReturnSearchRequest {
         pending = Boolean.TRUE.equals(pending);
-        page = (page == null) ? 0 : page;
-        size = (size == null) ? 10 : size;
+        page = (page == null) ? 0 : Math.max(page, 0);
+        size = (size == null) ? 10 : Math.clamp(size, 1, 50);
     }
 }

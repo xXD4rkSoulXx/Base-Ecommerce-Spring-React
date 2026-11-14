@@ -6,9 +6,9 @@ import jakarta.validation.constraints.NotBlank;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ChangePasswordRequest(
-        @NotBlank(message = "Current password is required")
-        String currentPassword,
+    @NotBlank(message = "Current password is required")
+    String currentPassword,
 
-        @StrongPassword
-        String newPassword
+    @StrongPassword
+    String newPassword
 ) {}

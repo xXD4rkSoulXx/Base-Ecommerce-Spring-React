@@ -21,7 +21,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.Instant;
 
 @Entity
-@Table(name = "product_sku_images")
+@Table
 @Getter
 @Setter
 @NoArgsConstructor
@@ -38,10 +38,14 @@ public class ProductSkuImage {
     private String path;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "product_sku_id", nullable = false, foreignKey = @ForeignKey(name = "fk_product_sku_image_product_sku"))
+    @JoinColumn(name = "product_sku_id", nullable = false, updatable = false,
+        foreignKey = @ForeignKey(name = "fk_product_sku_image_product_sku")
+    )
     private ProductSku productSku;
 
-    private boolean cover;
+    private boolean productCover;
+
+    private boolean skuCover;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

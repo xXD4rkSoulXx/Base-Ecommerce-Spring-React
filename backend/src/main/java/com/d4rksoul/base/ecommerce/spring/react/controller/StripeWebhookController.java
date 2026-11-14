@@ -20,10 +20,10 @@ public class StripeWebhookController {
 
     @PostMapping("/stripe")
     public ResponseEntity<Void> handleStripeEvent(
-            @RequestBody String payload,
-            @RequestHeader("Stripe-Signature") String signature
+        @RequestBody String payload, @RequestHeader("Stripe-Signature") String signature
     ) {
-        stripeApiClient.parseCheckoutEvent(payload, signature).ifPresent(stripeWebhookService::handleEvent);
+        stripeApiClient.parseCheckoutEvent(payload, signature)
+            .ifPresent(stripeWebhookService::handleEvent);
 
         return ResponseEntity.ok().build();
     }

@@ -30,134 +30,151 @@ import java.time.LocalDate;
 @Component
 public class AdminDashboardMapper {
 
-    public AdminDashboardSummaryResponse toSummaryDto(PeriodTotalsResult current, PeriodTotalsResult previous) {
+    public AdminDashboardSummaryResponse toSummaryDto(
+        PeriodTotalsResult current, PeriodTotalsResult previous
+    ) {
         return AdminDashboardSummaryResponse.builder()
-                .netRevenue(current.grossRevenue().subtract(current.refunded()))
-                .previousNetRevenue(previous.grossRevenue().subtract(previous.refunded()))
-                .refunded(current.refunded())
-                .previousRefunded(previous.refunded())
-                .orders(current.orders())
-                .previousOrders(previous.orders())
-                .averageOrderValue(average(current))
-                .previousAverageOrderValue(average(previous))
-                .build();
+            .netRevenue(current.grossRevenue().subtract(current.refunded()))
+            .previousNetRevenue(previous.grossRevenue().subtract(previous.refunded()))
+            .refunded(current.refunded())
+            .previousRefunded(previous.refunded())
+            .orders(current.orders())
+            .previousOrders(previous.orders())
+            .averageOrderValue(
+                current.orders() == 0
+                    ? BigDecimal.ZERO
+                    : current.grossRevenue().divide(
+                        BigDecimal.valueOf(current.orders()), 2, RoundingMode.HALF_UP
+                    )
+            )
+            .previousAverageOrderValue(
+                previous.orders() == 0
+                    ? BigDecimal.ZERO
+                    : previous.grossRevenue().divide(
+                        BigDecimal.valueOf(previous.orders()), 2, RoundingMode.HALF_UP
+                    )
+            )
+            .build();
     }
 
     public AdminDashboardSalesPointResponse toSalesPointDto(
-            LocalDate date,
-            DailyTotalProjection sales,
-            DailyTotalProjection refunds
+        LocalDate date, DailyTotalProjection sales, DailyTotalProjection refunds
     ) {
         return AdminDashboardSalesPointResponse.builder()
-                .date(date)
-                .sales(sales == null ? BigDecimal.ZERO : sales.total())
-                .refunds(refunds == null ? BigDecimal.ZERO : refunds.total())
-                .orders(sales == null ? 0 : sales.count())
-                .build();
+            .date(date)
+            .sales(sales == null ? BigDecimal.ZERO : sales.total())
+            .refunds(refunds == null ? BigDecimal.ZERO : refunds.total())
+            .orders(sales == null ? 0 : sales.count())
+            .build();
+    }
+
+    public PeriodTotalsResult toPeriodTotals(BigDecimal revenue, BigDecimal refunds, long orders) {
+        return PeriodTotalsResult.builder()
+            .grossRevenue(revenue)
+            .refunded(refunds)
+            .orders(orders)
+            .build();
     }
 
     public AdminDashboardCountResponse toCountDto(long count) {
         return AdminDashboardCountResponse.builder()
-                .count(count)
-                .build();
+            .count(count)
+            .build();
     }
 
-    public AdminDashboardStatusCountResponse toStatusCountDto(OrderStatus status, long count) {
+    public AdminDashboardStatusCountResponse toStatusCountDto(
+        OrderStatus status, long count
+    ) {
         return AdminDashboardStatusCountResponse.builder()
-                .status(status)
-                .count(count)
-                .build();
+            .status(status)
+            .count(count)
+            .build();
     }
 
-    public AdminDashboardCategoryUnitsResponse toCategoryUnitsDto(CategoryUnitsProjection projection) {
+    public AdminDashboardCategoryUnitsResponse toCategoryUnitsDto(
+        CategoryUnitsProjection projection
+    ) {
         return AdminDashboardCategoryUnitsResponse.builder()
-                .category(projection.category())
-                .unitsSold(projection.unitsSold())
-                .build();
+            .category(projection.category())
+            .unitsSold(projection.unitsSold())
+            .build();
     }
 
-    public AdminDashboardTopProductResponse toTopProductDto(TopProductProjection product, String cover) {
+    public AdminDashboardTopProductResponse toTopProductDto(
+        TopProductProjection product, String cover
+    ) {
         return AdminDashboardTopProductResponse.builder()
-                .productId(product.productId())
-                .ref(product.ref())
-                .name(product.name())
-                .cover(cover)
-                .unitsSold(product.unitsSold())
-                .build();
+            .productId(product.productId())
+            .ref(product.ref())
+            .name(product.name())
+            .cover(cover)
+            .unitsSold(product.unitsSold())
+            .build();
     }
 
-    public AdminDashboardDiscountCodeResponse toDiscountCodeDto(TopDiscountCodeProjection projection) {
+    public AdminDashboardDiscountCodeResponse toDiscountCodeDto(
+        TopDiscountCodeProjection projection
+    ) {
         return AdminDashboardDiscountCodeResponse.builder()
-                .code(projection.code())
-                .orders(projection.orders())
-                .build();
+            .code(projection.code())
+            .orders(projection.orders())
+            .build();
     }
 
     public AdminDashboardRecentOrderResponse toRecentOrderDto(Order order) {
         return AdminDashboardRecentOrderResponse.builder()
-                .id(order.getId())
-                .customerName(order.getUser().getFirstName() + " " + order.getUser().getLastName())
-                .status(order.getStatus())
-                .totalAmount(order.getTotalAmount())
-                .createdAt(order.getCreatedAt())
-                .build();
+            .id(order.getId())
+            .customerName(order.getUser().getFirstName() + " " + order.getUser().getLastName())
+            .status(order.getStatus())
+            .totalAmount(order.getTotalAmount())
+            .createdAt(order.getCreatedAt())
+            .build();
     }
 
     public AdminDashboardReturnResponse toReturnDto(OrderReturn orderReturn) {
         return AdminDashboardReturnResponse.builder()
-                .id(orderReturn.getId())
-                .orderId(orderReturn.getOrder().getId())
-                .customerName(
-                        orderReturn.getOrder().getUser().getFirstName()
-                        + " "
-                        + orderReturn.getOrder().getUser().getLastName()
-                )
-                .status(orderReturn.getStatus())
-                .createdAt(orderReturn.getCreatedAt())
-                .build();
+            .id(orderReturn.getId())
+            .orderId(orderReturn.getOrder().getId())
+            .customerName(
+                orderReturn.getOrder().getUser().getFirstName()
+                    + " "
+                    + orderReturn.getOrder().getUser().getLastName()
+            )
+            .status(orderReturn.getStatus())
+            .createdAt(orderReturn.getCreatedAt())
+            .build();
     }
 
     public AdminDashboardLowStockResponse toLowStockDto(ProductSku sku) {
         return AdminDashboardLowStockResponse.builder()
-                .skuId(sku.getId())
-                .productId(sku.getProduct().getId())
-                .productName(sku.getProduct().getName())
-                .ref(sku.getProduct().getRef())
-                .size(String.valueOf(sku.getSize()))
-                .color(String.valueOf(sku.getColor()))
-                .stock(sku.getStock())
-                .build();
+            .skuId(sku.getId())
+            .productId(sku.getProduct().getId())
+            .productName(sku.getProduct().getName())
+            .ref(sku.getProduct().getRef())
+            .size(sku.getSize())
+            .color(sku.getColor())
+            .stock(sku.getStock())
+            .build();
     }
 
     public AdminDashboardCustomersResponse toCustomersDto(
-            long newCustomers,
-            long previousNewCustomers,
-            long totalCustomers
+        long newCustomers, long previousNewCustomers, long totalCustomers
     ) {
         return AdminDashboardCustomersResponse.builder()
-                .newCustomers(newCustomers)
-                .previousNewCustomers(previousNewCustomers)
-                .totalCustomers(totalCustomers)
-                .build();
+            .newCustomers(newCustomers)
+            .previousNewCustomers(previousNewCustomers)
+            .totalCustomers(totalCustomers)
+            .build();
     }
 
     public AdminDashboardReviewsResponse toReviewsDto(
-            long newReviews,
-            long previousNewReviews,
-            Double averageRating,
-            Double previousAverageRating
+        long newReviews, long previousNewReviews, Double averageRating, Double previousAverageRating
     ) {
         return AdminDashboardReviewsResponse.builder()
-                .newReviews(newReviews)
-                .previousNewReviews(previousNewReviews)
-                .averageRating(averageRating)
-                .previousAverageRating(previousAverageRating)
-                .build();
-    }
-
-    private BigDecimal average(PeriodTotalsResult totals) {
-        return totals.orders() == 0
-                ? BigDecimal.ZERO
-                : totals.grossRevenue().divide(BigDecimal.valueOf(totals.orders()), 2, RoundingMode.HALF_UP);
+            .newReviews(newReviews)
+            .previousNewReviews(previousNewReviews)
+            .averageRating(averageRating)
+            .previousAverageRating(previousAverageRating)
+            .build();
     }
 }

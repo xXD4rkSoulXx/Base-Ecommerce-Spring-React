@@ -8,19 +8,23 @@ import org.springframework.stereotype.Component;
 @Component
 public class AdminProductSkuImageMapper {
 
-    public ProductSkuImage toEntity(ProductSku sku, String path, boolean cover) {
+    public ProductSkuImage toEntity(
+        ProductSku sku, String path, boolean skuCover, boolean productCover
+    ) {
         return ProductSkuImage.builder()
-                .productSku(sku)
-                .path(path)
-                .cover(cover)
-                .build();
+            .productSku(sku)
+            .path(path)
+            .skuCover(skuCover)
+            .productCover(productCover)
+            .build();
     }
 
     public AdminProductSkuImageResponse toDto(ProductSkuImage image) {
         return AdminProductSkuImageResponse.builder()
-                .id(image.getId())
-                .path(image.getPath())
-                .cover(image.isCover())
-                .build();
+            .id(image.getId())
+            .path(image.getPath())
+            .skuCover(image.isSkuCover())
+            .productCover(image.isProductCover())
+            .build();
     }
 }

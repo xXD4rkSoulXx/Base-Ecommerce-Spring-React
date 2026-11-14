@@ -4,21 +4,21 @@ import lombok.Builder;
 
 @Builder
 public record ShippoAddress(
-        String name,
+    String name,
 
-        String street1,
+    String street1,
 
-        String street2,
+    String street2,
 
-        String city,
+    String city,
 
-        String state,
+    String state,
 
-        String zip,
+    String zip,
 
-        String country,
+    String country,
 
-        String phone,
+    String phone,
 
-        String email
+    String email
 ) {}

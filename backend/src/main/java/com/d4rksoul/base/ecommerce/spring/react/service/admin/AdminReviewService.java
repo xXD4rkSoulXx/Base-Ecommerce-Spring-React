@@ -30,35 +30,34 @@ public class AdminReviewService {
 
     @Transactional
     public void hideReview(Long id) {
-        Review review = reviewRepository.findById(id)
-                .orElseThrow(() -> new ReviewNotFoundException("Review not found with id: " + id));
-
-        review.setHidden(true);
-
-        adminAuditLogService.register(AuditAction.HIDDEN, AuditEntityType.REVIEW, id, "#" + id);
+        setHidden(id, true, AuditAction.HIDDEN);
     }
 
     @Transactional
     public void showReview(Long id) {
-        Review review = reviewRepository.findById(id)
-                .orElseThrow(() -> new ReviewNotFoundException("Review not found with id: " + id));
-
-        review.setHidden(false);
-
-        adminAuditLogService.register(AuditAction.SHOWN, AuditEntityType.REVIEW, id, "#" + id);
+        setHidden(id, false, AuditAction.SHOWN);
     }
 
     @Transactional(readOnly = true)
     public PageResponse<AdminReviewResponse> getReviews(AdminReviewSearchRequest filter) {
         Specification<Review> specification = Specification
-                .where(ReviewSpecification.containsQuery(filter.q()))
-                .and(ReviewSpecification.hasHidden(filter.hidden()))
-                .and(ReviewSpecification.orderByRecentDesc());
+            .where(ReviewSpecification.containsQuery(filter.q()))
+            .and(ReviewSpecification.hasHidden(filter.hidden()))
+            .and(ReviewSpecification.orderByRecentDesc());
 
         Pageable pageable = PageRequest.of(filter.page(), filter.size());
         Page<AdminReviewResponse> responsePage = reviewRepository.findAll(specification, pageable)
-                .map(adminReviewMapper::toDto);
+            .map(adminReviewMapper::toDto);
 
         return pageMapper.toDto(responsePage);
+    }
+
+    private void setHidden(Long id, boolean hidden, AuditAction action) {
+        Review review = reviewRepository.findById(id)
+            .orElseThrow(() -> new ReviewNotFoundException("Review not found with id: " + id));
+
+        review.setHidden(hidden);
+
+        adminAuditLogService.register(action, AuditEntityType.REVIEW, id, "#" + id);
     }
 }

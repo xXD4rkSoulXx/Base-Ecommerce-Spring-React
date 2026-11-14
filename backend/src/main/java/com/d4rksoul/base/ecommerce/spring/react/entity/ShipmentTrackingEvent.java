@@ -38,13 +38,16 @@ public class ShipmentTrackingEvent {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "shipment_id", nullable = false, foreignKey = @ForeignKey(name = "fk_tracking_event_shipment"))
+    @JoinColumn(name = "shipment_id", nullable = false,
+        foreignKey = @ForeignKey(name = "fk_tracking_event_shipment")
+    )
     private OrderShipment shipment;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, updatable = false)
     private ShipmentStatus status;
 
+    @Column(length = 500)
     private String description;
 
     private String location;

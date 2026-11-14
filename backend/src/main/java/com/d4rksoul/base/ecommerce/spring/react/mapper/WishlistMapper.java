@@ -11,14 +11,14 @@ public class WishlistMapper {
 
     public Wishlist toEntity(User user) {
         return Wishlist.builder()
-                .user(user)
-                .build();
+            .user(user)
+            .build();
     }
 
     public WishlistItem toEntity(Wishlist wishlist, Product product) {
         return WishlistItem.builder()
-                .wishlist(wishlist)
-                .product(product)
-                .build();
+            .wishlist(wishlist)
+            .product(product)
+            .build();
     }
 }

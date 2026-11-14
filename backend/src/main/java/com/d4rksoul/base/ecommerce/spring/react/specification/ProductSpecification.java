@@ -4,14 +4,30 @@ import com.d4rksoul.base.ecommerce.spring.react.entity.Product;
 import com.d4rksoul.base.ecommerce.spring.react.entity.ProductSku;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ProductCategory;
 import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.Locale;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ProductSpecification {
+public final class ProductSpecification {
+
+    public static Specification<Product> containsNameOrRef(String q) {
+        return (root, _, cb) -> {
+            if (q == null || q.isBlank()) {
+                return cb.conjunction();
+            }
+
+            return cb.or(
+                cb.like(cb.lower(root.get("name")), "%" + q.trim().toLowerCase(Locale.ROOT) + "%"),
+                cb.like(cb.lower(root.get("ref")), "%" + q.trim().toLowerCase(Locale.ROOT) + "%")
+            );
+        };
+    }
 
     public static Specification<Product> hasCategory(ProductCategory category) {
         return (root, _, cb) -> {
@@ -23,25 +39,37 @@ public class ProductSpecification {
         };
     }
 
-    public static Specification<Product> containsNameOrRef(String q) {
-        return (root, _, cb) -> {
-            if (q == null || q.isBlank()) {
-                return cb.conjunction();
-            }
-
-            return cb.or(
-                    cb.like(cb.lower(root.get("name")), "%" + q.trim().toLowerCase() + "%"),
-                    cb.like(cb.lower(root.get("ref")), "%" + q.trim().toLowerCase() + "%")
-            );
-        };
-    }
-
     public static Specification<Product> hasFeaturedSlot() {
-        return (root, _, cb) -> cb.isNotNull(root.get("featuredSlot"));
+        return (root, _, cb) ->
+            cb.isNotNull(root.get("featuredSlot"));
     }
 
     public static Specification<Product> hasIdNot(Long id) {
         return (root, _, cb) -> cb.notEqual(root.get("id"), id);
+    }
+
+    public static Specification<Product> hasDiscount() {
+        return (root, _, cb) ->
+            cb.greaterThan(root.get("discountPercentage"), 0);
+    }
+
+    public static Specification<Product> hasLowStock(boolean lowStock, int threshold) {
+        return (root, query, cb) -> {
+            if (!lowStock) {
+                return cb.conjunction();
+            }
+
+            Subquery<Long> skus = query.subquery(Long.class);
+            Root<ProductSku> sku = skus.from(ProductSku.class);
+
+            skus.select(sku.get("id")).where(
+                cb.equal(sku.get("product").get("id"), root.get("id")),
+                cb.isTrue(sku.get("active")),
+                cb.lessThanOrEqualTo(sku.get("stock"), threshold)
+            );
+
+            return cb.exists(skus);
+        };
     }
 
     public static Specification<Product> isVisibleInShop() {
@@ -50,8 +78,8 @@ public class ProductSpecification {
             Root<ProductSku> sku = skus.from(ProductSku.class);
 
             skus.select(sku.get("id")).where(
-                    cb.equal(sku.get("product").get("id"), root.get("id")),
-                    cb.isTrue(sku.get("active"))
+                cb.equal(sku.get("product").get("id"), root.get("id")),
+                cb.isTrue(sku.get("active"))
             );
 
             return cb.and(cb.isTrue(root.get("active")), cb.exists(skus));
@@ -60,23 +88,17 @@ public class ProductSpecification {
 
     public static Specification<Product> orderByEffectivePrice(String sortBy) {
         return (root, query, cb) -> {
-            Expression<Number> discountExpression = cb.quot(root.get("discountPercentage"), 100.0);
-            Expression<Number> multiplierExpression = cb.diff(1.0, discountExpression);
-            Expression<Number> effectivePrice = cb.prod(root.get("price"), multiplierExpression);
+            Expression<Number> effectivePrice = cb.prod(
+                root.get("price"),
+                cb.diff(1.0, cb.quot(root.get("discountPercentage"), 100.0))
+            );
 
-            if ("price_asc".equals(sortBy)) {
-                query.orderBy(cb.asc(effectivePrice), cb.asc(root.get("id")));
-            } else {
-                query.orderBy(cb.desc(effectivePrice), cb.asc(root.get("id")));
-            }
+            Order priceOrder = "price_asc".equals(sortBy) ? cb.asc(effectivePrice) : cb.desc(effectivePrice);
+
+            query.orderBy(priceOrder, cb.asc(root.get("id")));
 
             return cb.conjunction();
         };
-    }
-
-    public static Specification<Product> hasDiscount() {
-        return (root, _, cb) ->
-                cb.greaterThan(root.get("discountPercentage"), 0);
     }
 
     public static Specification<Product> orderByDiscountDesc() {
@@ -92,25 +114,6 @@ public class ProductSpecification {
             query.orderBy(cb.desc(root.get("createdAt")), cb.asc(root.get("id")));
 
             return cb.conjunction();
-        };
-    }
-
-    public static Specification<Product> hasLowStock(boolean lowStock, int threshold) {
-        return (root, query, cb) -> {
-            if (!lowStock) {
-                return cb.conjunction();
-            }
-
-            Subquery<Long> skus = query.subquery(Long.class);
-            Root<ProductSku> sku = skus.from(ProductSku.class);
-
-            skus.select(sku.get("id")).where(
-                    cb.equal(sku.get("product").get("id"), root.get("id")),
-                    cb.isTrue(sku.get("active")),
-                    cb.lessThanOrEqualTo(sku.get("stock"), threshold)
-            );
-
-            return cb.exists(skus);
         };
     }
 }

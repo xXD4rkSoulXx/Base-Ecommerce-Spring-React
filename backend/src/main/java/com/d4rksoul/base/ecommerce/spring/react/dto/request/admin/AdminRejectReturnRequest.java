@@ -6,7 +6,12 @@ import jakarta.validation.constraints.Size;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record AdminRejectReturnRequest(
-        @NotBlank(message = "Reason is required")
-        @Size(max = 255, message = "Reason must be at most 255 characters")
-        String reason
-) {}
+    @NotBlank(message = "Reason is required")
+    @Size(max = 255, message = "Reason must be at most 255 characters")
+    String reason
+) {
+
+    public AdminRejectReturnRequest {
+        reason = reason == null ? null : reason.trim();
+    }
+}
