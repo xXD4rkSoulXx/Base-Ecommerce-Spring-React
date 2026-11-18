@@ -18,9 +18,7 @@ export const AdminDashboardReturnsSection = ({ returns }: AdminDashboardReturnsS
             <span className="font-mono text-xs text-muted-foreground">· order #{orderReturn.orderId}</span>
           </p>
           <p className="truncate text-xs text-muted-foreground">{orderReturn.customerName}</p>
-          <p className="font-mono text-[10px] text-muted-foreground">
-            {formatCompactDateTime(orderReturn.createdAt)}
-          </p>
+          <p className="font-mono text-[10px] text-muted-foreground">{formatCompactDateTime(orderReturn.createdAt)}</p>
         </div>
         <p className="font-mono text-[10px] uppercase tracking-widest text-neon-pink">{orderReturn.status}</p>
       </li>

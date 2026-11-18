@@ -14,8 +14,6 @@ export interface CheckoutAddressRequest {
   phone: string
 }
 
-export type CheckoutAddressForm = Record<keyof CheckoutAddressRequest, string>
-
 export interface ShippingRateResponse {
   rateId: string
   carrier: string

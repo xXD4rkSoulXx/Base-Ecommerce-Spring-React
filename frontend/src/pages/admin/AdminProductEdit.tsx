@@ -79,9 +79,7 @@ export const AdminProductEdit = () => {
         )}
       </div>
       {isError && <FormError message="Could not load the product" />}
-      {isLoading && (
-        <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Loading...</p>
-      )}
+      {isLoading && <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Loading...</p>}
       {product && (
         <>
           <AdminProductForm

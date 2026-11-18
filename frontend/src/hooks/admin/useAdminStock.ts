@@ -5,7 +5,7 @@ import { adminStockService } from '@/services/admin/adminStock.service'
 
 export const useAdminStock = () => {
   const [searchParams] = useSearchParams()
-  const { page, size } = usePageParams(10)
+  const { page, size } = usePageParams()
   const q = searchParams.get('q') || ''
   const lowStock = searchParams.get('lowStock') === 'true'
 

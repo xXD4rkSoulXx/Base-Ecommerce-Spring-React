@@ -24,9 +24,7 @@ export const AdminDashboardLowStockSection = ({ items }: AdminDashboardLowStockS
             {item.ref} · {formatSize(item.size)} {item.color}
           </p>
         </div>
-        <p className={`font-mono text-sm ${item.stock === 0 ? 'text-neon-pink' : 'text-neon-yellow'}`}>
-          {item.stock}
-        </p>
+        <p className={`font-mono text-sm ${item.stock === 0 ? 'text-neon-pink' : 'text-neon-yellow'}`}>{item.stock}</p>
       </li>
     ))}
   </ul>

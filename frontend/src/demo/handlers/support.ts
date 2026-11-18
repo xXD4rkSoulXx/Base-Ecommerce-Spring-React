@@ -30,7 +30,9 @@ export const matchesQuery = (query: string | null, ...fields: Array<string | num
     return true
   }
 
-  return fields.some((field) => field !== undefined && field !== null && String(field).toLowerCase().includes(normalized))
+  return fields.some(
+    (field) => field !== undefined && field !== null && String(field).toLowerCase().includes(normalized)
+  )
 }
 
 export const readId = (value: string | readonly string[] | undefined) => Number(Array.isArray(value) ? value[0] : value)

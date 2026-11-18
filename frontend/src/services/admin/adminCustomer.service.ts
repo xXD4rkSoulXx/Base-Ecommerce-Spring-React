@@ -1,5 +1,9 @@
 import { api } from '@/lib/api'
-import type { AdminCustomerOrderSearchRequest, AdminCustomerResponse, AdminCustomerSearchRequest } from '@/types/admin/adminCustomer'
+import type {
+  AdminCustomerOrderSearchRequest,
+  AdminCustomerResponse,
+  AdminCustomerSearchRequest
+} from '@/types/admin/adminCustomer'
 import type { OrderSummaryResponse } from '@/types/order'
 import type { PageResponse } from '@/types/page'
 

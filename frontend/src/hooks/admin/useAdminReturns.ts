@@ -7,7 +7,7 @@ import type { ReturnStatus } from '@/types/order'
 
 export const useAdminReturns = () => {
   const [searchParams] = useSearchParams()
-  const { page, size } = usePageParams(10)
+  const { page, size } = usePageParams()
   const filter = searchParams.get('status') || TODO_FILTER
   const pending = filter === TODO_FILTER
   const status = pending || filter === ALL_FILTER ? undefined : (filter as ReturnStatus)

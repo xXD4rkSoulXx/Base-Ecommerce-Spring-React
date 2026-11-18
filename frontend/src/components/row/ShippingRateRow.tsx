@@ -14,7 +14,14 @@ export const ShippingRateRow = ({ rate, selected, onSelect }: ShippingRateRowPro
     }`}
   >
     <div className="flex items-center gap-4">
-      <input type="radio" name="rate" value={rate.rateId} checked={selected} onChange={onSelect} className="accent-neon-cyan" />
+      <input
+        type="radio"
+        name="rate"
+        value={rate.rateId}
+        checked={selected}
+        onChange={onSelect}
+        className="accent-neon-cyan"
+      />
       <div>
         <p className="text-sm font-bold uppercase">
           {rate.carrier} · {rate.service}

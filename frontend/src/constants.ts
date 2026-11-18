@@ -1,6 +1,6 @@
-import type { AuditAction, AuditEntityType } from "@/types/admin/adminAuditLog"
-import type { ProductCategory, ProductSort } from "@/types/product"
-import type { OrderStatus, ReturnReason, ReturnStatus, ShipmentStatus } from "@/types/order"
+import type { AuditAction, AuditEntityType } from '@/types/admin/adminAuditLog'
+import type { ProductCategory, ProductSort } from '@/types/product'
+import type { OrderStatus, ReturnReason, ReturnStatus, ShipmentStatus } from '@/types/order'
 
 export const APP_NAME = 'VELO_CITI'
 
@@ -8,8 +8,6 @@ export const LEGAL_LAST_UPDATED = 'October 27, 2026'
 
 export const MAX_CART_ITEM_QUANTITY = 10
 export const MAX_CART_LINES = 20
-
-export const MAX_GUEST_WISHLIST_ITEMS = 100
 
 export const TODO_FILTER = 'TODO'
 export const ALL_FILTER = 'ALL'
@@ -20,7 +18,6 @@ export const PRODUCT_PAGE_SIZE = 12
 export const DASHBOARD_PERIODS = [7, 30, 90]
 export const DEFAULT_DASHBOARD_PERIOD = 30
 
-
 export const PRODUCT_CATEGORIES: ProductCategory[] = [
   'OUTERWEAR',
   'TOPS',
@@ -29,15 +26,6 @@ export const PRODUCT_CATEGORIES: ProductCategory[] = [
   'UNDERWEAR',
   'ACCESSORIES'
 ]
-
-export const PRODUCT_SORT_LABELS: Record<ProductSort, string> = {
-  recent: 'Latest',
-  price_asc: 'Price ↑',
-  price_desc: 'Price ↓',
-  discount: 'On Sale',
-  best_sellers: 'Most Wanted',
-  top_rated: 'Top Rated'
-}
 
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   PAID: 'Paid',

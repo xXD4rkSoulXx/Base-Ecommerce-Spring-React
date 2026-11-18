@@ -1,14 +1,6 @@
-export type FeaturedSlot =
-  | 'LEFT'
-  | 'RIGHT'
+export type FeaturedSlot = 'LEFT' | 'RIGHT'
 
-export type ProductCategory =
-  | 'OUTERWEAR'
-  | 'TOPS'
-  | 'BOTTOMS'
-  | 'FOOTWEAR'
-  | 'UNDERWEAR'
-  | 'ACCESSORIES'
+export type ProductCategory = 'OUTERWEAR' | 'TOPS' | 'BOTTOMS' | 'FOOTWEAR' | 'UNDERWEAR' | 'ACCESSORIES'
 
 export type ProductSize =
   | 'ONE_SIZE'
@@ -71,13 +63,7 @@ export type ProductColor =
   | 'WHITE'
   | 'YELLOW'
 
-export type ProductSort =
-  | 'recent'
-  | 'price_asc'
-  | 'price_desc'
-  | 'best_sellers'
-  | 'top_rated'
-  | 'discount'
+export type ProductSort = 'recent' | 'price_asc' | 'price_desc' | 'best_sellers' | 'top_rated' | 'discount'
 
 export interface ProductShopRequest {
   category?: ProductCategory | 'ALL'

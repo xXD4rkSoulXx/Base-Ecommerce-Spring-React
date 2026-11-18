@@ -24,8 +24,8 @@ const formatAddress = (address: ShippingAddress) =>
     formatCountry(address.country),
     address.phone
   ]
-  .filter(Boolean)
-  .join(' · ')
+    .filter(Boolean)
+    .join(' · ')
 
 export const AdminReturnCard = ({
   orderReturn,
@@ -41,7 +41,10 @@ export const AdminReturnCard = ({
       <div>
         <div className="flex items-center gap-3">
           <ReturnStatusBadge status={orderReturn.status} />
-          <Link to={`/admin/orders/${orderReturn.orderId}`} className="font-mono text-xs text-neon-cyan hover:underline">
+          <Link
+            to={`/admin/orders/${orderReturn.orderId}`}
+            className="font-mono text-xs text-neon-cyan hover:underline"
+          >
             Order #{orderReturn.orderId}
           </Link>
         </div>
@@ -62,18 +65,33 @@ export const AdminReturnCard = ({
           >
             Reject
           </button>
-          <button type="button" onClick={() => onApprove(orderReturn.id)} disabled={disabled} className="border border-neon-cyan/50 px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-neon-cyan hover:bg-neon-cyan/10 disabled:opacity-50">
+          <button
+            type="button"
+            onClick={() => onApprove(orderReturn.id)}
+            disabled={disabled}
+            className="border border-neon-cyan/50 px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-neon-cyan hover:bg-neon-cyan/10 disabled:opacity-50"
+          >
             Approve
           </button>
         </div>
       )}
       {canEdit && orderReturn.status === 'APPROVED' && (
-        <button type="button" onClick={() => onReceive(orderReturn.id)} disabled={disabled} className="border border-neon-cyan/50 px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-neon-cyan hover:bg-neon-cyan/10 disabled:opacity-50">
+        <button
+          type="button"
+          onClick={() => onReceive(orderReturn.id)}
+          disabled={disabled}
+          className="border border-neon-cyan/50 px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-neon-cyan hover:bg-neon-cyan/10 disabled:opacity-50"
+        >
           Mark as received
         </button>
       )}
       {canEdit && orderReturn.status === 'RECEIVED' && (
-        <button type="button" onClick={() => onRefund(orderReturn.id)} disabled={disabled} className="border border-neon-cyan/50 px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-neon-cyan hover:bg-neon-cyan/10 disabled:opacity-50">
+        <button
+          type="button"
+          onClick={() => onRefund(orderReturn.id)}
+          disabled={disabled}
+          className="border border-neon-cyan/50 px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-neon-cyan hover:bg-neon-cyan/10 disabled:opacity-50"
+        >
           Issue refund
         </button>
       )}
@@ -86,7 +104,9 @@ export const AdminReturnCard = ({
       {orderReturn.items.map((item, index) => (
         <li key={index} className="flex items-center gap-3 text-xs">
           <div className="h-12 w-12 shrink-0 overflow-hidden border border-border bg-background">
-            {item.imagePath && <img src={item.imagePath} alt="" loading="lazy" className="h-full w-full object-cover" />}
+            {item.imagePath && (
+              <img src={item.imagePath} alt="" loading="lazy" className="h-full w-full object-cover" />
+            )}
           </div>
           <span className="min-w-0 flex-1 truncate">
             {[item.productName, item.size && formatSize(item.size), item.color].filter(Boolean).join(' · ')}
@@ -102,9 +122,7 @@ export const AdminReturnCard = ({
       </div>
     )}
     {orderReturn.rejectionReason && (
-      <p className="mt-3 border-t border-border pt-3 text-xs text-destructive">
-        Reason: {orderReturn.rejectionReason}
-      </p>
+      <p className="mt-3 border-t border-border pt-3 text-xs text-destructive">Reason: {orderReturn.rejectionReason}</p>
     )}
   </div>
 )

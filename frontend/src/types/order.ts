@@ -1,33 +1,12 @@
 import type { ProductColor, ProductSize } from '@/types/product'
 
-export type OrderStatus =
-  | 'PAID'
-  | 'PROCESSING'
-  | 'SHIPPED'
-  | 'DELIVERED'
-  | 'RETURN_REQUESTED'
-  | 'REFUNDED'
+export type OrderStatus = 'PAID' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'RETURN_REQUESTED' | 'REFUNDED'
 
-export type ShipmentStatus =
-  | 'PRE_TRANSIT'
-  | 'IN_TRANSIT'
-  | 'OUT_FOR_DELIVERY'
-  | 'DELIVERED'
-  | 'FAILURE'
+export type ShipmentStatus = 'PRE_TRANSIT' | 'IN_TRANSIT' | 'OUT_FOR_DELIVERY' | 'DELIVERED' | 'FAILURE'
 
-export type ReturnReason =
-  | 'DOES_NOT_FIT'
-  | 'DEFECTIVE'
-  | 'NOT_AS_DESCRIBED'
-  | 'CHANGED_MIND'
-  | 'OTHER'
+export type ReturnReason = 'DOES_NOT_FIT' | 'DEFECTIVE' | 'NOT_AS_DESCRIBED' | 'CHANGED_MIND' | 'OTHER'
 
-export type ReturnStatus =
-  | 'REQUESTED'
-  | 'APPROVED'
-  | 'RECEIVED'
-  | 'REFUNDED'
-  | 'REJECTED'
+export type ReturnStatus = 'REQUESTED' | 'APPROVED' | 'RECEIVED' | 'REFUNDED' | 'REJECTED'
 
 export interface OrderSearchRequest {
   q?: string

@@ -41,7 +41,8 @@ const STACK = [
 export const About = () => (
   <div className="mx-auto max-w-[1440px] px-6 py-20 md:px-10">
     <h1 className="mt-4 max-w-5xl font-display text-6xl uppercase leading-[0.85] tracking-tighter md:text-8xl lg:text-[140px]">
-      Built to show the <span className="text-outline">whole</span> <span className="italic text-neon-pink">stack</span>.
+      Built to show the <span className="text-outline">whole</span> <span className="italic text-neon-pink">stack</span>
+      .
     </h1>
     <p className="mt-10 max-w-2xl text-sm text-muted-foreground">
       {APP_NAME} is a portfolio project: a complete online store with a Spring Boot API and a React storefront.

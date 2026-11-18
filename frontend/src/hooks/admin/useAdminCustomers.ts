@@ -5,7 +5,7 @@ import { adminCustomerService } from '@/services/admin/adminCustomer.service'
 
 export const useAdminCustomers = () => {
   const [searchParams] = useSearchParams()
-  const { page, size } = usePageParams(10)
+  const { page, size } = usePageParams()
   const q = searchParams.get('q') || ''
 
   return useQuery({

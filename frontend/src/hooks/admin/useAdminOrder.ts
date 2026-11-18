@@ -6,4 +6,3 @@ export const useAdminOrder = (id: number) =>
     queryKey: ['admin', 'order', id],
     queryFn: () => adminOrderService.getOrder(id)
   })
-  

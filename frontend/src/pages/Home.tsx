@@ -17,13 +17,7 @@ export const Home = () => {
   return (
     <>
       <HomeHeroSection products={featured} />
-      <ProductShelfSection
-        title="On"
-        highlight="Sale"
-        accent="pink"
-        linkTo="/shop?sort=discount"
-        products={deals}
-      />
+      <ProductShelfSection title="On" highlight="Sale" accent="pink" linkTo="/shop?sort=discount" products={deals} />
       <ProductShelfSection
         title="Most"
         highlight="Wanted"

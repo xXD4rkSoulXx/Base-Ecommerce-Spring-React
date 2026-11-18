@@ -11,9 +11,7 @@ export const useAdminSetReviewHidden = () => {
 
   return useMutation({
     mutationFn: ({ id, hidden }: SetReviewHiddenVariables) =>
-      hidden
-        ? adminReviewService.hideReview(id)
-        : adminReviewService.showReview(id),
+      hidden ? adminReviewService.hideReview(id) : adminReviewService.showReview(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'reviews'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })

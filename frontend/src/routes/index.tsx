@@ -46,7 +46,7 @@ export const router = createBrowserRouter([
       { path: '/shop', element: <Shop /> },
       { path: '/product/:id', element: <ProductDetails /> },
       { path: '/search', element: <Search /> },
-      { path: '/about', element: <About />},
+      { path: '/about', element: <About /> },
       { path: '/returns', element: <ReturnPolicy /> },
       { path: '/faq', element: <Faq /> },
       { path: '/terms', element: <TermsAndConditions /> },

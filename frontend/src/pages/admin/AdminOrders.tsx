@@ -32,9 +32,7 @@ export const AdminOrders = () => {
       <AdminPageTitle count={data?.totalElements}>Orders</AdminPageTitle>
       <AdminOrderFilters />
       {isError && <FormError message="Could not load the orders" />}
-      {isLoading && (
-        <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Loading...</p>
-      )}
+      {isLoading && <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Loading...</p>}
       {data && (
         <AdminTable
           columns={COLUMNS}

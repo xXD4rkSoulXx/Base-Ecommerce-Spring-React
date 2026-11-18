@@ -1,63 +1,31 @@
-import { useState, type SubmitEvent } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
 import { KeyRound } from 'lucide-react'
+import { Field } from '@/components/ui/Field'
 import { FormError } from '@/components/ui/FormError'
-import { FormField } from '@/components/ui/FormField'
 import { Modal } from '@/components/ui/Modal'
 import { useChangePassword } from '@/hooks/useChangePassword'
+import { changePasswordSchema, type ChangePasswordForm } from '@/schemas/auth'
 import { getErrorMessage } from '@/utils/error'
 
 interface ChangePasswordDialogProps {
   onClose: () => void
 }
 
-const getValidationError = (currentPassword: string, newPassword: string, confirmPassword: string) => {
-  if (!currentPassword || !newPassword || !confirmPassword) {
-    return 'All fields are required'
-  }
-
-  if (newPassword.length < 8 || newPassword.length > 72) {
-    return 'Password must be between 8 and 72 characters long'
-  }
-
-  if (!/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+$/.test(newPassword)) {
-    return 'Password must contain uppercase, lowercase and number'
-  }
-
-  if (newPassword !== confirmPassword) {
-    return 'Passwords do not match'
-  }
-
-  if (newPassword === currentPassword) {
-    return 'New password must be different from the current password'
-  }
-
-  return null
-}
-
 export const ChangePasswordDialog = ({ onClose }: ChangePasswordDialogProps) => {
-  const [currentPassword, setCurrentPassword] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const { mutate: changePassword, isPending } = useChangePassword()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<ChangePasswordForm>({
+    resolver: zodResolver(changePasswordSchema),
+    defaultValues: { currentPassword: '', newPassword: '', confirmPassword: '' }
+  })
 
-  const submit = (event: SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault()
+  const { mutate: changePassword, isPending, error } = useChangePassword()
 
-    const validationError = getValidationError(currentPassword, newPassword, confirmPassword)
-
-    if (validationError) {
-      setError(validationError)
-      return
-    }
-
-    setError(null)
-
-    changePassword(
-      { currentPassword, newPassword },
-      { onError: (mutationError) => setError(getErrorMessage(mutationError, 'Could not change password')) }
-    )
-  }
+  const onSubmit = ({ currentPassword, newPassword }: ChangePasswordForm) =>
+    changePassword({ currentPassword, newPassword })
 
   return (
     <Modal
@@ -67,39 +35,36 @@ export const ChangePasswordDialog = ({ onClose }: ChangePasswordDialogProps) => 
       tone="pink"
       onClose={onClose}
     >
-      <form onSubmit={submit}>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
         {error && (
           <div className="mb-6">
-            <FormError message={error} />
+            <FormError message={getErrorMessage(error, 'Could not change password')} />
           </div>
         )}
         <div className="space-y-4">
-          <FormField
+          <Field
             label="Current Password"
-            value={currentPassword}
-            onChange={setCurrentPassword}
             type="password"
-            accent="pink"
             autoComplete="current-password"
             disabled={isPending}
+            error={errors.currentPassword?.message}
+            {...register('currentPassword')}
           />
-          <FormField
+          <Field
             label="New Password"
-            value={newPassword}
-            onChange={setNewPassword}
             type="password"
-            accent="pink"
             autoComplete="new-password"
             disabled={isPending}
+            error={errors.newPassword?.message}
+            {...register('newPassword')}
           />
-          <FormField
+          <Field
             label="Confirm New Password"
-            value={confirmPassword}
-            onChange={setConfirmPassword}
             type="password"
-            accent="pink"
             autoComplete="new-password"
             disabled={isPending}
+            error={errors.confirmPassword?.message}
+            {...register('confirmPassword')}
           />
           <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
             You will be signed out of all devices

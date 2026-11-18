@@ -51,10 +51,7 @@ export const CheckoutSummarySection = ({ shippingAmount }: CheckoutSummarySectio
             valueClassName="text-neon-pink"
           />
         )}
-        <DetailLine
-          label="Shipping"
-          value={shippingAmount === undefined ? 'Next step' : formatPrice(shippingAmount)}
-        />
+        <DetailLine label="Shipping" value={shippingAmount === undefined ? 'Next step' : formatPrice(shippingAmount)} />
         <DetailLine label="Taxes" value="At payment" />
         <div className="mt-4">
           {discountCode ? (

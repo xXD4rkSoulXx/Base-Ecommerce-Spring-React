@@ -1,5 +1,10 @@
 import { api } from '@/lib/api'
-import type { AdminAdjustStockRequest, AdminStockItemResponse, AdminStockSearchRequest, AdminSetStockRequest } from '@/types/admin/adminStock'
+import type {
+  AdminAdjustStockRequest,
+  AdminStockItemResponse,
+  AdminStockSearchRequest,
+  AdminSetStockRequest
+} from '@/types/admin/adminStock'
 import type { PageResponse } from '@/types/page'
 
 export const adminStockService = {

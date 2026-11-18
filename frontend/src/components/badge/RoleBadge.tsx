@@ -15,7 +15,5 @@ const ROLE_CLASS_NAMES: Record<UserRole, string> = {
 }
 
 export const RoleBadge = ({ role }: RoleBadgeProps) => (
-  <span className={`font-mono text-[10px] uppercase tracking-widest ${ROLE_CLASS_NAMES[role]}`}>
-    {role}
-  </span>
+  <span className={`font-mono text-[10px] uppercase tracking-widest ${ROLE_CLASS_NAMES[role]}`}>{role}</span>
 )

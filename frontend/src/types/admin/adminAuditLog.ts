@@ -20,14 +20,7 @@ export type AuditAction =
   | 'RECEIVED'
   | 'REFUNDED'
 
-export type AuditEntityType =
-  | 'PRODUCT'
-  | 'VARIANT'
-  | 'ORDER'
-  | 'RETURN'
-  | 'DISCOUNT_CODE'
-  | 'REVIEW'
-  | 'TEAM_MEMBER'
+export type AuditEntityType = 'PRODUCT' | 'VARIANT' | 'ORDER' | 'RETURN' | 'DISCOUNT_CODE' | 'REVIEW' | 'TEAM_MEMBER'
 
 export interface AdminAuditLogSearchRequest {
   q?: string

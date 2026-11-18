@@ -1,5 +1,6 @@
 import { FormError } from '@/components/ui/FormError'
-import type { CheckoutAddressForm, ShippingRateResponse } from '@/types/checkout'
+import type { CheckoutAddressForm } from '@/schemas/checkout'
+import type { ShippingRateResponse } from '@/types/checkout'
 import { formatCountry, formatPrice } from '@/utils/format'
 
 interface CheckoutReviewSectionProps {

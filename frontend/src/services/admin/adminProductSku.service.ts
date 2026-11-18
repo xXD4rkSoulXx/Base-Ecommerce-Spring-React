@@ -1,5 +1,9 @@
 import { api } from '@/lib/api'
-import type { AdminProductSkuResponse, AdminCreateProductSkuRequest, AdminUpdateProductSkuRequest } from '@/types/admin/adminProductSku'
+import type {
+  AdminProductSkuResponse,
+  AdminCreateProductSkuRequest,
+  AdminUpdateProductSkuRequest
+} from '@/types/admin/adminProductSku'
 
 export const adminProductSkuService = {
   createSku: async (productId: number, request: AdminCreateProductSkuRequest) => {

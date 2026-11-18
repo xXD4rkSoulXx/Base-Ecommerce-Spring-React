@@ -92,7 +92,15 @@ export const salesHandlers: HttpHandler[] = [
     const { customers, orders } = getFixtures()
 
     const content = customers
-      .filter((customer) => matchesQuery(q, customer.email, customer.firstName, customer.lastName, `${customer.firstName} ${customer.lastName}`))
+      .filter((customer) =>
+        matchesQuery(
+          q,
+          customer.email,
+          customer.firstName,
+          customer.lastName,
+          `${customer.firstName} ${customer.lastName}`
+        )
+      )
       .sort((a, b) => b.createdAt - a.createdAt)
       .map((customer) => toCustomer(customer, orders))
 

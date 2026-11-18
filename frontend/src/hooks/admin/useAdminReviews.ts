@@ -5,7 +5,7 @@ import { adminReviewService } from '@/services/admin/adminReview.service'
 
 export const useAdminReviews = () => {
   const [searchParams] = useSearchParams()
-  const { page, size } = usePageParams(10)
+  const { page, size } = usePageParams()
   const q = searchParams.get('q') || ''
   const hiddenParam = searchParams.get('hidden')
   const hidden = hiddenParam ? hiddenParam === 'true' : undefined

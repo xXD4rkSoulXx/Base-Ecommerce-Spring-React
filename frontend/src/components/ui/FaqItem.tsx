@@ -20,9 +20,7 @@ export const FaqItem = ({ question, answer }: FaqItemProps) => {
         <span className="text-sm font-bold uppercase tracking-wide">{question}</span>
         <ChevronDown className={`h-4 w-4 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
-      {open && (
-        <p className="px-4 pb-4 text-sm leading-relaxed text-muted-foreground">{answer}</p>
-      )}
+      {open && <p className="px-4 pb-4 text-sm leading-relaxed text-muted-foreground">{answer}</p>}
     </div>
   )
 }

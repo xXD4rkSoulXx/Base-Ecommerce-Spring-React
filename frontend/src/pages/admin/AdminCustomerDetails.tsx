@@ -31,9 +31,7 @@ export const AdminCustomerDetails = () => {
     <div className="p-6 md:p-10">
       <AdminBackLink to="/admin/customers">Customers</AdminBackLink>
       {isError && <FormError message="Could not load the customer" />}
-      {isLoading && (
-        <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Loading...</p>
-      )}
+      {isLoading && <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Loading...</p>}
       {customer && (
         <>
           <AdminPageTitle>

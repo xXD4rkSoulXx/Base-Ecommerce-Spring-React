@@ -26,14 +26,57 @@ export const DEMO_USER: UserResponse = {
 export const DEMO_ACCESS_TOKEN = 'demo-access-token'
 
 const FIRST_NAMES = [
-  'Ava', 'Liam', 'Noah', 'Maya', 'Lucas', 'Iris', 'Theo', 'Nina', 'Oscar', 'Lena', 'Hugo', 'Zoe',
-  'Felix', 'Clara', 'Jonas', 'Mila', 'Aron', 'Sara', 'Leo', 'Eva', 'Tomas', 'Alba', 'Rui', 'Ines'
+  'Ava',
+  'Liam',
+  'Noah',
+  'Maya',
+  'Lucas',
+  'Iris',
+  'Theo',
+  'Nina',
+  'Oscar',
+  'Lena',
+  'Hugo',
+  'Zoe',
+  'Felix',
+  'Clara',
+  'Jonas',
+  'Mila',
+  'Aron',
+  'Sara',
+  'Leo',
+  'Eva',
+  'Tomas',
+  'Alba',
+  'Rui',
+  'Ines'
 ]
 
 const LAST_NAMES = [
-  'Moreau', 'Silva', 'Kowalski', 'Jensen', 'Costa', 'Novak', 'Bianchi', 'Weber', 'Ferreira', 'Dubois',
-  'Santos', 'Meyer', 'Rossi', 'Almeida', 'Larsen', 'Petit', 'Carvalho', 'Fischer', 'Ribeiro', 'Lopez',
-  'Marques', 'Hansen', 'Pereira', 'Vidal'
+  'Moreau',
+  'Silva',
+  'Kowalski',
+  'Jensen',
+  'Costa',
+  'Novak',
+  'Bianchi',
+  'Weber',
+  'Ferreira',
+  'Dubois',
+  'Santos',
+  'Meyer',
+  'Rossi',
+  'Almeida',
+  'Larsen',
+  'Petit',
+  'Carvalho',
+  'Fischer',
+  'Ribeiro',
+  'Lopez',
+  'Marques',
+  'Hansen',
+  'Pereira',
+  'Vidal'
 ]
 
 interface Place {

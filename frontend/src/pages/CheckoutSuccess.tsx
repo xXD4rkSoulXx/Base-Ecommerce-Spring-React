@@ -29,8 +29,7 @@ export const CheckoutSuccess = () => {
         Order <span className="italic text-neon-cyan">Received</span>
       </h1>
       <p className="mt-6 max-w-md text-muted-foreground">
-        Thank you for your purchase. We are confirming your payment and your cart will be cleared as soon as it is
-        done.
+        Thank you for your purchase. We are confirming your payment and your cart will be cleared as soon as it is done.
       </p>
       <div className="mt-12 w-full border border-border bg-card p-6 text-left">
         <h2 className="mb-6 font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">

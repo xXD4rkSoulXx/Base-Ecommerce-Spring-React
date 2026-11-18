@@ -77,15 +77,11 @@ export const useCart = () => {
   const discountAmount = Math.round(subtotal * discountPercentage) / 100
   const { isError: isDiscountCodeError, error: discountCodeError } = applyDiscountMutation
 
-  const isInCart = (productSkuId: number) =>
-    items.some((item) => item.productSkuId === productSkuId)
+  const isInCart = (productSkuId: number) => items.some((item) => item.productSkuId === productSkuId)
 
   const addToCart = (item: GuestCartItem, onSuccess?: () => void) => {
     if (isAuthenticated) {
-      addMutation.mutate(
-        { productSkuId: item.productSkuId, quantity: item.quantity },
-        { onSuccess }
-      )
+      addMutation.mutate({ productSkuId: item.productSkuId, quantity: item.quantity }, { onSuccess })
 
       return
     }
@@ -102,8 +98,7 @@ export const useCart = () => {
     applyDiscountMutation.mutate(code)
   }
 
-  const getQuantity = (productSkuId: number) =>
-    items.find((item) => item.productSkuId === productSkuId)?.quantity ?? 0
+  const getQuantity = (productSkuId: number) => items.find((item) => item.productSkuId === productSkuId)?.quantity ?? 0
 
   const updateQuantity = (productSkuId: number, quantity: number) => {
     if (isAuthenticated) {

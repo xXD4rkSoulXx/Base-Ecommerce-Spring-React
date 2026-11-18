@@ -18,7 +18,11 @@ interface AdminProductVariantsSectionProps {
   productCategory: ProductCategory
 }
 
-export const AdminProductVariantsSection = ({ productId, productRef, productCategory }: AdminProductVariantsSectionProps) => {
+export const AdminProductVariantsSection = ({
+  productId,
+  productRef,
+  productCategory
+}: AdminProductVariantsSectionProps) => {
   const { data: variants, isLoading, isError } = useAdminProductSkus(productId)
   const { mutate: archiveSku, isPending: isArchiving } = useAdminArchiveProductSku(productId)
   const { mutate: restoreSku, isPending: isRestoring } = useAdminRestoreProductSku(productId)

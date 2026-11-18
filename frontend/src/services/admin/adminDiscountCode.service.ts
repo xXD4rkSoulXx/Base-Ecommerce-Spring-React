@@ -1,5 +1,10 @@
 import { api } from '@/lib/api'
-import type { AdminDiscountCodeResponse, AdminDiscountCodeSearchRequest, AdminCreateDiscountCodeRequest, AdminUpdateDiscountCodeRequest } from '@/types/admin/adminDiscountCode'
+import type {
+  AdminDiscountCodeResponse,
+  AdminDiscountCodeSearchRequest,
+  AdminCreateDiscountCodeRequest,
+  AdminUpdateDiscountCodeRequest
+} from '@/types/admin/adminDiscountCode'
 import type { PageResponse } from '@/types/page'
 
 export const adminDiscountCodeService = {

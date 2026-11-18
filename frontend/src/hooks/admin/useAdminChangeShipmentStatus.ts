@@ -11,7 +11,8 @@ export const useAdminChangeShipmentStatus = (orderId: number) => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ shipmentId, status }: ChangeShipmentStatusVariables) => adminOrderService.changeShipmentStatus(orderId, shipmentId, { status }),
+    mutationFn: ({ shipmentId, status }: ChangeShipmentStatusVariables) =>
+      adminOrderService.changeShipmentStatus(orderId, shipmentId, { status }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'order', orderId] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'orders'] })

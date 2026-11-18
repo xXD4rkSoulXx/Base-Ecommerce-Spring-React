@@ -37,9 +37,7 @@ export const AdminOrderDetails = () => {
   const [error, setError] = useState<string | null>(null)
 
   if (isLoading) {
-    return (
-      <p className="p-6 font-mono text-xs uppercase tracking-widest text-muted-foreground md:p-10">Loading...</p>
-    )
+    return <p className="p-6 font-mono text-xs uppercase tracking-widest text-muted-foreground md:p-10">Loading...</p>
   }
 
   if (isError || !data) {

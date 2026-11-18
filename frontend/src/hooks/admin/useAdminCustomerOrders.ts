@@ -3,7 +3,7 @@ import { usePageParams } from '@/hooks/usePageParams'
 import { adminCustomerService } from '@/services/admin/adminCustomer.service'
 
 export const useAdminCustomerOrders = (id: number) => {
-  const { page, size } = usePageParams(10)
+  const { page, size } = usePageParams()
 
   return useQuery({
     queryKey: ['admin', 'customer-orders', id, { page, size }],

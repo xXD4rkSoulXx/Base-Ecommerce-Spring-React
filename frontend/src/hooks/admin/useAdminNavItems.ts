@@ -1,4 +1,16 @@
-import { Boxes, Contact, LayoutDashboard, MessageSquare, Package, RotateCcw, ShoppingCart, Tag, Users, History, type LucideIcon } from 'lucide-react'
+import {
+  Boxes,
+  Contact,
+  LayoutDashboard,
+  MessageSquare,
+  Package,
+  RotateCcw,
+  ShoppingCart,
+  Tag,
+  Users,
+  History,
+  type LucideIcon
+} from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
 import type { Permission } from '@/types/user'
 

@@ -139,20 +139,36 @@ export const NavBar = () => {
         </nav>
         <div className="mt-8 flex flex-col gap-4">
           {user ? (
-            <Link to="/account" onClick={closeMenu} className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-foreground/80 hover:text-neon-cyan">
+            <Link
+              to="/account"
+              onClick={closeMenu}
+              className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-foreground/80 hover:text-neon-cyan"
+            >
               <User className="h-4 w-4" /> Account
             </Link>
           ) : (
             <>
-              <Link to="/login" onClick={closeMenu} className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-foreground/80 hover:text-neon-cyan">
+              <Link
+                to="/login"
+                onClick={closeMenu}
+                className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-foreground/80 hover:text-neon-cyan"
+              >
                 <User className="h-4 w-4" /> Login
               </Link>
-              <Link to="/register" onClick={closeMenu} className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-foreground/80 hover:text-neon-cyan">
+              <Link
+                to="/register"
+                onClick={closeMenu}
+                className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-foreground/80 hover:text-neon-cyan"
+              >
                 <User className="h-4 w-4" /> Register
               </Link>
             </>
           )}
-          <Link to="/search" onClick={closeMenu} className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-foreground/80 hover:text-neon-cyan">
+          <Link
+            to="/search"
+            onClick={closeMenu}
+            className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-foreground/80 hover:text-neon-cyan"
+          >
             <Search className="h-4 w-4" /> Search
           </Link>
         </div>

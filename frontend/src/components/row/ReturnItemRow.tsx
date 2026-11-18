@@ -12,9 +12,7 @@ export const ReturnItemRow = ({ item, quantity, onChange }: ReturnItemRowProps) 
   <div className="flex items-center justify-between gap-3 border-b border-border p-3 last:border-b-0">
     <div className="flex min-w-0 items-center gap-3">
       <div className="h-14 w-14 shrink-0 overflow-hidden border border-border bg-background">
-        {item.imagePath && (
-          <img src={item.imagePath} alt="" loading="lazy" className="h-full w-full object-cover" />
-        )}
+        {item.imagePath && <img src={item.imagePath} alt="" loading="lazy" className="h-full w-full object-cover" />}
       </div>
       <div className="min-w-0">
         <p className="truncate font-bold uppercase">{item.productName}</p>

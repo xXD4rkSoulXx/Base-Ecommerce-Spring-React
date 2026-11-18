@@ -12,9 +12,7 @@ export const AdminProductRow = ({ product, canEdit }: AdminProductRowProps) => (
     <td className="p-4">
       <div className="flex items-center gap-3">
         <div className="h-12 w-12 shrink-0 overflow-hidden border border-border bg-background">
-          {product.cover && (
-            <img src={product.cover} alt="" loading="lazy" className="h-full w-full object-cover" />
-          )}
+          {product.cover && <img src={product.cover} alt="" loading="lazy" className="h-full w-full object-cover" />}
         </div>
         <div className="min-w-0">
           <p className="truncate font-bold">{product.name}</p>

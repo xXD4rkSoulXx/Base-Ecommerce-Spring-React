@@ -25,9 +25,7 @@ export const ParcelRow = ({ shipment, index, orderItems, actions }: ParcelRowPro
           aria-expanded={isOpen}
           className="min-w-0 flex-1 py-2 pl-3 pr-2 text-left hover:bg-background/40"
         >
-          <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-            Box {index + 1}
-          </span>
+          <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Box {index + 1}</span>
         </button>
         {actions && <div className="flex gap-2 py-2">{actions}</div>}
         <button
@@ -60,12 +58,7 @@ export const ParcelRow = ({ shipment, index, orderItems, actions }: ParcelRowPro
                     <li key={item.orderItemId} className="flex items-center gap-3 text-xs">
                       <div className="h-10 w-10 shrink-0 overflow-hidden border border-border bg-background">
                         {orderItem.imagePath && (
-                          <img
-                            src={orderItem.imagePath}
-                            alt=""
-                            loading="lazy"
-                            className="h-full w-full object-cover"
-                          />
+                          <img src={orderItem.imagePath} alt="" loading="lazy" className="h-full w-full object-cover" />
                         )}
                       </div>
                       <div className="min-w-0 flex-1">

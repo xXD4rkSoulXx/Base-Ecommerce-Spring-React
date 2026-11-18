@@ -9,8 +9,7 @@ import { formatDate } from '@/utils/format'
 
 type ProfileDialog = 'edit' | 'password'
 
-const getInitials = (firstName: string, lastName: string) =>
-  `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
+const getInitials = (firstName: string, lastName: string) => `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
 
 export const ProfileSection = () => {
   const { data: profile, isLoading, isError } = useProfile()

@@ -7,7 +7,8 @@ import { useCart } from '@/hooks/useCart'
 import { formatPrice } from '@/utils/format'
 
 export const Cart = () => {
-  const { items, discountCode, subtotal, discountAmount, getLineTotal, updateQuantity, removeFromCart, clearCart } = useCart()
+  const { items, discountCode, subtotal, discountAmount, getLineTotal, updateQuantity, removeFromCart, clearCart } =
+    useCart()
 
   const total = subtotal - discountAmount
   const hasUnavailableItems = items.some((item) => item.available === false)

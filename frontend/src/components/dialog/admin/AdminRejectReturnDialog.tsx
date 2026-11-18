@@ -1,9 +1,11 @@
-import { useState, type SubmitEvent } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import { Field } from '@/components/ui/Field'
 import { FormError } from '@/components/ui/FormError'
-import { FormField } from '@/components/ui/FormField'
 import { Modal } from '@/components/ui/Modal'
 import { useAdminRejectReturn } from '@/hooks/admin/useAdminRejectReturn'
+import { rejectReturnSchema, type RejectReturnFormValues } from '@/schemas/admin/adminReturn'
 import type { AdminReturnResponse } from '@/types/admin/adminReturn'
 import { getErrorMessage } from '@/utils/error'
 
@@ -13,36 +15,27 @@ interface AdminRejectReturnDialogProps {
 }
 
 export const AdminRejectReturnDialog = ({ orderReturn, onClose }: AdminRejectReturnDialogProps) => {
-  const [reason, setReason] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const { mutate: rejectReturn, isPending } = useAdminRejectReturn()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<RejectReturnFormValues>({
+    resolver: zodResolver(rejectReturnSchema),
+    defaultValues: { reason: '' }
+  })
 
-  const submit = (event: SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault()
+  const { mutate: rejectReturn, isPending, error } = useAdminRejectReturn()
 
-    if (!reason.trim()) {
-      setError('Reason is required')
-      return
-    }
-
-    if (reason.trim().length > 255) {
-      setError('Reason must be at most 255 characters')
-      return
-    }
-
-    setError(null)
-
+  const onSubmit = ({ reason }: RejectReturnFormValues) =>
     rejectReturn(
-      { id: orderReturn.id, reason: reason.trim() },
+      { id: orderReturn.id, reason },
       {
         onSuccess: () => {
           toast.success(`Return #${orderReturn.id} rejected`)
           onClose()
-        },
-        onError: (mutationError) => setError(getErrorMessage(mutationError, 'Could not reject the return'))
+        }
       }
     )
-  }
 
   return (
     <Modal
@@ -52,19 +45,18 @@ export const AdminRejectReturnDialog = ({ orderReturn, onClose }: AdminRejectRet
       tone="pink"
       onClose={onClose}
     >
-      <form onSubmit={submit}>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
         {error && (
           <div className="mb-6">
-            <FormError message={error} />
+            <FormError message={getErrorMessage(error, 'Could not reject the return')} />
           </div>
         )}
-        <FormField
+        <Field
           label="Reason"
-          value={reason}
-          onChange={setReason}
-          accent="pink"
           autoComplete="off"
           disabled={isPending}
+          error={errors.reason?.message}
+          {...register('reason')}
         />
         <div className="mt-8 flex gap-3">
           <button

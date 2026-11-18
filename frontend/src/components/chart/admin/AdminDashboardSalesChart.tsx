@@ -23,7 +23,14 @@ export const AdminDashboardSalesChart = ({ data }: AdminDashboardSalesChartProps
           labelFormatter={(label) => formatDay(String(label))}
           contentStyle={CHART_TOOLTIP_STYLE}
         />
-        <Line type="monotone" dataKey="sales" name="Sales" stroke="var(--color-neon-cyan)" strokeWidth={2} dot={false} />
+        <Line
+          type="monotone"
+          dataKey="sales"
+          name="Sales"
+          stroke="var(--color-neon-cyan)"
+          strokeWidth={2}
+          dot={false}
+        />
         <Line
           type="monotone"
           dataKey="refunds"

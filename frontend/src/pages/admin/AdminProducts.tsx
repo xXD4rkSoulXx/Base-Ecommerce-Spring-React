@@ -45,9 +45,7 @@ export const AdminProducts = () => {
       </AdminPageTitle>
       <AdminProductFilters />
       {isError && <FormError message="Could not load the products" />}
-      {isLoading && (
-        <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Loading...</p>
-      )}
+      {isLoading && <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Loading...</p>}
       {data && (
         <AdminTable
           columns={COLUMNS}

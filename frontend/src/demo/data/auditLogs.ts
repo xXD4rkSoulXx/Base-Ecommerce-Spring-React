@@ -110,7 +110,11 @@ export const buildAuditLogs = (now: number, rng: Random, source: AuditSource): A
       }
     },
     () => returnEntry('APPROVED'),
-    () => returnEntry('REJECTED', rng.pick(['Item shows signs of wear and was washed.', 'Outside of the allowed conditions.'])),
+    () =>
+      returnEntry(
+        'REJECTED',
+        rng.pick(['Item shows signs of wear and was washed.', 'Outside of the allowed conditions.'])
+      ),
     () => returnEntry('RECEIVED'),
     () => returnEntry('REFUNDED'),
     () => codeEntry('CREATED', `${rng.int(5, 30)}%`),

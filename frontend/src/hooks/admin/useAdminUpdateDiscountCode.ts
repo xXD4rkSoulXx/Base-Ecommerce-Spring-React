@@ -11,7 +11,8 @@ export const useAdminUpdateDiscountCode = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ id, request }: UpdateDiscountCodeVariables) => adminDiscountCodeService.updateDiscountCode(id, request),
+    mutationFn: ({ id, request }: UpdateDiscountCodeVariables) =>
+      adminDiscountCodeService.updateDiscountCode(id, request),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'discount-codes'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })

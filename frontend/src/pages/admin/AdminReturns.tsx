@@ -33,8 +33,7 @@ export const AdminReturns = () => {
   const isBusy = isApproving || isReceiving || isRefunding
   const isTodo = (searchParams.get('status') || TODO_FILTER) === TODO_FILTER
 
-  const showError = (fallback: string) => (mutationError: unknown) =>
-    setError(getErrorMessage(mutationError, fallback))
+  const showError = (fallback: string) => (mutationError: unknown) => setError(getErrorMessage(mutationError, fallback))
 
   const approve = (id: number) => {
     setError(null)
@@ -84,9 +83,7 @@ export const AdminReturns = () => {
         </div>
       )}
       {isError && <FormError message="Could not load the returns" />}
-      {isLoading && (
-        <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Loading...</p>
-      )}
+      {isLoading && <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Loading...</p>}
       {data && returns.length === 0 && (
         <p className="border border-border bg-card p-10 text-center font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
           {isTodo ? 'Nothing waiting for action' : 'No returns found'}

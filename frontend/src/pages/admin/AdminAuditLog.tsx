@@ -29,9 +29,7 @@ export const AdminAuditLog = () => {
       </p>
       <AdminAuditLogFilters />
       {isError && <FormError message="Could not load the audit log" />}
-      {isLoading && (
-        <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Loading...</p>
-      )}
+      {isLoading && <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Loading...</p>}
       {data && (
         <AdminTable
           columns={COLUMNS}

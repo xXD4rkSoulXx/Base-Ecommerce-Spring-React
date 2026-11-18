@@ -1,5 +1,11 @@
 import { api } from '@/lib/api'
-import type { AddToCartRequest, ApplyDiscountCodeRequest, CartResponse, MergeCartRequest, UpdateCartItemRequest } from '@/types/cart'
+import type {
+  AddToCartRequest,
+  ApplyDiscountCodeRequest,
+  CartResponse,
+  MergeCartRequest,
+  UpdateCartItemRequest
+} from '@/types/cart'
 
 export const cartService = {
   addToCart: async (request: AddToCartRequest) => {

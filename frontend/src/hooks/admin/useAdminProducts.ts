@@ -6,7 +6,7 @@ import type { ProductCategory } from '@/types/product'
 
 export const useAdminProducts = () => {
   const [searchParams] = useSearchParams()
-  const { page, size } = usePageParams(10)
+  const { page, size } = usePageParams()
   const q = searchParams.get('q') || ''
   const category = (searchParams.get('category') || undefined) as ProductCategory | undefined
   const lowStock = searchParams.get('lowStock') === 'true'

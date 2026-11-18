@@ -21,8 +21,7 @@ interface Period {
   previousStart: number
 }
 
-const readDays = (url: URL) =>
-  Math.min(Math.max(Number(url.searchParams.get('days')) || DEFAULT_DAYS, 1), MAX_DAYS)
+const readDays = (url: URL) => Math.min(Math.max(Number(url.searchParams.get('days')) || DEFAULT_DAYS, 1), MAX_DAYS)
 
 const periodOf = (days: number): Period => {
   const tomorrow = new Date()
@@ -82,7 +81,9 @@ const groupUnits = <K extends string | number>(orders: DemoOrder[], keyOf: (prod
 const lowStockSkus = () =>
   getFixtures()
     .products.filter((product) => product.active)
-    .flatMap((product) => product.skus.filter((sku) => sku.active && sku.stock <= LOW_STOCK_THRESHOLD).map((sku) => ({ product, sku })))
+    .flatMap((product) =>
+      product.skus.filter((sku) => sku.active && sku.stock <= LOW_STOCK_THRESHOLD).map((sku) => ({ product, sku }))
+    )
     .sort((a, b) => a.sku.stock - b.sku.stock || a.product.name.localeCompare(b.product.name))
 
 const pendingReturns = () =>
@@ -222,7 +223,8 @@ const resolvers: EndpointResolvers = {
       .map((item) => ({
         id: item.response.id,
         orderId: item.response.orderId,
-        customerName: orders.find((order) => order.id === item.response.orderId)?.customerName ?? item.response.customerEmail,
+        customerName:
+          orders.find((order) => order.id === item.response.orderId)?.customerName ?? item.response.customerEmail,
         status: item.response.status,
         createdAt: item.response.createdAt
       }))
@@ -259,7 +261,9 @@ const resolvers: EndpointResolvers = {
     const average = (from: number, to: number) => {
       const ratings = reviews.filter((review) => isWithin(review.createdAt, from, to)).map((review) => review.rating)
 
-      return ratings.length > 0 ? roundMoney(ratings.reduce((total, rating) => total + rating, 0) / ratings.length) : undefined
+      return ratings.length > 0
+        ? roundMoney(ratings.reduce((total, rating) => total + rating, 0) / ratings.length)
+        : undefined
     }
 
     return {

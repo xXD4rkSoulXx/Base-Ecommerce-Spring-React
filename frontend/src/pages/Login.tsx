@@ -1,4 +1,5 @@
-import { useState, type SubmitEvent } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Lock, Mail, Play } from 'lucide-react'
 import { AuthPageLayout } from '@/components/layout/AuthPageLayout'
@@ -7,21 +8,22 @@ import { FormError } from '@/components/ui/FormError'
 import { APP_NAME } from '@/constants'
 import { useLogin } from '@/hooks/useLogin'
 import { useStartDemo } from '@/hooks/useStartDemo'
+import { loginSchema, type LoginForm } from '@/schemas/auth'
 import { getErrorMessage } from '@/utils/error'
 
 export const Login = () => {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<LoginForm>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: '', password: '' }
+  })
 
   const { mutate: login, isPending, isError, error } = useLogin()
   const { mutate: startDemo, isPending: isDemoPending, isError: isDemoError } = useStartDemo()
   const isBusy = isPending || isDemoPending
-
-  const handleLogin = (event: SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault()
-
-    login({ email, password })
-  }
 
   return (
     <AuthPageLayout
@@ -39,29 +41,27 @@ export const Login = () => {
         Sign <span className="text-neon-cyan">In</span>
       </h1>
       <p className="mt-3 text-sm text-muted-foreground">Welcome back. Authenticate to resume your session.</p>
-      <form className="mt-10 space-y-6" onSubmit={handleLogin}>
+      <form className="mt-10 space-y-6" onSubmit={handleSubmit((data) => login(data))} noValidate>
         {isError && <FormError message={getErrorMessage(error, 'Invalid credentials')} />}
         <Field
           label="Email"
           icon={<Mail className="h-4 w-4" />}
           type="email"
-          name="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
           autoComplete="email"
           disabled={isBusy}
           placeholder="operator@signal.com"
+          error={errors.email?.message}
+          {...register('email')}
         />
         <Field
           label="Password"
           icon={<Lock className="h-4 w-4" />}
           type="password"
-          name="password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
           autoComplete="current-password"
           disabled={isBusy}
           placeholder="••••••••••"
+          error={errors.password?.message}
+          {...register('password')}
         />
         <button
           type="submit"

@@ -1,6 +1,24 @@
 import type { AdminReturnResponse } from '@/types/admin/adminReturn'
-import type { OrderItemResponse, OrderReturnResponse, OrderShipmentResponse, OrderStatus, OrderStatusEventResponse, ReturnReason, ReturnStatus, ShipmentStatus, ShipmentTrackingEventResponse } from '@/types/order'
-import type { DemoCustomer, DemoDiscountCode, DemoOrder, DemoOrderLine, DemoProduct, DemoReturn, DemoSku } from '@/demo/types'
+import type {
+  OrderItemResponse,
+  OrderReturnResponse,
+  OrderShipmentResponse,
+  OrderStatus,
+  OrderStatusEventResponse,
+  ReturnReason,
+  ReturnStatus,
+  ShipmentStatus,
+  ShipmentTrackingEventResponse
+} from '@/types/order'
+import type {
+  DemoCustomer,
+  DemoDiscountCode,
+  DemoOrder,
+  DemoOrderLine,
+  DemoProduct,
+  DemoReturn,
+  DemoSku
+} from '@/demo/types'
 import { getSkuCover } from '@/demo/data/catalog'
 import { DAY, HOUR, roundMoney, toIso, type Random } from '@/demo/data/random'
 
@@ -132,7 +150,9 @@ export const buildOrders = (
   discountCodes: DemoDiscountCode[]
 ) => {
   const productsById = new Map(products.map((product) => [product.id, product]))
-  const sellableSkus = products.filter((product) => product.active).flatMap((product) => product.skus.filter((sku) => sku.active))
+  const sellableSkus = products
+    .filter((product) => product.active)
+    .flatMap((product) => product.skus.filter((sku) => sku.active))
   const usableCodes = discountCodes.filter((code) => code.code !== 'NEWYEAR12')
 
   const ages = [
@@ -203,11 +223,7 @@ export const buildOrders = (
           status: step,
           description: STEP_DESCRIPTIONS[step],
           location:
-            stepIndex === 0
-              ? 'Warehouse Lisboa'
-              : step === 'IN_TRANSIT'
-                ? 'Sorting hub Madrid'
-                : customer.address.city,
+            stepIndex === 0 ? 'Warehouse Lisboa' : step === 'IN_TRANSIT' ? 'Sorting hub Madrid' : customer.address.city,
           occurredAt: toIso(shipmentStatus === 'PRE_TRANSIT' ? at(2) : at(STEP_HOURS[stepIndex]))
         }))
 
@@ -251,8 +267,10 @@ export const buildOrders = (
       const returnedItem = rng.pick(items)
       const returnedQuantity = rng.int(1, returnedItem.quantity)
       const returnCreatedAt = Math.min(deliveredAt + rng.int(1, 3) * DAY, now - 2 * HOUR)
-      const refundedAt = returnStatus === 'REFUNDED' ? Math.min(returnCreatedAt + rng.int(3, 5) * DAY, now - HOUR) : undefined
-      const refundAmount = returnStatus === 'REFUNDED' ? roundMoney(returnedItem.unitPrice * returnedQuantity) : undefined
+      const refundedAt =
+        returnStatus === 'REFUNDED' ? Math.min(returnCreatedAt + rng.int(3, 5) * DAY, now - HOUR) : undefined
+      const refundAmount =
+        returnStatus === 'REFUNDED' ? roundMoney(returnedItem.unitPrice * returnedQuantity) : undefined
       const reason = rng.pick(RETURN_REASONS)
       const comment = rng.chance(0.6) ? rng.pick(RETURN_COMMENTS) : undefined
       const rejectionReason = returnStatus === 'REJECTED' ? rng.pick(REJECTION_REASONS) : undefined
@@ -307,7 +325,9 @@ export const buildOrders = (
 
     if (status === 'DELIVERED') {
       items.forEach((item) => {
-        const returned = orderReturns.some((orderReturn) => orderReturn.items.some((returnItem) => returnItem.orderItemId === item.id))
+        const returned = orderReturns.some((orderReturn) =>
+          orderReturn.items.some((returnItem) => returnItem.orderItemId === item.id)
+        )
 
         item.returnableQuantity = returned && !rejectedReturn ? 0 : item.quantity
       })

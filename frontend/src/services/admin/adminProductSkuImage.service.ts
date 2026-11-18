@@ -17,7 +17,9 @@ export const adminProductSkuImageService = {
   },
 
   getImages: async (productId: number, skuId: number) => {
-    const response = await api.get<AdminProductSkuImageResponse[]>(`/api/admin/products/${productId}/skus/${skuId}/images`)
+    const response = await api.get<AdminProductSkuImageResponse[]>(
+      `/api/admin/products/${productId}/skus/${skuId}/images`
+    )
 
     return response.data
   },

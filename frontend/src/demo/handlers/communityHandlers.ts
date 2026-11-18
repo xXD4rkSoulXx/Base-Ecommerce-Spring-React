@@ -13,7 +13,9 @@ export const communityHandlers: HttpHandler[] = [
     const hidden = readBoolean(url, 'hidden')
 
     const reviews: AdminReviewResponse[] = getFixtures()
-      .reviews.filter((review) => matchesQuery(q, review.productName, review.productRef, review.customerName, review.customerEmail, review.title))
+      .reviews.filter((review) =>
+        matchesQuery(q, review.productName, review.productRef, review.customerName, review.customerEmail, review.title)
+      )
       .filter((review) => hidden === undefined || review.hidden === hidden)
       .sort((a, b) => b.createdAt - a.createdAt)
       .map((review) => ({ ...review, createdAt: toIso(review.createdAt) }))

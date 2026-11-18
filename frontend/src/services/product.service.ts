@@ -1,6 +1,12 @@
 import { api } from '@/lib/api'
 import type { PageResponse } from '@/types/page'
-import type { ProductShopRequest, ProductSearchRequest, ProductResponse, ProductDetailsResponse, ProductReviewsRequest } from '@/types/product'
+import type {
+  ProductShopRequest,
+  ProductSearchRequest,
+  ProductResponse,
+  ProductDetailsResponse,
+  ProductReviewsRequest
+} from '@/types/product'
 import type { ReviewResponse } from '@/types/review'
 
 export const productService = {

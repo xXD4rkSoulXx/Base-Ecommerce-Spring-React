@@ -1,5 +1,10 @@
 import { api } from '@/lib/api'
-import type { AdminProductDetailsResponse, AdminProductRequest, AdminProductSearchRequest, AdminProductSummaryResponse } from '@/types/admin/adminProduct'
+import type {
+  AdminProductDetailsResponse,
+  AdminProductRequest,
+  AdminProductSearchRequest,
+  AdminProductSummaryResponse
+} from '@/types/admin/adminProduct'
 import type { PageResponse } from '@/types/page'
 
 export const adminProductService = {

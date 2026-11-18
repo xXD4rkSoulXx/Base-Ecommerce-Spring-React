@@ -50,8 +50,8 @@ export const Footer = () => (
             THIS IS A <span className="text-neon-cyan">DEMO</span>
           </h3>
           <p className="mt-4 max-w-md text-sm text-muted-foreground">
-            {APP_NAME} is a portfolio project, not a real store. Payments run in Stripe test mode, shipping labels
-            and tracking are simulated, and no order will ever be shipped.
+            {APP_NAME} is a portfolio project, not a real store. Payments run in Stripe test mode, shipping labels and
+            tracking are simulated, and no order will ever be shipped.
           </p>
         </div>
         {FOOTER_COLUMNS.map((column) => (

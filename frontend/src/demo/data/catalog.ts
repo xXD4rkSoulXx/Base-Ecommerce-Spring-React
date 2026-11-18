@@ -82,7 +82,13 @@ const PRODUCT_SEEDS: ProductSeed[] = [
     category: 'OUTERWEAR',
     price: 149.9,
     featuredSlot: 'LEFT',
-    skus: [sku('S', 'BLACK', 14, { images: 3 }), sku('M', 'BLACK', 22), sku('L', 'BLACK', 3), sku('M', 'CYAN', 9), sku('L', 'CYAN', 0)]
+    skus: [
+      sku('S', 'BLACK', 14, { images: 3 }),
+      sku('M', 'BLACK', 22),
+      sku('L', 'BLACK', 3),
+      sku('M', 'CYAN', 9),
+      sku('L', 'CYAN', 0)
+    ]
   },
   {
     ref: 'VC-OUT-002',
@@ -126,7 +132,13 @@ const PRODUCT_SEEDS: ProductSeed[] = [
     price: 89,
     discountPercentage: 10,
     featuredSlot: 'RIGHT',
-    skus: [sku('S', 'GRAY', 17), sku('M', 'GRAY', 25), sku('L', 'GRAY', 19), sku('M', 'PURPLE', 7), sku('L', 'PURPLE', 1)]
+    skus: [
+      sku('S', 'GRAY', 17),
+      sku('M', 'GRAY', 25),
+      sku('L', 'GRAY', 19),
+      sku('M', 'PURPLE', 7),
+      sku('L', 'PURPLE', 1)
+    ]
   },
   {
     ref: 'VC-TOP-003',
@@ -142,7 +154,13 @@ const PRODUCT_SEEDS: ProductSeed[] = [
     description: 'Tapered cargo pants with six pockets and adjustable cuffs.',
     category: 'BOTTOMS',
     price: 99,
-    skus: [sku('S', 'OLIVE', 10), sku('M', 'OLIVE', 21), sku('L', 'OLIVE', 14), sku('M', 'BLACK', 28), sku('L', 'BLACK', 2)]
+    skus: [
+      sku('S', 'OLIVE', 10),
+      sku('M', 'OLIVE', 21),
+      sku('L', 'OLIVE', 14),
+      sku('M', 'BLACK', 28),
+      sku('L', 'BLACK', 2)
+    ]
   },
   {
     ref: 'VC-BOT-002',
@@ -167,7 +185,14 @@ const PRODUCT_SEEDS: ProductSeed[] = [
     description: 'Responsive running sneakers with a breathable engineered mesh.',
     category: 'FOOTWEAR',
     price: 139,
-    skus: [sku('_40', 'WHITE', 6), sku('_41', 'WHITE', 12), sku('_42', 'WHITE', 15), sku('_43', 'WHITE', 9), sku('_44', 'WHITE', 3), sku('_42', 'MAGENTA', 8)]
+    skus: [
+      sku('_40', 'WHITE', 6),
+      sku('_41', 'WHITE', 12),
+      sku('_42', 'WHITE', 15),
+      sku('_43', 'WHITE', 9),
+      sku('_44', 'WHITE', 3),
+      sku('_42', 'MAGENTA', 8)
+    ]
   },
   {
     ref: 'VC-FTW-002',
@@ -229,9 +254,7 @@ export const buildCatalog = (): DemoProduct[] => {
   return PRODUCT_SEEDS.map((seed, index) => {
     const productId = index + 1
     const dimensions = DIMENSIONS[seed.category]
-    const productCoverSkuIndex = seed.skus.findIndex(
-      (skuSeed) => (skuSeed.active ?? true) && (skuSeed.images ?? 2) > 0
-    )
+    const productCoverSkuIndex = seed.skus.findIndex((skuSeed) => (skuSeed.active ?? true) && (skuSeed.images ?? 2) > 0)
 
     const skus: DemoSku[] = seed.skus.map((skuSeed, skuIndex) => {
       const imageCount = skuSeed.images ?? 2

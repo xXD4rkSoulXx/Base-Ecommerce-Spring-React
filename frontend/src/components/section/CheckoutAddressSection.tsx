@@ -1,95 +1,58 @@
-import type { ChangeEvent } from 'react'
+import type { FieldErrors, UseFormRegister } from 'react-hook-form'
 import { Field } from '@/components/ui/Field'
 import { FormError } from '@/components/ui/FormError'
 import { SHIPPING_COUNTRY_CODES } from '@/constants'
-import type { CheckoutAddressForm } from '@/types/checkout'
+import type { CheckoutAddressForm } from '@/schemas/checkout'
 import { formatCountry } from '@/utils/format'
 
 interface CheckoutAddressSectionProps {
-  address: CheckoutAddressForm
+  register: UseFormRegister<CheckoutAddressForm>
+  errors: FieldErrors<CheckoutAddressForm>
   error: string | null
-  onChange: (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void
 }
 
 const COUNTRY_OPTIONS = SHIPPING_COUNTRY_CODES.map((code) => ({ code, name: formatCountry(code) })).sort((a, b) =>
   a.name.localeCompare(b.name)
 )
 
-export const CheckoutAddressSection = ({ address, error, onChange }: CheckoutAddressSectionProps) => (
+export const CheckoutAddressSection = ({ register, errors, error }: CheckoutAddressSectionProps) => (
   <>
-    <Field
-      label="Full Name"
-      name="recipientName"
-      value={address.recipientName}
-      onChange={onChange}
-      autoComplete="name"
-      maxLength={100}
-      required
-    />
-    <Field
-      label="Phone"
-      name="phone"
-      type="tel"
-      value={address.phone}
-      onChange={onChange}
-      autoComplete="tel"
-      maxLength={30}
-      required
-    />
+    <Field label="Full Name" autoComplete="name" error={errors.recipientName?.message} {...register('recipientName')} />
+    <Field label="Phone" type="tel" autoComplete="tel" error={errors.phone?.message} {...register('phone')} />
     <Field
       label="Address Line 1"
-      name="addressLine1"
-      value={address.addressLine1}
-      onChange={onChange}
       autoComplete="address-line1"
-      maxLength={100}
-      required
+      error={errors.addressLine1?.message}
+      {...register('addressLine1')}
     />
     <Field
       label="Address Line 2 (optional)"
-      name="addressLine2"
-      value={address.addressLine2}
-      onChange={onChange}
       autoComplete="address-line2"
-      maxLength={100}
+      error={errors.addressLine2?.message}
+      {...register('addressLine2')}
     />
     <div className="grid gap-6 md:grid-cols-2">
-      <Field
-        label="City"
-        name="city"
-        value={address.city}
-        onChange={onChange}
-        autoComplete="address-level2"
-        maxLength={100}
-        required
-      />
+      <Field label="City" autoComplete="address-level2" error={errors.city?.message} {...register('city')} />
       <Field
         label="Postal Code"
-        name="postalCode"
-        value={address.postalCode}
-        onChange={onChange}
         autoComplete="postal-code"
-        maxLength={20}
-        required
+        error={errors.postalCode?.message}
+        {...register('postalCode')}
       />
     </div>
     <div className="grid gap-6 md:grid-cols-2">
       <Field
         label="State / Region (optional)"
-        name="state"
-        value={address.state}
-        onChange={onChange}
         autoComplete="address-level1"
-        maxLength={100}
+        error={errors.state?.message}
+        {...register('state')}
       />
       <label className="block">
         <span className="block font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Country</span>
         <select
-          name="country"
-          value={address.country}
-          onChange={onChange}
           autoComplete="country"
           className="mt-2 w-full border border-border bg-card px-4 py-3 text-sm transition-colors focus:border-neon-pink focus:outline-none"
+          {...register('country')}
         >
           {COUNTRY_OPTIONS.map((country) => (
             <option key={country.code} value={country.code}>

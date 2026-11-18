@@ -1,7 +1,4 @@
-export type ReviewEligibility =
-  | 'ELIGIBLE'
-  | 'NOT_PURCHASED'
-  | 'ALREADY_REVIEWED'
+export type ReviewEligibility = 'ELIGIBLE' | 'NOT_PURCHASED' | 'ALREADY_REVIEWED'
 
 export interface ReviewRequest {
   rating: number

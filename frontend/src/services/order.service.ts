@@ -1,5 +1,11 @@
 import { api } from '@/lib/api'
-import type { OrderSearchRequest, OrderSummaryResponse, OrderDetailsResponse, CreateReturnRequest, OrderReturnResponse } from '@/types/order'
+import type {
+  OrderSearchRequest,
+  OrderSummaryResponse,
+  OrderDetailsResponse,
+  CreateReturnRequest,
+  OrderReturnResponse
+} from '@/types/order'
 import type { PageResponse } from '@/types/page'
 
 export const orderService = {

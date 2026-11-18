@@ -11,9 +11,7 @@ export const useAdminSetDiscountCodeActive = () => {
 
   return useMutation({
     mutationFn: ({ id, active }: SetDiscountCodeActiveVariables) =>
-      active
-        ? adminDiscountCodeService.activateDiscountCode(id)
-        : adminDiscountCodeService.deactivateDiscountCode(id),
+      active ? adminDiscountCodeService.activateDiscountCode(id) : adminDiscountCodeService.deactivateDiscountCode(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'discount-codes'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })

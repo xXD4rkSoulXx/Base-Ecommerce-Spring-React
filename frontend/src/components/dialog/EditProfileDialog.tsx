@@ -1,10 +1,12 @@
-import { useState, type SubmitEvent } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { User } from 'lucide-react'
+import { Field } from '@/components/ui/Field'
 import { FormError } from '@/components/ui/FormError'
-import { FormField } from '@/components/ui/FormField'
 import { Modal } from '@/components/ui/Modal'
 import { useUpdateProfile } from '@/hooks/useUpdateProfile'
+import { profileSchema, type ProfileForm } from '@/schemas/profile'
 import { getErrorMessage } from '@/utils/error'
 
 interface EditProfileDialogProps {
@@ -14,66 +16,50 @@ interface EditProfileDialogProps {
 }
 
 export const EditProfileDialog = ({ initialFirstName, initialLastName, onClose }: EditProfileDialogProps) => {
-  const [firstName, setFirstName] = useState(initialFirstName)
-  const [lastName, setLastName] = useState(initialLastName)
-  const [error, setError] = useState<string | null>(null)
-  const { mutate: updateProfile, isPending } = useUpdateProfile()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<ProfileForm>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: { firstName: initialFirstName, lastName: initialLastName }
+  })
 
-  const submit = (event: SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault()
+  const { mutate: updateProfile, isPending, error } = useUpdateProfile()
 
-    const trimmedFirstName = firstName.trim()
-    const trimmedLastName = lastName.trim()
-
-    if (!trimmedFirstName || !trimmedLastName) {
-      setError('First name and last name are required')
-      return
-    }
-
-    if (trimmedFirstName.length > 100 || trimmedLastName.length > 100) {
-      setError('First name and last name must be at most 100 characters')
-      return
-    }
-
-    setError(null)
-
-    updateProfile(
-      { firstName: trimmedFirstName, lastName: trimmedLastName },
-      {
-        onSuccess: () => {
-          toast.success('Profile updated')
-          onClose()
-        },
-        onError: (mutationError) => setError(getErrorMessage(mutationError, 'Could not update profile'))
+  const onSubmit = (data: ProfileForm) =>
+    updateProfile(data, {
+      onSuccess: () => {
+        toast.success('Profile updated')
+        onClose()
       }
-    )
-  }
+    })
 
   return (
     <Modal eyebrow="Account" title="Profile" icon={<User className="h-5 w-5 text-neon-cyan" />} onClose={onClose}>
-      <form onSubmit={submit}>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
         {error && (
           <div className="mb-6">
-            <FormError message={error} />
+            <FormError message={getErrorMessage(error, 'Could not update profile')} />
           </div>
         )}
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
-            <FormField
+            <Field
               label="First Name"
-              value={firstName}
-              onChange={setFirstName}
               accent="cyan"
               autoComplete="given-name"
               disabled={isPending}
+              error={errors.firstName?.message}
+              {...register('firstName')}
             />
-            <FormField
+            <Field
               label="Last Name"
-              value={lastName}
-              onChange={setLastName}
               accent="cyan"
               autoComplete="family-name"
               disabled={isPending}
+              error={errors.lastName?.message}
+              {...register('lastName')}
             />
           </div>
           <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">

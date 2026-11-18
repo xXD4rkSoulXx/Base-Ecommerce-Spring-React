@@ -80,12 +80,7 @@ export const ProductOverviewSection = ({ product }: ProductOverviewSectionProps)
         <ArrowLeft className="h-3 w-3" /> Back
       </button>
       <div className="grid gap-12 lg:grid-cols-2">
-        <ProductGallerySection
-          product={product}
-          images={images}
-          activeIndex={imageIndex}
-          onSelect={setImageIndex}
-        />
+        <ProductGallerySection product={product} images={images} activeIndex={imageIndex} onSelect={setImageIndex} />
         <div className="flex flex-col">
           <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-neon-pink">{product.category}</p>
           <h1 className="mt-4 font-display text-5xl uppercase leading-none tracking-tighter md:text-6xl">

@@ -135,7 +135,9 @@ export const AdminVariantImagesDialog = ({ productId, variant, onClose }: AdminV
           {isUploading ? 'Uploading...' : 'Drag an image here or click to choose'}
         </span>
       </button>
-      {isLoading && <p className="mt-5 font-mono text-xs uppercase tracking-widest text-muted-foreground">Loading...</p>}
+      {isLoading && (
+        <p className="mt-5 font-mono text-xs uppercase tracking-widest text-muted-foreground">Loading...</p>
+      )}
       {isError && (
         <div className="mt-5">
           <FormError message="Could not load the images" />

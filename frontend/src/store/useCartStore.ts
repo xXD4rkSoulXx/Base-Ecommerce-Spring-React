@@ -19,46 +19,49 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       items: [],
 
-      addToCart: (item) => set((state) => {
-        const existingItem = state.items.find((i) => i.productSkuId === item.productSkuId)
-        if (existingItem) {
-          return {
-            items: state.items.map((i) =>
-              i.productSkuId === item.productSkuId
-                ? { ...i, quantity: Math.min(i.quantity + item.quantity, MAX_CART_ITEM_QUANTITY) }
-                : i
-            )
+      addToCart: (item) =>
+        set((state) => {
+          const existingItem = state.items.find((i) => i.productSkuId === item.productSkuId)
+          if (existingItem) {
+            return {
+              items: state.items.map((i) =>
+                i.productSkuId === item.productSkuId
+                  ? { ...i, quantity: Math.min(i.quantity + item.quantity, MAX_CART_ITEM_QUANTITY) }
+                  : i
+              )
+            }
           }
-        }
 
-        if (state.items.length >= MAX_CART_LINES) {
-          return state
-        }
+          if (state.items.length >= MAX_CART_LINES) {
+            return state
+          }
 
-        return {
-          items: [...state.items, { ...item, quantity: Math.min(item.quantity, MAX_CART_ITEM_QUANTITY) }]
-        }
-      }),
+          return {
+            items: [...state.items, { ...item, quantity: Math.min(item.quantity, MAX_CART_ITEM_QUANTITY) }]
+          }
+        }),
 
       getTotalItems: () => get().items.reduce((total, item) => total + item.quantity, 0),
 
-      updateQuantity: (productSkuId, quantity) => set((state) => {
-        if (quantity <= 0) {
-          return { items: state.items.filter((item) => item.productSkuId !== productSkuId) }
-        }
+      updateQuantity: (productSkuId, quantity) =>
+        set((state) => {
+          if (quantity <= 0) {
+            return { items: state.items.filter((item) => item.productSkuId !== productSkuId) }
+          }
 
-        return {
-          items: state.items.map((item) =>
-            item.productSkuId === productSkuId
-              ? { ...item, quantity: Math.min(quantity, MAX_CART_ITEM_QUANTITY) }
-              : item
-          )
-        }
-      }),
+          return {
+            items: state.items.map((item) =>
+              item.productSkuId === productSkuId
+                ? { ...item, quantity: Math.min(quantity, MAX_CART_ITEM_QUANTITY) }
+                : item
+            )
+          }
+        }),
 
-      removeFromCart: (productSkuId) => set((state) => ({
-        items: state.items.filter((item) => item.productSkuId !== productSkuId)
-      })),
+      removeFromCart: (productSkuId) =>
+        set((state) => ({
+          items: state.items.filter((item) => item.productSkuId !== productSkuId)
+        })),
 
       clearCart: () => set({ items: [] })
     }),

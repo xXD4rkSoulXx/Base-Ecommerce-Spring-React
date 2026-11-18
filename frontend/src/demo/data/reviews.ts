@@ -27,7 +27,12 @@ const chooseRating = (rng: Random) => {
   return roll < 0.45 ? 5 : roll < 0.75 ? 4 : roll < 0.88 ? 3 : roll < 0.96 ? 2 : 1
 }
 
-export const buildReviews = (now: number, rng: Random, products: DemoProduct[], customers: DemoCustomer[]): DemoReview[] => {
+export const buildReviews = (
+  now: number,
+  rng: Random,
+  products: DemoProduct[],
+  customers: DemoCustomer[]
+): DemoReview[] => {
   const reviewable = products.filter((product) => product.active)
 
   return Array.from({ length: REVIEW_COUNT }, (_, index) => {
@@ -50,5 +55,7 @@ export const buildReviews = (now: number, rng: Random, products: DemoProduct[], 
       hidden,
       createdAt: now - Math.pow(rng.next(), 1.3) * 90 * DAY
     }
-  }).sort((a, b) => a.createdAt - b.createdAt).map((review, index) => ({ ...review, id: index + 1 }))
+  })
+    .sort((a, b) => a.createdAt - b.createdAt)
+    .map((review, index) => ({ ...review, id: index + 1 }))
 }

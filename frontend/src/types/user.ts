@@ -1,11 +1,4 @@
-export type UserRole =
-  | 'CUSTOMER'
-  | 'ADMIN'
-  | 'MANAGER'
-  | 'MERCHANDISER'
-  | 'FULFILLMENT'
-  | 'SUPPORT'
-  | 'DEMO'
+export type UserRole = 'CUSTOMER' | 'ADMIN' | 'MANAGER' | 'MERCHANDISER' | 'FULFILLMENT' | 'SUPPORT' | 'DEMO'
 
 export type Permission =
   | 'DASHBOARD_READ'

@@ -1,4 +1,6 @@
-import { useState, type ChangeEvent, type SubmitEvent } from 'react'
+import { useState, type SubmitEvent } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
 import { CheckoutAddressSection } from '@/components/section/CheckoutAddressSection'
 import { CheckoutBlockedSection } from '@/components/section/CheckoutBlockedSection'
 import { CheckoutReviewSection } from '@/components/section/CheckoutReviewSection'
@@ -8,7 +10,8 @@ import { StepIndicator } from '@/components/ui/StepIndicator'
 import { useCart } from '@/hooks/useCart'
 import { useCreateCheckoutSession } from '@/hooks/useCreateCheckoutSession'
 import { useShippingRates } from '@/hooks/useShippingRates'
-import type { CheckoutAddressForm, CheckoutAddressRequest } from '@/types/checkout'
+import { checkoutAddressSchema, type CheckoutAddressForm } from '@/schemas/checkout'
+import type { CheckoutAddressRequest } from '@/types/checkout'
 import { getErrorMessage } from '@/utils/error'
 
 type Step = 1 | 2 | 3
@@ -26,6 +29,12 @@ const EMPTY_ADDRESS: CheckoutAddressForm = {
   phone: ''
 }
 
+const toRequest = (address: CheckoutAddressForm): CheckoutAddressRequest => ({
+  ...address,
+  addressLine2: address.addressLine2 || undefined,
+  state: address.state || undefined
+})
+
 export const Checkout = () => {
   const { items } = useCart()
   const {
@@ -34,47 +43,35 @@ export const Checkout = () => {
     isPending: isLoadingShippingRates,
     error: shippingRatesError
   } = useShippingRates()
+  const { mutate: createSession, isPending: isCreatingSession, error: createSessionError } = useCreateCheckoutSession()
+
   const {
-    mutate: createSession,
-    isPending: isCreatingSession,
-    error: createSessionError
-  } = useCreateCheckoutSession()
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<CheckoutAddressForm>({
+    resolver: zodResolver(checkoutAddressSchema),
+    defaultValues: EMPTY_ADDRESS
+  })
 
   const [step, setStep] = useState<Step>(1)
-  const [address, setAddress] = useState<CheckoutAddressForm>(EMPTY_ADDRESS)
+  const [address, setAddress] = useState<CheckoutAddressForm | null>(null)
   const [selectedRateId, setSelectedRateId] = useState('')
 
   const selectedRate = shippingRates.find((rate) => rate.rateId === selectedRateId)
   const hasUnavailableItems = items.some((item) => item.available === false)
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setAddress((current) => ({ ...current, [event.target.name]: event.target.value }))
-  }
+  const submitAddress = (data: CheckoutAddressForm) =>
+    getShippingRates(toRequest(data), {
+      onSuccess: (rates) => {
+        setAddress(data)
+        setSelectedRateId(rates[0]?.rateId ?? '')
+        setStep(2)
+      }
+    })
 
-  const buildAddress = (): CheckoutAddressRequest => ({
-    recipientName: address.recipientName.trim(),
-    addressLine1: address.addressLine1.trim(),
-    addressLine2: address.addressLine2.trim() || undefined,
-    city: address.city.trim(),
-    state: address.state.trim() || undefined,
-    postalCode: address.postalCode.trim(),
-    country: address.country,
-    phone: address.phone.trim()
-  })
-
-  const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
+  const submitStep = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault()
-
-    if (step === 1) {
-      getShippingRates(buildAddress(), {
-        onSuccess: (rates) => {
-          setSelectedRateId(rates[0]?.rateId ?? '')
-          setStep(2)
-        }
-      })
-
-      return
-    }
 
     if (step === 2) {
       setStep(3)
@@ -82,7 +79,9 @@ export const Checkout = () => {
       return
     }
 
-    createSession({ address: buildAddress(), rateId: selectedRateId })
+    if (address) {
+      createSession({ address: toRequest(address), rateId: selectedRateId })
+    }
   }
 
   if (items.length === 0) {
@@ -107,18 +106,22 @@ export const Checkout = () => {
       </h1>
       <StepIndicator steps={STEPS} current={step} />
       <div className="mt-12 grid gap-12 lg:grid-cols-[1fr_400px]">
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={step === 1 ? handleSubmit(submitAddress) : submitStep} noValidate className="space-y-6">
           {step === 1 && (
             <CheckoutAddressSection
-              address={address}
+              register={register}
+              errors={errors}
               error={shippingRatesError ? getErrorMessage(shippingRatesError, 'Could not load shipping rates') : null}
-              onChange={handleChange}
             />
           )}
           {step === 2 && (
-            <CheckoutShippingSection rates={shippingRates} selectedRateId={selectedRateId} onSelect={setSelectedRateId} />
+            <CheckoutShippingSection
+              rates={shippingRates}
+              selectedRateId={selectedRateId}
+              onSelect={setSelectedRateId}
+            />
           )}
-          {step === 3 && selectedRate && (
+          {step === 3 && selectedRate && address && (
             <CheckoutReviewSection
               address={address}
               rate={selectedRate}

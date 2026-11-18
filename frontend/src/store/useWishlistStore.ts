@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { MAX_GUEST_WISHLIST_ITEMS } from '@/constants'
 import type { ProductResponse } from '@/types/product'
 
 interface WishlistState {
@@ -11,25 +10,29 @@ interface WishlistState {
   clearWishlist: () => void
 }
 
+export const MAX_GUEST_WISHLIST_ITEMS = 100
+
 export const useWishlistStore = create<WishlistState>()(
   persist(
     (set, get) => ({
       items: [],
 
-      addToWishlist: (product) => set((state) => {
-        const itemExists = state.items.some((item) => item.id === product.id)
-        if (itemExists || state.items.length >= MAX_GUEST_WISHLIST_ITEMS) {
-          return state
-        }
+      addToWishlist: (product) =>
+        set((state) => {
+          const itemExists = state.items.some((item) => item.id === product.id)
+          if (itemExists || state.items.length >= MAX_GUEST_WISHLIST_ITEMS) {
+            return state
+          }
 
-        return { items: [...state.items, product] }
-      }),
+          return { items: [...state.items, product] }
+        }),
 
       getTotalItems: () => get().items.length,
 
-      removeFromWishlist: (productId) => set((state) => ({
-        items: state.items.filter((item) => item.id !== productId)
-      })),
+      removeFromWishlist: (productId) =>
+        set((state) => ({
+          items: state.items.filter((item) => item.id !== productId)
+        })),
 
       clearWishlist: () => set({ items: [] })
     }),

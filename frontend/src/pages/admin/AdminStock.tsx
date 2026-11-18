@@ -32,9 +32,7 @@ export const AdminStock = () => {
       <AdminPageTitle count={data?.totalElements}>Stock</AdminPageTitle>
       <AdminStockFilters />
       {isError && <FormError message="Could not load the stock" />}
-      {isLoading && (
-        <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Loading...</p>
-      )}
+      {isLoading && <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Loading...</p>}
       {data && (
         <AdminTable
           columns={COLUMNS}

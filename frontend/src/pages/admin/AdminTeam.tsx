@@ -42,9 +42,7 @@ export const AdminTeam = () => {
       >
         Team
       </AdminPageTitle>
-      {isLoading && (
-        <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Loading...</p>
-      )}
+      {isLoading && <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Loading...</p>}
       {isError && <FormError message="Could not load the team" />}
       {team && (
         <AdminTable

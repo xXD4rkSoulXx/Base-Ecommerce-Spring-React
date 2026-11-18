@@ -1,5 +1,10 @@
 import { api } from '@/lib/api'
-import type { CheckoutAddressRequest, ShippingRateResponse, CheckoutSessionResponse, CreateOrderRequest } from '@/types/checkout'
+import type {
+  CheckoutAddressRequest,
+  ShippingRateResponse,
+  CheckoutSessionResponse,
+  CreateOrderRequest
+} from '@/types/checkout'
 
 export const checkoutService = {
   getShippingRates: async (request: CheckoutAddressRequest) => {

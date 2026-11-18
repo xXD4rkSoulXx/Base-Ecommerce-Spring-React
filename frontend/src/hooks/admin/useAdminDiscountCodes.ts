@@ -5,7 +5,7 @@ import { adminDiscountCodeService } from '@/services/admin/adminDiscountCode.ser
 
 export const useAdminDiscountCodes = () => {
   const [searchParams] = useSearchParams()
-  const { page, size } = usePageParams(10)
+  const { page, size } = usePageParams()
   const q = searchParams.get('q') || ''
   const activeParam = searchParams.get('active')
   const active = activeParam ? activeParam === 'true' : undefined

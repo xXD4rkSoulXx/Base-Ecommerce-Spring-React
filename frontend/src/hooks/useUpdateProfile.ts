@@ -11,9 +11,7 @@ export const useUpdateProfile = () => {
     mutationFn: (request: UpdateProfileRequest) => userService.updateProfile(request),
     onSuccess: (user) => {
       setUser(user)
-      queryClient.setQueryData<ProfileResponse>(['profile'], (profile) =>
-        profile ? { ...profile, user } : profile
-      )
+      queryClient.setQueryData<ProfileResponse>(['profile'], (profile) => (profile ? { ...profile, user } : profile))
     }
   })
 }

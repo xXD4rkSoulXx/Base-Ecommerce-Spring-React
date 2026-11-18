@@ -12,9 +12,7 @@ export const AdminDashboardActivitySection = ({ activity }: AdminDashboardActivi
       <li key={entry.id} className="border-b border-border p-4 last:border-b-0">
         <p className="text-sm">
           <span className="font-bold">{AUDIT_ACTION_LABELS[entry.action]}</span>{' '}
-          <span className="text-muted-foreground">
-            {AUDIT_ENTITY_TYPE_LABELS[entry.entityType].toLowerCase()}
-          </span>{' '}
+          <span className="text-muted-foreground">{AUDIT_ENTITY_TYPE_LABELS[entry.entityType].toLowerCase()}</span>{' '}
           {entry.entityLabel}
         </p>
         <p className="font-mono text-[10px] text-muted-foreground">

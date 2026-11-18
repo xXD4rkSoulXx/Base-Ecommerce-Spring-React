@@ -10,10 +10,7 @@ interface AdminDashboardRecentOrdersSectionProps {
 export const AdminDashboardRecentOrdersSection = ({ orders }: AdminDashboardRecentOrdersSectionProps) => (
   <ul>
     {orders.map((order) => (
-      <li
-        key={order.id}
-        className="flex items-center justify-between gap-4 border-b border-border p-4 last:border-b-0"
-      >
+      <li key={order.id} className="flex items-center justify-between gap-4 border-b border-border p-4 last:border-b-0">
         <div className="min-w-0">
           <Link to={`/admin/orders/${order.id}`} className="font-bold hover:text-neon-cyan">
             #{order.id}

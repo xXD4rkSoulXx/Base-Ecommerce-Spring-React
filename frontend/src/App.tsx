@@ -18,7 +18,8 @@ export const App = () => {
         toastOptions={{
           unstyled: true,
           classNames: {
-            toast: 'flex items-center gap-3 border border-border bg-card px-4 py-3 font-mono text-xs uppercase tracking-widest text-foreground shadow-lg',
+            toast:
+              'flex items-center gap-3 border border-border bg-card px-4 py-3 font-mono text-xs uppercase tracking-widest text-foreground shadow-lg',
             success: 'border-neon-cyan text-neon-cyan',
             error: 'border-destructive text-destructive'
           }
