@@ -7,32 +7,40 @@ interface StarRatingProps {
   readOnly?: boolean
 }
 
+const STARS = [1, 2, 3, 4, 5]
+
 export const StarRating = ({ value, onChange, size = 18, readOnly = false }: StarRatingProps) => {
+  const rounded = Math.round(value)
+
   return (
-    <div className="flex items-center gap-1">
-      {[1, 2, 3, 4, 5].map((n) => {
-        const active = n <= Math.round(value)
-        const Component = readOnly ? 'span' : 'button'
+    <div
+      role={readOnly ? 'img' : 'group'}
+      aria-label={readOnly ? `Rated ${rounded} out of 5` : 'Rating'}
+      className="flex items-center gap-1"
+    >
+      {STARS.map((n) => {
+        const active = n <= rounded
+        const color = active ? 'text-neon-cyan' : 'text-muted-foreground/40'
+        const star = <Star size={size} fill={active ? 'currentColor' : 'none'} strokeWidth={1.5} />
+
+        if (readOnly) {
+          return (
+            <span key={n} className={`transition-colors ${color}`}>
+              {star}
+            </span>
+          )
+        }
 
         return (
-          <Component
+          <button
             key={n}
-            {...(!readOnly && {
-              type: "button",
-              onClick: () => onChange?.(n),
-              'aria-label': `${n} star${n > 1 ? 's' : ''}`,
-            })}
-            className={`transition-colors ${!readOnly ? 'hover:scale-110' : ''} ${
-              active ? 'text-neon-cyan' : 'text-muted-foreground/40'
-            }`}
+            type="button"
+            aria-label={`${n} star${n > 1 ? 's' : ''}`}
+            onClick={() => onChange?.(n)}
+            className={`transition-colors hover:scale-110 ${color}`}
           >
-            <Star
-              className=""
-              style={{ width: size, height: size }}
-              fill={active ? 'currentColor' : 'none'}
-              strokeWidth={1.5}
-            />
-          </Component>
+            {star}
+          </button>
         )
       })}
     </div>

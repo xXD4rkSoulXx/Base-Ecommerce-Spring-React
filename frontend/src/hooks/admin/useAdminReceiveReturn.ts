@@ -6,10 +6,13 @@ export const useAdminReceiveReturn = () => {
 
   return useMutation({
     mutationFn: (id: number) => adminReturnService.receive(id),
-    onSettled: () => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'returns'] })
-      queryClient.invalidateQueries({ queryKey: ['admin', 'orders'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'order'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'products'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'product-skus'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'stock'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })
     }
   })
 }

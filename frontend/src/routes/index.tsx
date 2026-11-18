@@ -1,4 +1,5 @@
 import { createBrowserRouter, redirect } from 'react-router-dom'
+import { isDemoSession } from '@/demo/demoSession'
 import { Layout } from '@/layouts/Layout'
 import { AdminLayout } from '@/layouts/AdminLayout'
 import { PublicRoute } from '@/layouts/PublicRoute'
@@ -18,7 +19,7 @@ import { Register } from '@/pages/Register'
 import { Login } from '@/pages/Login'
 import { Account } from '@/pages/Account'
 import { Checkout } from '@/pages/Checkout'
-import { CheckoutSuccess } from '@/pages/CheckoutSucess'
+import { CheckoutSuccess } from '@/pages/CheckoutSuccess'
 import { AdminDashboard } from '@/pages/admin/AdminDashboard'
 import { AdminProductCreate } from '@/pages/admin/AdminProductCreate'
 import { AdminProducts } from '@/pages/admin/AdminProducts'
@@ -35,12 +36,11 @@ import { AdminTeam } from '@/pages/admin/AdminTeam'
 import { AdminAuditLog } from '@/pages/admin/AdminAuditLog'
 import { NoPermission } from '@/pages/NoPermission'
 import { NotFound } from '@/pages/NotFound'
-import { isDemoSession } from '@/demo/demoSession'
 
 export const router = createBrowserRouter([
   {
-    element: <Layout />,
     loader: () => (isDemoSession() ? redirect('/admin') : null),
+    element: <Layout />,
     children: [
       { path: '/', element: <Home /> },
       { path: '/shop', element: <Shop /> },

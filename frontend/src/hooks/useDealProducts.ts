@@ -1,9 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { productService } from '@/services/product.service'
 
-export const useDealProducts = () => {
-  return useQuery({
+export const useDealProducts = () =>
+  useQuery({
     queryKey: ['products-deal'],
     queryFn: () => productService.getDealProducts()
   })
-}

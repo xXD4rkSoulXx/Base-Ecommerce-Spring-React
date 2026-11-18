@@ -1,4 +1,6 @@
 import type { AdminAuditLogResponse } from '@/types/admin/adminAuditLog'
+import type { OrderStatus, ReturnStatus } from '@/types/order'
+import type { ProductCategory, ProductColor, ProductSize } from '@/types/product'
 
 export interface AdminDashboardSummaryResponse {
   netRevenue: number
@@ -23,12 +25,12 @@ export interface AdminDashboardCountResponse {
 }
 
 export interface AdminDashboardStatusCountResponse {
-  status: string
+  status: OrderStatus
   count: number
 }
 
 export interface AdminDashboardCategoryUnitsResponse {
-  category: string
+  category: ProductCategory
   unitsSold: number
 }
 
@@ -36,7 +38,7 @@ export interface AdminDashboardTopProductResponse {
   productId: number
   ref: string
   name: string
-  cover: string | null
+  cover?: string
   unitsSold: number
 }
 
@@ -48,7 +50,7 @@ export interface AdminDashboardDiscountCodeResponse {
 export interface AdminDashboardRecentOrderResponse {
   id: number
   customerName: string
-  status: string
+  status: OrderStatus
   totalAmount: number
   createdAt: string
 }
@@ -57,7 +59,7 @@ export interface AdminDashboardReturnResponse {
   id: number
   orderId: number
   customerName: string
-  status: string
+  status: ReturnStatus
   createdAt: string
 }
 
@@ -66,8 +68,8 @@ export interface AdminDashboardLowStockResponse {
   productId: number
   productName: string
   ref: string
-  size: string
-  color: string
+  size: ProductSize
+  color: ProductColor
   stock: number
 }
 
@@ -80,8 +82,8 @@ export interface AdminDashboardCustomersResponse {
 export interface AdminDashboardReviewsResponse {
   newReviews: number
   previousNewReviews: number
-  averageRating: number | null
-  previousAverageRating: number | null
+  averageRating?: number
+  previousAverageRating?: number
 }
 
 export interface AdminDashboardEndpoints {

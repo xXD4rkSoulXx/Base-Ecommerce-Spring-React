@@ -11,9 +11,11 @@ export const useAdminAdjustStock = () => {
 
   return useMutation({
     mutationFn: ({ skuId, delta }: AdjustStockVariables) => adminStockService.adjustStock(skuId, { delta }),
-    onSettled: () => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'stock'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'products'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'product-skus'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })
     }
   })
 }

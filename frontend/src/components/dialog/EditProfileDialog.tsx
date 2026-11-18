@@ -1,87 +1,63 @@
-import { useState } from 'react'
-import { isAxiosError } from 'axios'
+import { useState, type SubmitEvent } from 'react'
 import { toast } from 'sonner'
-import { User, X } from 'lucide-react'
-import { FormField } from '@/components/ui/FormField'
+import { User } from 'lucide-react'
 import { FormError } from '@/components/ui/FormError'
+import { FormField } from '@/components/ui/FormField'
+import { Modal } from '@/components/ui/Modal'
 import { useUpdateProfile } from '@/hooks/useUpdateProfile'
+import { getErrorMessage } from '@/utils/error'
 
 interface EditProfileDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
   initialFirstName: string
   initialLastName: string
+  onClose: () => void
 }
 
-const getErrorMessage = (error: unknown, fallback: string) =>
-  isAxiosError<{ message?: string }>(error) ? (error.response?.data?.message ?? fallback) : fallback
-
-export const EditProfileDialog = ({
-  open,
-  onOpenChange,
-  initialFirstName,
-  initialLastName
-}: EditProfileDialogProps) => {
+export const EditProfileDialog = ({ initialFirstName, initialLastName, onClose }: EditProfileDialogProps) => {
   const [firstName, setFirstName] = useState(initialFirstName)
   const [lastName, setLastName] = useState(initialLastName)
   const [error, setError] = useState<string | null>(null)
   const { mutate: updateProfile, isPending } = useUpdateProfile()
 
-  if (!open) {
-    return null
-  }
+  const submit = (event: SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault()
 
-  const close = () => {
-    setFirstName(initialFirstName)
-    setLastName(initialLastName)
-    setError(null)
-    onOpenChange(false)
-  }
+    const trimmedFirstName = firstName.trim()
+    const trimmedLastName = lastName.trim()
 
-  const submit = () => {
-    setError(null)
-
-    if (!firstName.trim() || !lastName.trim()) {
+    if (!trimmedFirstName || !trimmedLastName) {
       setError('First name and last name are required')
       return
     }
 
+    if (trimmedFirstName.length > 100 || trimmedLastName.length > 100) {
+      setError('First name and last name must be at most 100 characters')
+      return
+    }
+
+    setError(null)
+
     updateProfile(
-      { firstName: firstName.trim(), lastName: lastName.trim() },
+      { firstName: trimmedFirstName, lastName: trimmedLastName },
       {
         onSuccess: () => {
           toast.success('Profile updated')
-          onOpenChange(false)
+          onClose()
         },
-        onError: (mutationError) =>
-          setError(getErrorMessage(mutationError, 'Could not update profile'))
+        onError: (mutationError) => setError(getErrorMessage(mutationError, 'Could not update profile'))
       }
     )
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md border border-neon-cyan/40 bg-card p-6 shadow-2xl shadow-neon-cyan/10">
-        <div className="flex items-start justify-between">
-          <div>
-            <h2 className="mt-2 flex items-center gap-2 font-display text-2xl uppercase tracking-tighter">
-              <User className="h-5 w-5 text-neon-cyan" /> Profile
-            </h2>
-          </div>
-          <button
-            onClick={close}
-            aria-label="Close"
-            className="text-muted-foreground hover:text-neon-cyan"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+    <Modal eyebrow="Account" title="Profile" icon={<User className="h-5 w-5 text-neon-cyan" />} onClose={onClose}>
+      <form onSubmit={submit}>
         {error && (
-          <div className="mt-6">
+          <div className="mb-6">
             <FormError message={error} />
           </div>
         )}
-        <div className="mt-6 space-y-4">
+        <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <FormField
               label="First Name"
@@ -106,21 +82,22 @@ export const EditProfileDialog = ({
         </div>
         <div className="mt-8 flex gap-3">
           <button
-            onClick={close}
+            type="button"
+            onClick={onClose}
             disabled={isPending}
             className="flex-1 border border-border py-3 text-xs font-bold uppercase tracking-widest hover:border-foreground disabled:opacity-50"
           >
             Cancel
           </button>
           <button
-            onClick={submit}
+            type="submit"
             disabled={isPending}
             className="flex-1 bg-neon-cyan py-3 text-xs font-black uppercase tracking-widest text-primary-foreground hover:opacity-80 disabled:opacity-50"
           >
             Save
           </button>
         </div>
-      </div>
-    </div>
+      </form>
+    </Modal>
   )
 }

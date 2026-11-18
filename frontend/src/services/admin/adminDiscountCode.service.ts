@@ -4,7 +4,7 @@ import type { PageResponse } from '@/types/page'
 
 export const adminDiscountCodeService = {
   createDiscountCode: async (request: AdminCreateDiscountCodeRequest) => {
-    const response = await api.post<AdminDiscountCodeResponse>("/api/admin/discount-codes", request)
+    const response = await api.post<AdminDiscountCodeResponse>('/api/admin/discount-codes', request)
 
     return response.data
   },
@@ -18,7 +18,7 @@ export const adminDiscountCodeService = {
   },
 
   getDiscountCodes: async (request: AdminDiscountCodeSearchRequest) => {
-    const response = await api.get<PageResponse<AdminDiscountCodeResponse>>("/api/admin/discount-codes", {
+    const response = await api.get<PageResponse<AdminDiscountCodeResponse>>('/api/admin/discount-codes', {
       params: request
     })
 

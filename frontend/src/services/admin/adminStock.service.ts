@@ -6,7 +6,7 @@ export const adminStockService = {
   adjustStock: async (skuId: number, request: AdminAdjustStockRequest) => {
     await api.post(`/api/admin/stock/${skuId}/adjustments`, request)
   },
-  
+
   getStock: async (request: AdminStockSearchRequest) => {
     const response = await api.get<PageResponse<AdminStockItemResponse>>('/api/admin/stock', {
       params: request

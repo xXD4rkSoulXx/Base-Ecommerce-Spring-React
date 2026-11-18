@@ -7,14 +7,14 @@ export interface RegisterRequest {
   lastName: string
 }
 
-export interface ChangePasswordRequest {
-  currentPassword: string
-  newPassword: string
-}
-
 export interface LoginRequest {
   email: string
   password: string
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string
+  newPassword: string
 }
 
 export interface LoginResponse {

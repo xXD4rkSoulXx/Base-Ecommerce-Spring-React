@@ -3,6 +3,7 @@ import type { AdminAuditLogResponse } from '@/types/admin/adminAuditLog'
 import type { AdminDiscountCodeResponse } from '@/types/admin/adminDiscountCode'
 import type { AdminReviewResponse } from '@/types/admin/adminReview'
 import { getFixtures } from '@/demo/data/fixtures'
+import { toIso } from '@/demo/data/random'
 import { matchesQuery, paginate, readBoolean } from '@/demo/handlers/support'
 
 export const communityHandlers: HttpHandler[] = [
@@ -15,7 +16,7 @@ export const communityHandlers: HttpHandler[] = [
       .reviews.filter((review) => matchesQuery(q, review.productName, review.productRef, review.customerName, review.customerEmail, review.title))
       .filter((review) => hidden === undefined || review.hidden === hidden)
       .sort((a, b) => b.createdAt - a.createdAt)
-      .map((review) => ({ ...review, createdAt: new Date(review.createdAt).toISOString() }))
+      .map((review) => ({ ...review, createdAt: toIso(review.createdAt) }))
 
     return HttpResponse.json(paginate(reviews, url))
   }),
@@ -36,7 +37,7 @@ export const communityHandlers: HttpHandler[] = [
         discountPercentage: code.discountPercentage,
         active: code.active,
         orders: orders.filter((order) => order.discountCode === code.code).length,
-        createdAt: new Date(code.createdAt).toISOString()
+        createdAt: toIso(code.createdAt)
       }))
 
     return HttpResponse.json(paginate(codes, url))

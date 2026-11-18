@@ -1,23 +1,17 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { productService } from '@/services/product.service'
 
-export const useInfiniteProductReviews = (id: string | undefined) => {
-  const size = 5
+const REVIEWS_PAGE_SIZE = 5
 
-  return useInfiniteQuery({
+export const useInfiniteProductReviews = (id: string | undefined) =>
+  useInfiniteQuery({
     queryKey: ['product-reviews-infinite', id],
-    queryFn: ({ pageParam }) => productService.getProductReviews(id!, {
-      page: pageParam,
-      size
-    }),
+    queryFn: ({ pageParam }) =>
+      productService.getProductReviews(id!, {
+        page: pageParam,
+        size: REVIEWS_PAGE_SIZE
+      }),
     initialPageParam: 0,
     enabled: !!id,
-    getNextPageParam: (lastPage) => {
-      if (lastPage.last) {
-        return undefined
-      }
-
-      return lastPage.page + 1
-    }
+    getNextPageParam: (lastPage) => (lastPage.last ? undefined : lastPage.page + 1)
   })
-}

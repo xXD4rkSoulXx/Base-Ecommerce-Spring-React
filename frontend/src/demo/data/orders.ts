@@ -1,24 +1,6 @@
 import type { AdminReturnResponse } from '@/types/admin/adminReturn'
-import type {
-  OrderItemResponse,
-  OrderReturnResponse,
-  OrderShipmentResponse,
-  OrderStatus,
-  OrderStatusEventResponse,
-  ReturnReason,
-  ReturnStatus,
-  ShipmentStatus,
-  ShipmentTrackingEventResponse
-} from '@/types/order'
-import type {
-  DemoCustomer,
-  DemoDiscountCode,
-  DemoOrder,
-  DemoOrderLine,
-  DemoProduct,
-  DemoReturn,
-  DemoSku
-} from '@/demo/types'
+import type { OrderItemResponse, OrderReturnResponse, OrderShipmentResponse, OrderStatus, OrderStatusEventResponse, ReturnReason, ReturnStatus, ShipmentStatus, ShipmentTrackingEventResponse } from '@/types/order'
+import type { DemoCustomer, DemoDiscountCode, DemoOrder, DemoOrderLine, DemoProduct, DemoReturn, DemoSku } from '@/demo/types'
 import { getSkuCover } from '@/demo/data/catalog'
 import { DAY, HOUR, roundMoney, toIso, type Random } from '@/demo/data/random'
 
@@ -56,8 +38,7 @@ const SHIPMENT_STEPS: Record<ShipmentStatus, ShipmentStatus[]> = {
   IN_TRANSIT: ['PRE_TRANSIT', 'IN_TRANSIT'],
   OUT_FOR_DELIVERY: ['PRE_TRANSIT', 'IN_TRANSIT', 'OUT_FOR_DELIVERY'],
   DELIVERED: ['PRE_TRANSIT', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED'],
-  FAILURE: ['PRE_TRANSIT', 'IN_TRANSIT', 'FAILURE'],
-  RETURNED: ['PRE_TRANSIT', 'IN_TRANSIT', 'RETURNED']
+  FAILURE: ['PRE_TRANSIT', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'FAILURE']
 }
 
 const STEP_HOURS = [26, 46, 70, 84]
@@ -67,17 +48,15 @@ const STEP_DESCRIPTIONS: Record<ShipmentStatus, string> = {
   IN_TRANSIT: 'Departed sorting facility',
   OUT_FOR_DELIVERY: 'Out for delivery',
   DELIVERED: 'Delivered to recipient',
-  FAILURE: 'Delivery attempt failed',
-  RETURNED: 'Returned to sender'
+  FAILURE: 'Delivery attempt failed'
 }
 
 const SHIPMENT_ACTIONS: Record<ShipmentStatus, ShipmentStatus[]> = {
   PRE_TRANSIT: ['IN_TRANSIT'],
-  IN_TRANSIT: ['OUT_FOR_DELIVERY', 'FAILURE'],
-  OUT_FOR_DELIVERY: ['DELIVERED', 'FAILURE'],
+  IN_TRANSIT: ['OUT_FOR_DELIVERY'],
+  OUT_FOR_DELIVERY: ['FAILURE', 'DELIVERED'],
   DELIVERED: [],
-  FAILURE: ['IN_TRANSIT', 'RETURNED'],
-  RETURNED: []
+  FAILURE: ['OUT_FOR_DELIVERY', 'DELIVERED']
 }
 
 export const getShipmentActions = (status: ShipmentStatus) => SHIPMENT_ACTIONS[status]
@@ -305,6 +284,7 @@ export const buildOrders = (
         refundedAt: refundedAt ? toIso(refundedAt) : undefined,
         items: [
           {
+            ref: returnedItem.ref,
             productName: returnedItem.productName,
             color: returnedItem.color,
             size: returnedItem.size,
@@ -333,8 +313,6 @@ export const buildOrders = (
       })
     }
 
-    const shipped = status !== 'PAID' && status !== 'PROCESSING'
-
     orders.push({
       id,
       customerId: customer.id,
@@ -356,8 +334,8 @@ export const buildOrders = (
         shippingCost,
         taxAmount,
         totalAmount,
-        shippingCarrier: status === 'PAID' ? undefined : CARRIERS[id % CARRIERS.length],
-        shippingService: shipped ? SERVICES[id % SERVICES.length] : undefined,
+        shippingCarrier: CARRIERS[id % CARRIERS.length],
+        shippingService: SERVICES[id % SERVICES.length],
         events,
         shipments,
         returnableUntil: delivered ? toIso(deliveredAt + RETURN_WINDOW_IN_DAYS * DAY) : undefined,

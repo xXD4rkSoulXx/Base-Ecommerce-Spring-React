@@ -11,6 +11,7 @@ export type ProductCategory =
   | 'ACCESSORIES'
 
 export type ProductSize =
+  | 'ONE_SIZE'
   | 'XS'
   | 'S'
   | 'M'
@@ -70,11 +71,19 @@ export type ProductColor =
   | 'WHITE'
   | 'YELLOW'
 
+export type ProductSort =
+  | 'recent'
+  | 'price_asc'
+  | 'price_desc'
+  | 'best_sellers'
+  | 'top_rated'
+  | 'discount'
+
 export interface ProductShopRequest {
   category?: ProductCategory | 'ALL'
   page?: number
   size?: number
-  sortBy?: 'recent' | 'price_asc' | 'price_desc' | (string & {})
+  sortBy?: ProductSort
 }
 
 export interface ProductSearchRequest {

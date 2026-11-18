@@ -21,3 +21,5 @@ export interface ReviewResponse {
 export interface ReviewEligibilityResponse {
   status: ReviewEligibility
 }
+
+export type ReviewLockReason = 'GUEST' | Exclude<ReviewEligibility, 'ELIGIBLE'>

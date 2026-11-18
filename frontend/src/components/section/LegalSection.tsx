@@ -1,4 +1,4 @@
-interface LegalSectionProps {
+export interface LegalSectionProps {
   title: string
   paragraphs?: string[]
   items?: string[]

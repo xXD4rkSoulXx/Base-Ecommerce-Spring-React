@@ -14,14 +14,6 @@ export type ShipmentStatus =
   | 'OUT_FOR_DELIVERY'
   | 'DELIVERED'
   | 'FAILURE'
-  | 'RETURNED'
-
-export type ReturnStatus =
-  | 'REQUESTED'
-  | 'APPROVED'
-  | 'RECEIVED'
-  | 'REFUNDED'
-  | 'REJECTED'
 
 export type ReturnReason =
   | 'DOES_NOT_FIT'
@@ -29,6 +21,13 @@ export type ReturnReason =
   | 'NOT_AS_DESCRIBED'
   | 'CHANGED_MIND'
   | 'OTHER'
+
+export type ReturnStatus =
+  | 'REQUESTED'
+  | 'APPROVED'
+  | 'RECEIVED'
+  | 'REFUNDED'
+  | 'REJECTED'
 
 export interface OrderSearchRequest {
   q?: string
@@ -61,8 +60,8 @@ export interface OrderItemResponse {
   id: number
   ref: string
   productName: string
-  color?: ProductColor
-  size?: ProductSize
+  color: ProductColor
+  size: ProductSize
   imagePath?: string
   quantity: number
   unitPrice: number
@@ -103,7 +102,7 @@ export interface ShippingAddress {
   state?: string
   postalCode: string
   country: string
-  phone?: string
+  phone: string
 }
 
 export interface OrderDetailsResponse extends ShippingAddress {
@@ -117,8 +116,8 @@ export interface OrderDetailsResponse extends ShippingAddress {
   shippingCost: number
   taxAmount: number
   totalAmount: number
-  shippingCarrier?: string
-  shippingService?: string
+  shippingCarrier: string
+  shippingService: string
   events: OrderStatusEventResponse[]
   shipments: OrderShipmentResponse[]
   returnableUntil?: string

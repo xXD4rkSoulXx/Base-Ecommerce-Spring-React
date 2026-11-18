@@ -7,8 +7,9 @@ export const useAdminCreateProduct = () => {
 
   return useMutation({
     mutationFn: (request: AdminProductRequest) => adminProductService.createProduct(request),
-    onSettled: () => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'products'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })
     }
   })
 }

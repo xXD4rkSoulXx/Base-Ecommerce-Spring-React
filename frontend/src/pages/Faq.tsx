@@ -1,14 +1,16 @@
 import { LegalPageLayout } from '@/components/layout/LegalPageLayout'
 import { FaqItem } from '@/components/ui/FaqItem'
+import { APP_NAME, LEGAL_LAST_UPDATED } from '@/constants'
 
-const faqs = [
+const FAQS = [
   {
     question: 'Is this a real store?',
-    answer: 'No. VELO_CITI is a portfolio project. Nothing you order here will be shipped or charged.'
+    answer: `No. ${APP_NAME} is a portfolio project. Nothing you order here will be shipped or charged.`
   },
   {
     question: 'Can I pay with a real card?',
-    answer: 'No, please do not. Payments run in Stripe test mode. Use the test card 4242 4242 4242 4242 with any future expiry date and any CVC.'
+    answer:
+      'No, please do not. Payments run in Stripe test mode. Use the test card 4242 4242 4242 4242 with any future expiry date and any CVC.'
   },
   {
     question: 'Do I need an account to buy?',
@@ -16,15 +18,18 @@ const faqs = [
   },
   {
     question: 'How do shipping and tracking work?',
-    answer: 'Shipping rates are quoted for your address before you pay. After payment the order moves through Processing, Shipped and Delivered automatically, usually in under an hour, and each parcel has simulated tracking events.'
+    answer:
+      'Shipping rates are quoted for your address before you pay. After payment the order moves through Processing, Shipped and Delivered automatically, usually in under an hour, and each parcel has simulated tracking events.'
   },
   {
     question: 'Why is my order split into several parcels?',
-    answer: 'Larger orders are packed into as few boxes as possible within the weight and size limits of each box. Every box has its own tracking number and history, and the order is Delivered when all boxes are delivered.'
+    answer:
+      'Larger orders are packed into as few boxes as possible within the weight and size limits of each box. Every box has its own tracking number and history, and the order is Delivered when all boxes are delivered.'
   },
   {
     question: 'Why do some orders show no parcels?',
-    answer: 'Some carriers cannot issue test labels. In that case the order still moves forward by itself, but no parcels are shown.'
+    answer:
+      'Some carriers cannot issue test labels. In that case the order still moves forward by itself, but no parcels are shown.'
   },
   {
     question: 'Can I cancel an order?',
@@ -36,7 +41,8 @@ const faqs = [
   },
   {
     question: 'When will I get my refund?',
-    answer: 'Returns are approved automatically a few minutes after you request them, and the refund goes to your original payment method.'
+    answer:
+      'Returns are approved automatically about ten minutes after you request them, and the refund goes to your original payment method.'
   },
   {
     question: 'Do I get the shipping cost back?',
@@ -44,18 +50,20 @@ const faqs = [
   },
   {
     question: 'Can I reuse a discount code?',
-    answer: 'Codes can be used once per account. If you return the entire order and it becomes Refunded, the code is released.'
+    answer:
+      'Codes can be used once per account. If you return the entire order and it becomes Refunded, the code is released.'
   },
   {
     question: 'What happens to my data?',
-    answer: 'We only keep what the demo needs to work. The Privacy policy page explains what is stored and who receives it.'
+    answer:
+      'We only keep what the demo needs to work. The Privacy policy page explains what is stored and who receives it.'
   }
 ]
 
 export const Faq = () => (
-  <LegalPageLayout title="FAQ" updated="October 27, 2026">
+  <LegalPageLayout title="FAQ" updated={LEGAL_LAST_UPDATED}>
     <div className="border border-border">
-      {faqs.map((faq) => (
+      {FAQS.map((faq) => (
         <FaqItem key={faq.question} question={faq.question} answer={faq.answer} />
       ))}
     </div>

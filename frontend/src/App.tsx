@@ -6,7 +6,6 @@ import { useInitializeAuth } from '@/hooks/useInitializeAuth'
 
 export const App = () => {
   const isHydrated = useInitializeAuth()
-
   if (!isHydrated) {
     return <Loading />
   }

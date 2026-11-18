@@ -6,15 +6,15 @@ import type { ReviewResponse } from '@/types/review'
 export const productService = {
   getProducts: async (request: ProductShopRequest) => {
     const { category, ...restParams } = request
-    const categoryParam = category === 'ALL' || !category ? undefined : category
-     
+    const categoryParam = category === 'ALL' ? undefined : category
+
     const response = await api.get<PageResponse<ProductResponse>>('/api/products', {
       params: {
         category: categoryParam,
         ...restParams
       }
     })
-    
+
     return response.data
   },
 
@@ -34,13 +34,13 @@ export const productService = {
     const response = await api.get<PageResponse<ReviewResponse>>(`/api/products/${id}/reviews`, {
       params: request
     })
-    
+
     return response.data
   },
 
   getFeaturedProducts: async () => {
     const response = await api.get<ProductResponse[]>('/api/products/featured')
-    
+
     return response.data
   },
 
@@ -66,7 +66,7 @@ export const productService = {
     const response = await api.get<PageResponse<ProductResponse>>('/api/products/search', {
       params: request
     })
-    
+
     return response.data
   }
 }

@@ -96,27 +96,27 @@
   }
 }
 
-text-outline {
+@utility text-outline {
   -webkit-text-stroke: 1px color-mix(in srgb, var(--color-foreground), transparent 70%);
   color: transparent;
 }
 
-text-outline-strong {
+@utility text-outline-strong {
   -webkit-text-stroke: 1.5px var(--color-foreground);
   color: transparent;
 }
 
-grid-noise {
+@utility grid-noise {
   background-image:
     linear-gradient(color-mix(in srgb, var(--color-foreground), transparent 97%) 1px, transparent 1px),
     linear-gradient(90deg, color-mix(in srgb, var(--color-foreground), transparent 97%) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 
-glow-cyan {
+@utility glow-cyan {
   box-shadow: var(--shadow-neon);
 }
 
-glow-pink {
+@utility glow-pink {
   box-shadow: var(--shadow-pink);
 }

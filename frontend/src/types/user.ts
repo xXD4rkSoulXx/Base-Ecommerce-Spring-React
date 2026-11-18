@@ -26,17 +26,17 @@ export type Permission =
   | 'TEAM_WRITE'
   | 'AUDIT_READ'
 
+export interface UpdateProfileRequest {
+  firstName: string
+  lastName: string
+}
+
 export interface UserResponse {
   email: string
   firstName: string
   lastName: string
   role: UserRole
   permissions: Permission[]
-}
-
-export interface UpdateProfileRequest {
-  firstName: string
-  lastName: string
 }
 
 export interface ProfileResponse {

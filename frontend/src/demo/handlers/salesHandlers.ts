@@ -1,10 +1,11 @@
 import { http, HttpResponse, type HttpHandler } from 'msw'
-import type { AdminCustomerOrderResponse, AdminCustomerResponse } from '@/types/admin/adminCustomer'
+import type { AdminCustomerResponse } from '@/types/admin/adminCustomer'
 import type { AdminOrderDetailsResponse, AdminOrderSummaryResponse } from '@/types/admin/adminOrder'
-import type { OrderStatus, ReturnStatus } from '@/types/order'
+import type { OrderStatus, OrderSummaryResponse, ReturnStatus } from '@/types/order'
 import type { DemoCustomer, DemoOrder } from '@/demo/types'
 import { getShipmentActions } from '@/demo/data/orders'
 import { getFixtures } from '@/demo/data/fixtures'
+import { toIso } from '@/demo/data/random'
 import { matchesQuery, notFound, paginate, readBoolean, readId } from '@/demo/handlers/support'
 
 export const PENDING_ORDER_STATUSES: OrderStatus[] = ['PAID', 'PROCESSING']
@@ -42,7 +43,7 @@ const toCustomer = (customer: DemoCustomer, orders: DemoOrder[]): AdminCustomerR
     email: customer.email,
     firstName: customer.firstName,
     lastName: customer.lastName,
-    createdAt: new Date(customer.createdAt).toISOString(),
+    createdAt: toIso(customer.createdAt),
     orders: customerOrders.length,
     lastOrderAt: lastOrder?.details.createdAt
   }
@@ -109,7 +110,7 @@ export const salesHandlers: HttpHandler[] = [
     const url = new URL(request.url)
     const id = readId(params.id)
 
-    const orders: AdminCustomerOrderResponse[] = getFixtures()
+    const orders: OrderSummaryResponse[] = getFixtures()
       .orders.filter((order) => order.customerId === id)
       .sort((a, b) => b.createdAt - a.createdAt)
       .map((order) => ({

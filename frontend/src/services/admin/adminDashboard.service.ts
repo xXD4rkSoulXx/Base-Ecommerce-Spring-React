@@ -8,5 +8,5 @@ export const adminDashboardService = {
     })
 
     return response.data
-  },
+  }
 }

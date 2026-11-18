@@ -2,7 +2,7 @@ import type { AdminTeamMemberResponse } from '@/types/admin/adminTeam'
 import type { ShippingAddress } from '@/types/order'
 import type { UserResponse } from '@/types/user'
 import type { DemoCustomer } from '@/demo/types'
-import { DAY, type Random } from '@/demo/data/random'
+import { DAY, toIso, type Random } from '@/demo/data/random'
 
 export const DEMO_USER: UserResponse = {
   email: 'demo@velociti.demo',
@@ -54,10 +54,8 @@ const PLACES: Place[] = [
   { city: 'Milano', postalCode: '20121', country: 'IT', street: 'Via Montenapoleone' }
 ]
 
-export const CUSTOMER_COUNT = 24
-
 export const buildCustomers = (now: number, rng: Random): DemoCustomer[] =>
-  Array.from({ length: CUSTOMER_COUNT }, (_, index) => {
+  Array.from({ length: FIRST_NAMES.length }, (_, index) => {
     const firstName = FIRST_NAMES[index]
     const lastName = LAST_NAMES[index]
     const place = rng.pick(PLACES)
@@ -90,7 +88,7 @@ export const buildTeam = (now: number): AdminTeamMemberResponse[] => [
     firstName: 'Alex',
     lastName: 'Admin',
     role: 'ADMIN',
-    createdAt: new Date(now - 400 * DAY).toISOString()
+    createdAt: toIso(now - 400 * DAY)
   },
   {
     id: 9002,
@@ -98,7 +96,7 @@ export const buildTeam = (now: number): AdminTeamMemberResponse[] => [
     firstName: 'Maria',
     lastName: 'Manager',
     role: 'MANAGER',
-    createdAt: new Date(now - 320 * DAY).toISOString()
+    createdAt: toIso(now - 320 * DAY)
   },
   {
     id: 9003,
@@ -106,7 +104,7 @@ export const buildTeam = (now: number): AdminTeamMemberResponse[] => [
     firstName: 'Miguel',
     lastName: 'Merchandiser',
     role: 'MERCHANDISER',
-    createdAt: new Date(now - 250 * DAY).toISOString()
+    createdAt: toIso(now - 250 * DAY)
   },
   {
     id: 9004,
@@ -114,7 +112,7 @@ export const buildTeam = (now: number): AdminTeamMemberResponse[] => [
     firstName: 'Filipa',
     lastName: 'Fulfilment',
     role: 'FULFILLMENT',
-    createdAt: new Date(now - 180 * DAY).toISOString()
+    createdAt: toIso(now - 180 * DAY)
   },
   {
     id: 9005,
@@ -122,7 +120,7 @@ export const buildTeam = (now: number): AdminTeamMemberResponse[] => [
     firstName: 'Sofia',
     lastName: 'Support',
     role: 'SUPPORT',
-    createdAt: new Date(now - 90 * DAY).toISOString()
+    createdAt: toIso(now - 90 * DAY)
   },
   {
     id: 9006,
@@ -130,6 +128,6 @@ export const buildTeam = (now: number): AdminTeamMemberResponse[] => [
     firstName: DEMO_USER.firstName,
     lastName: DEMO_USER.lastName,
     role: 'DEMO',
-    createdAt: new Date(now - 7 * DAY).toISOString()
+    createdAt: toIso(now - 7 * DAY)
   }
 ]

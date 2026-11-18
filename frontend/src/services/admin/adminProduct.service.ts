@@ -16,7 +16,7 @@ export const adminProductService = {
   restoreProduct: async (id: number) => {
     await api.post(`/api/admin/products/${id}/restore`)
   },
-  
+
   getProducts: async (request: AdminProductSearchRequest) => {
     const response = await api.get<PageResponse<AdminProductSummaryResponse>>('/api/admin/products', {
       params: request

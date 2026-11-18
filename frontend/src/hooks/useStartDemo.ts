@@ -14,8 +14,8 @@ export const useStartDemo = () => {
     mutationFn: startDemo,
     onSuccess: () => {
       markDemoSession()
-      queryClient.clear()
       setAuth(DEMO_USER, DEMO_ACCESS_TOKEN)
+      queryClient.clear()
       navigate('/admin', { replace: true })
     }
   })

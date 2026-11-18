@@ -51,7 +51,7 @@ public interface ProductSkuRepository
         @Param("productIds") List<Long> productIds, @Param("threshold") int threshold
     );
 
-    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Modifying(flushAutomatically = true)
     @Query("update ProductSku s set s.stock = s.stock + :quantity where s.id = :id")
     void incrementStock(@Param("id") Long id, @Param("quantity") int quantity);
 

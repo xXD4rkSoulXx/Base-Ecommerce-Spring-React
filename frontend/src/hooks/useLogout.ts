@@ -6,7 +6,7 @@ export const useLogout = () => {
   const endSession = useEndSession()
 
   return useMutation({
-    mutationFn: authService.logout,
+    mutationFn: () => authService.logout(),
     onSettled: () => endSession()
   })
 }

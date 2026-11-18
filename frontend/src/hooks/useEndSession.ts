@@ -9,7 +9,7 @@ export const useEndSession = () => {
 
   return () => {
     clearAuth()
-    navigate('/login', { replace: true })
     queryClient.clear()
+    navigate('/login', { replace: true })
   }
 }

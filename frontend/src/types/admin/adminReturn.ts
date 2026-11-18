@@ -1,4 +1,5 @@
 import type { ReturnReason, ReturnStatus, ShippingAddress } from '@/types/order'
+import type { ProductColor, ProductSize } from '@/types/product'
 
 export interface AdminReturnSearchRequest {
   status?: ReturnStatus
@@ -27,9 +28,10 @@ export interface AdminReturnResponse {
 }
 
 export interface AdminReturnItemResponse {
+  ref: string
   productName: string
-  color?: string
-  size?: string
+  color: ProductColor
+  size: ProductSize
   imagePath?: string
   quantity: number
 }

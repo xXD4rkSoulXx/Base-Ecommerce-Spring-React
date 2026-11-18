@@ -11,9 +11,11 @@ export const useAdminSetStock = () => {
 
   return useMutation({
     mutationFn: ({ skuId, stock }: SetStockVariables) => adminStockService.setStock(skuId, { stock }),
-    onSettled: () => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'stock'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'products'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'product-skus'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })
     }
   })
 }

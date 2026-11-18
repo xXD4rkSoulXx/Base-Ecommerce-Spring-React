@@ -132,7 +132,7 @@ public class StripeMapper {
                                     .setName(
                                         item.getProductName()
                                             + " (" + item.getColor()
-                                            + ", " + item.getSize() + ")"
+                                            + ", " + item.getSize().getLabel() + ")"
                                     )
                                     .build()
                             )

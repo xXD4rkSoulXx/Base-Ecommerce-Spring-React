@@ -1,3 +1,8 @@
+export interface CreateOrderRequest {
+  address: CheckoutAddressRequest
+  rateId: string
+}
+
 export interface CheckoutAddressRequest {
   recipientName: string
   addressLine1: string
@@ -9,6 +14,8 @@ export interface CheckoutAddressRequest {
   phone: string
 }
 
+export type CheckoutAddressForm = Record<keyof CheckoutAddressRequest, string>
+
 export interface ShippingRateResponse {
   rateId: string
   carrier: string
@@ -16,11 +23,6 @@ export interface ShippingRateResponse {
   amount: number
   currency: string
   estimatedDays: string
-}
-
-export interface CreateOrderRequest {
-  address: CheckoutAddressRequest
-  rateId: string
 }
 
 export interface CheckoutSessionResponse {

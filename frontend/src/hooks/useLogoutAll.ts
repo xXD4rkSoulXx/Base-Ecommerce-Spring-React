@@ -7,7 +7,7 @@ export const useLogoutAll = () => {
   const endSession = useEndSession()
 
   return useMutation({
-    mutationFn: authService.logoutAll,
+    mutationFn: () => authService.logoutAll(),
     onSuccess: () => {
       toast.success('All sessions terminated')
       endSession()

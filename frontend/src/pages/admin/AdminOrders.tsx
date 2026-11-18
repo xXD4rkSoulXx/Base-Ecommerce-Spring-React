@@ -1,79 +1,51 @@
-import { useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { AdminOrderFilters } from '@/components/section/admin/AdminOrderFilters'
-import { AdminOrderRow } from '@/components/ui/admin/AdminOrderRow'
+import { AdminOrderFilters } from '@/components/filter/admin/AdminOrderFilters'
+import { AdminOrderRow } from '@/components/row/admin/AdminOrderRow'
+import { AdminPageTitle } from '@/components/ui/admin/AdminPageTitle'
+import { AdminTable, type AdminTableColumn } from '@/components/ui/admin/AdminTable'
 import { FormError } from '@/components/ui/FormError'
 import { Pagination } from '@/components/ui/Pagination'
+import { TODO_FILTER } from '@/constants'
 import { useAdminOrders } from '@/hooks/admin/useAdminOrders'
+import { usePagination } from '@/hooks/usePagination'
+
+const COLUMNS: AdminTableColumn[] = [
+  { label: 'Order' },
+  { label: 'Customer' },
+  { label: 'Date' },
+  { label: 'Status' },
+  { label: 'Total', alignRight: true },
+  { label: 'Action', alignRight: true }
+]
 
 export const AdminOrders = () => {
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const { data, isLoading, isError } = useAdminOrders()
-  const isTodoEmpty =
-    (searchParams.get('status') || ['admin', 'order']) === 'TODO' && !searchParams.get('q')
+  const isTodoEmpty = (searchParams.get('status') || TODO_FILTER) === TODO_FILTER && !searchParams.get('q')
 
-  const urlPage = Number(searchParams.get('page')) || 1
-  const currentPage = urlPage < 1 ? 1 : urlPage
   const orders = data?.content ?? []
   const totalPages = data?.totalPages ?? 0
-
-  useEffect(() => {
-    if (totalPages > 0 && urlPage > totalPages) {
-      const next = new URLSearchParams(searchParams)
-
-      next.set('page', totalPages.toString())
-      setSearchParams(next, { replace: true })
-    }
-  }, [urlPage, totalPages, searchParams, setSearchParams])
-
-  const changePage = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      const next = new URLSearchParams(searchParams)
-
-      next.set('page', page.toString())
-      setSearchParams(next)
-    }
-  }
+  const { currentPage, changePage } = usePagination(totalPages)
 
   return (
     <div className="p-6 md:p-10">
-      <h1 className="mb-8 font-display text-5xl uppercase tracking-tighter md:text-7xl">
-        {data ? `Orders (${data.totalElements})` : 'Orders'}
-      </h1>
+      <AdminPageTitle count={data?.totalElements}>Orders</AdminPageTitle>
       <AdminOrderFilters />
       {isError && <FormError message="Could not load the orders" />}
       {isLoading && (
         <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Loading...</p>
       )}
       {data && (
-        <div className="overflow-x-auto border border-border bg-card">
-          <table className="w-full min-w-[800px] text-sm">
-            <thead>
-              <tr className="border-b border-border text-left font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                <th className="p-4">Order</th>
-                <th className="p-4">Customer</th>
-                <th className="p-4">Date</th>
-                <th className="p-4">Status</th>
-                <th className="p-4 text-right">Total</th>
-                <th className="p-4 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className="p-10 text-center font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground"
-                  >
-                    {isTodoEmpty ? 'Nothing waiting for action' : 'No orders found'}
-                  </td>
-                </tr>
-              ) : (
-                orders.map((order) => <AdminOrderRow key={order.id} order={order} />)
-              )}
-            </tbody>
-          </table>
-        </div>
+        <AdminTable
+          columns={COLUMNS}
+          minWidthClassName="min-w-[800px]"
+          empty={orders.length === 0}
+          emptyMessage={isTodoEmpty ? 'Nothing waiting for action' : 'No orders found'}
+        >
+          {orders.map((order) => (
+            <AdminOrderRow key={order.id} order={order} />
+          ))}
+        </AdminTable>
       )}
       <Pagination currentPage={currentPage} totalPages={totalPages} onChange={changePage} />
     </div>

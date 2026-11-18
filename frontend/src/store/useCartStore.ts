@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { MAX_CART_ITEM_QUANTITY, MAX_CART_LINES } from '@/constants'
 import type { CartItemResponse } from '@/types/cart'
 
 export type GuestCartItem = Omit<CartItemResponse, 'id'>
@@ -20,23 +21,26 @@ export const useCartStore = create<CartState>()(
 
       addToCart: (item) => set((state) => {
         const existingItem = state.items.find((i) => i.productSkuId === item.productSkuId)
-
         if (existingItem) {
           return {
             items: state.items.map((i) =>
               i.productSkuId === item.productSkuId
-                ? { ...i, quantity: Math.min(i.quantity + item.quantity, 10) }
+                ? { ...i, quantity: Math.min(i.quantity + item.quantity, MAX_CART_ITEM_QUANTITY) }
                 : i
             )
           }
         }
 
-        return { items: [...state.items, { ...item, quantity: Math.min(item.quantity, 10) }] }
+        if (state.items.length >= MAX_CART_LINES) {
+          return state
+        }
+
+        return {
+          items: [...state.items, { ...item, quantity: Math.min(item.quantity, MAX_CART_ITEM_QUANTITY) }]
+        }
       }),
 
-      getTotalItems: () => {
-        return get().items.reduce((total, item) => total + item.quantity, 0)
-      },
+      getTotalItems: () => get().items.reduce((total, item) => total + item.quantity, 0),
 
       updateQuantity: (productSkuId, quantity) => set((state) => {
         if (quantity <= 0) {
@@ -46,7 +50,7 @@ export const useCartStore = create<CartState>()(
         return {
           items: state.items.map((item) =>
             item.productSkuId === productSkuId
-              ? { ...item, quantity: Math.min(quantity, 10) }
+              ? { ...item, quantity: Math.min(quantity, MAX_CART_ITEM_QUANTITY) }
               : item
           )
         }

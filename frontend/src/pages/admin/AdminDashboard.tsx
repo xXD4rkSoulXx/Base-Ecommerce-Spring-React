@@ -1,33 +1,31 @@
 import { lazy, Suspense } from 'react'
-import { AdminDashboardPeriodFilter } from '@/components/section/admin/AdminDashboardPeriodFilter'
-import { AdminDashboardActivity } from '@/components/ui/admin/AdminDashboardActivity'
-import { AdminDashboardDiscountCodes } from '@/components/ui/admin/AdminDashboardDiscountCodes'
-import { AdminDashboardKpi } from '@/components/ui/admin/AdminDashboardKpi'
-import { AdminDashboardLowStockList } from '@/components/ui/admin/AdminDashboardLowStockList'
-import { AdminDashboardPanel } from '@/components/ui/admin/AdminDashboardPanel'
-import { AdminDashboardRecentOrders } from '@/components/ui/admin/AdminDashboardRecentOrders'
-import { AdminDashboardReturnsList } from '@/components/ui/admin/AdminDashboardReturnsList'
+import { AdminDashboardKpiCard } from '@/components/card/admin/AdminDashboardKpiCard'
 import { AdminDashboardTodoCard } from '@/components/card/admin/AdminDashboardTodoCard'
-import { AdminDashboardTopProducts } from '@/components/ui/admin/AdminDashboardTopProducts'
+import { AdminDashboardPeriodFilter } from '@/components/filter/admin/AdminDashboardPeriodFilter'
+import { AdminDashboardActivitySection } from '@/components/section/admin/AdminDashboardActivitySection'
+import { AdminDashboardDiscountCodesSection } from '@/components/section/admin/AdminDashboardDiscountCodesSection'
+import { AdminDashboardLowStockSection } from '@/components/section/admin/AdminDashboardLowStockSection'
+import { AdminDashboardRecentOrdersSection } from '@/components/section/admin/AdminDashboardRecentOrdersSection'
+import { AdminDashboardReturnsSection } from '@/components/section/admin/AdminDashboardReturnsSection'
+import { AdminDashboardSection } from '@/components/section/admin/AdminDashboardSection'
+import { AdminDashboardTopProductsSection } from '@/components/section/admin/AdminDashboardTopProductsSection'
+import { ORDER_STATUS_LABELS } from '@/constants'
 import { useAdminDashboardDays } from '@/hooks/admin/useAdminDashboardDays'
 import { useAdminDashboardQuery } from '@/hooks/admin/useAdminDashboardQuery'
 import { usePermission } from '@/hooks/usePermission'
+import { formatCategory, formatNumber, formatPrice, formatRating } from '@/utils/format'
 
 const AdminDashboardSalesChart = lazy(() =>
-  import('@/components/section/admin/AdminDashboardSalesChart').then((module) => ({
+  import('@/components/chart/admin/AdminDashboardSalesChart').then((module) => ({
     default: module.AdminDashboardSalesChart
   }))
 )
 
 const AdminDashboardBarChart = lazy(() =>
-  import('@/components/section/admin/AdminDashboardBarChart').then((module) => ({
+  import('@/components/chart/admin/AdminDashboardBarChart').then((module) => ({
     default: module.AdminDashboardBarChart
   }))
 )
-
-const currencyFormatter = new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' })
-const numberFormatter = new Intl.NumberFormat('pt-PT')
-const ratingFormatter = new Intl.NumberFormat('pt-PT', { maximumFractionDigits: 1 })
 
 const chartFallback = (
   <p className="p-4 font-mono text-xs uppercase tracking-widest text-muted-foreground">Loading...</p>
@@ -62,11 +60,11 @@ export const AdminDashboard = () => {
 
   const canViewTodo = canViewOrders || canViewReturns || canViewStock
   const statusData = (ordersByStatus.data ?? []).map((item) => ({
-    label: item.status.replaceAll('_', ' '),
+    label: ORDER_STATUS_LABELS[item.status],
     value: item.count
   }))
   const categoryData = (salesByCategory.data ?? []).map((item) => ({
-    label: item.category.replaceAll('_', ' '),
+    label: formatCategory(item.category),
     value: item.unitsSold
   }))
 
@@ -76,7 +74,6 @@ export const AdminDashboard = () => {
         <h1 className="font-display text-5xl uppercase tracking-tighter md:text-7xl">Dashboard</h1>
         <AdminDashboardPeriodFilter />
       </div>
-
       {canViewTodo && (
         <section className="grid gap-4 sm:grid-cols-3">
           {canViewOrders && (
@@ -105,73 +102,66 @@ export const AdminDashboard = () => {
           )}
         </section>
       )}
-
       {(canViewOrders || canViewCustomers || canViewReviews) && (
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {canViewOrders && (
             <>
-              <AdminDashboardKpi
+              <AdminDashboardKpiCard
                 label="Net revenue"
                 value={summary.data?.netRevenue}
                 previous={summary.data?.previousNetRevenue}
-                format={currencyFormatter.format}
+                format={formatPrice}
               />
-              <AdminDashboardKpi
+              <AdminDashboardKpiCard
                 label="Refunded"
                 value={summary.data?.refunded}
                 previous={summary.data?.previousRefunded}
-                format={currencyFormatter.format}
+                format={formatPrice}
                 higherIsBetter={false}
               />
-              <AdminDashboardKpi
+              <AdminDashboardKpiCard
                 label="Orders"
                 value={summary.data?.orders}
                 previous={summary.data?.previousOrders}
-                format={numberFormatter.format}
+                format={formatNumber}
               />
-              <AdminDashboardKpi
+              <AdminDashboardKpiCard
                 label="Average order"
                 value={summary.data?.averageOrderValue}
                 previous={summary.data?.previousAverageOrderValue}
-                format={currencyFormatter.format}
+                format={formatPrice}
               />
             </>
           )}
           {canViewCustomers && (
-            <AdminDashboardKpi
+            <AdminDashboardKpiCard
               label="New customers"
               value={customers.data?.newCustomers}
               previous={customers.data?.previousNewCustomers}
-              format={numberFormatter.format}
+              format={formatNumber}
             />
           )}
           {canViewReviews && (
             <>
-              <AdminDashboardKpi
+              <AdminDashboardKpiCard
                 label="New reviews"
                 value={reviews.data?.newReviews}
                 previous={reviews.data?.previousNewReviews}
-                format={numberFormatter.format}
+                format={formatNumber}
               />
-              <AdminDashboardKpi
+              <AdminDashboardKpiCard
                 label="Average rating"
                 value={reviews.data?.averageRating ?? undefined}
                 previous={reviews.data?.previousAverageRating ?? undefined}
-                format={(value) => `${ratingFormatter.format(value)} / 5`}
+                format={formatRating}
               />
             </>
           )}
         </section>
       )}
-
       {canViewOrders && (
         <section className="space-y-6">
-          <AdminDashboardPanel
-            title="Sales and refunds per day"
-            isError={sales.isError}
-            isEmpty={false}
-            emptyMessage=""
-          >
+          <AdminDashboardSection title="Sales and refunds per day" isError={sales.isError}>
             {sales.data && (
               <div className="p-4">
                 <Suspense fallback={chartFallback}>
@@ -179,23 +169,16 @@ export const AdminDashboard = () => {
                 </Suspense>
               </div>
             )}
-          </AdminDashboardPanel>
-
+          </AdminDashboardSection>
           <div className="grid gap-6 lg:grid-cols-2">
-            <AdminDashboardPanel
-              title="Orders by status"
-              isError={ordersByStatus.isError}
-              isEmpty={false}
-              emptyMessage=""
-            >
+            <AdminDashboardSection title="Orders by status" isError={ordersByStatus.isError}>
               {ordersByStatus.data && (
                 <Suspense fallback={chartFallback}>
                   <AdminDashboardBarChart data={statusData} name="Orders" color="var(--color-neon-cyan)" />
                 </Suspense>
               )}
-            </AdminDashboardPanel>
-
-            <AdminDashboardPanel
+            </AdminDashboardSection>
+            <AdminDashboardSection
               title="Units sold by category"
               isError={salesByCategory.isError}
               isEmpty={salesByCategory.data?.length === 0}
@@ -206,71 +189,70 @@ export const AdminDashboard = () => {
                   <AdminDashboardBarChart data={categoryData} name="Units" color="var(--color-neon-pink)" />
                 </Suspense>
               )}
-            </AdminDashboardPanel>
+            </AdminDashboardSection>
           </div>
         </section>
       )}
-
       <section className="grid gap-6 lg:grid-cols-2">
         {canViewOrders && (
-          <AdminDashboardPanel
+          <AdminDashboardSection
             title="Latest orders"
             isError={recentOrders.isError}
             isEmpty={recentOrders.data?.length === 0}
             emptyMessage="No orders yet"
           >
-            {recentOrders.data && <AdminDashboardRecentOrders orders={recentOrders.data} />}
-          </AdminDashboardPanel>
+            {recentOrders.data && <AdminDashboardRecentOrdersSection orders={recentOrders.data} />}
+          </AdminDashboardSection>
         )}
         {canViewReturns && (
-          <AdminDashboardPanel
+          <AdminDashboardSection
             title="Returns to handle"
             isError={returnsToHandle.isError}
             isEmpty={returnsToHandle.data?.length === 0}
             emptyMessage="Nothing waiting for action"
           >
-            {returnsToHandle.data && <AdminDashboardReturnsList returns={returnsToHandle.data} />}
-          </AdminDashboardPanel>
+            {returnsToHandle.data && <AdminDashboardReturnsSection returns={returnsToHandle.data} />}
+          </AdminDashboardSection>
         )}
         {canViewStock && (
-          <AdminDashboardPanel
+          <AdminDashboardSection
             title="Lowest stock"
             isError={lowestStock.isError}
             isEmpty={lowestStock.data?.length === 0}
             emptyMessage="No low stock variants"
           >
-            {lowestStock.data && <AdminDashboardLowStockList items={lowestStock.data} />}
-          </AdminDashboardPanel>
+            {lowestStock.data && <AdminDashboardLowStockSection items={lowestStock.data} />}
+          </AdminDashboardSection>
         )}
         {canViewProducts && (
-          <AdminDashboardPanel
+          <AdminDashboardSection
             title="Top products (units sold)"
             isError={topProducts.isError}
             isEmpty={topProducts.data?.length === 0}
             emptyMessage="No sales in this period"
           >
-            {topProducts.data && <AdminDashboardTopProducts products={topProducts.data} />}
-          </AdminDashboardPanel>
+            {topProducts.data && <AdminDashboardTopProductsSection products={topProducts.data} />}
+          </AdminDashboardSection>
         )}
         {canViewDiscounts && (
-          <AdminDashboardPanel
+          <AdminDashboardSection
             title="Most used discount codes"
             isError={topDiscountCodes.isError}
             isEmpty={topDiscountCodes.data?.length === 0}
             emptyMessage="No discount codes used in this period"
           >
-            {topDiscountCodes.data && <AdminDashboardDiscountCodes codes={topDiscountCodes.data} />}
-          </AdminDashboardPanel>
+            {topDiscountCodes.data && <AdminDashboardDiscountCodesSection codes={topDiscountCodes.data} />}
+          </AdminDashboardSection>
         )}
         {canViewAudit && (
-          <AdminDashboardPanel
+          <AdminDashboardSection
             title="Recent activity"
             isError={recentActivity.isError}
             isEmpty={recentActivity.data?.length === 0}
             emptyMessage="No activity yet"
           >
-            {recentActivity.data && <AdminDashboardActivity activity={recentActivity.data} />}
-          </AdminDashboardPanel>
+            {recentActivity.data && <AdminDashboardActivitySection activity={recentActivity.data} />}
+          </AdminDashboardSection>
         )}
       </section>
     </div>

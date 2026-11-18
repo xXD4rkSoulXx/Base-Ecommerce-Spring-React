@@ -1,13 +1,13 @@
+import { formatPrice } from '@/utils/format'
+import { getDiscountedPrice } from '@/utils/price'
+
 interface ProductPriceProps {
   price: number
   discountPercentage: number
 }
 
-const priceFormatter = new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' })
-const formatPrice = (amount: number) => priceFormatter.format(amount)
-
 export const ProductPrice = ({ price, discountPercentage }: ProductPriceProps) => {
-  const finalPrice = Math.round((Math.round(price * 100) * (100 - discountPercentage)) / 100) / 100
+  const finalPrice = getDiscountedPrice(price, discountPercentage)
 
   return (
     <div className="flex shrink-0 flex-col items-end leading-tight">

@@ -1,17 +1,17 @@
-import { useState } from 'react'
-import { isAxiosError } from 'axios'
+import { useState, type SubmitEvent } from 'react'
 import { toast } from 'sonner'
-import { Shield, UserPlus, X } from 'lucide-react'
+import { Shield, UserPlus } from 'lucide-react'
 import { FormError } from '@/components/ui/FormError'
 import { FormField } from '@/components/ui/FormField'
+import { Modal } from '@/components/ui/Modal'
 import { useAdminAssignRole } from '@/hooks/admin/useAdminAssignRole'
 import type { AdminTeamMemberResponse } from '@/types/admin/adminTeam'
 import type { UserRole } from '@/types/user'
+import { getErrorMessage } from '@/utils/error'
 
 interface AdminAssignRoleDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
   member: AdminTeamMemberResponse | null
+  onClose: () => void
 }
 
 interface RoleOption {
@@ -25,37 +25,21 @@ const ROLE_OPTIONS: RoleOption[] = [
   { value: 'MERCHANDISER', description: 'Catalog, discounts and reviews' },
   { value: 'FULFILLMENT', description: 'Orders and stock' },
   { value: 'SUPPORT', description: 'Customers, orders, returns and reviews' },
-  { value: 'DEMO', description: 'Read-only demo access' },
   { value: 'CUSTOMER', description: 'Remove from the team' }
 ]
 
-const getErrorMessage = (error: unknown, fallback: string) =>
-  isAxiosError<{ message?: string }>(error) ? (error.response?.data?.message ?? fallback) : fallback
-
-export const AdminAssignRoleDialog = ({ open, onOpenChange, member }: AdminAssignRoleDialogProps) => {
-  const initialRole = member?.role ?? 'SUPPORT'
+export const AdminAssignRoleDialog = ({ member, onClose }: AdminAssignRoleDialogProps) => {
   const [email, setEmail] = useState('')
-  const [role, setRole] = useState<UserRole>(initialRole)
+  const [role, setRole] = useState<UserRole>(member?.role ?? 'SUPPORT')
   const [error, setError] = useState<string | null>(null)
   const { mutate: assignRole, isPending } = useAdminAssignRole()
 
-  if (!open) {
-    return null
-  }
-
   const isChange = member !== null
-  const options = isChange
-    ? ROLE_OPTIONS
-    : ROLE_OPTIONS.filter((option) => option.value !== 'CUSTOMER')
+  const options = isChange ? ROLE_OPTIONS : ROLE_OPTIONS.filter((option) => option.value !== 'CUSTOMER')
 
-  const close = () => {
-    setEmail('')
-    setRole(initialRole)
-    setError(null)
-    onOpenChange(false)
-  }
+  const submit = (event: SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault()
 
-  const submit = () => {
     const targetEmail = member?.email ?? email.trim()
 
     if (!targetEmail) {
@@ -79,50 +63,38 @@ export const AdminAssignRoleDialog = ({ open, onOpenChange, member }: AdminAssig
               ? `${updated.email} removed from the team`
               : `${updated.email} is now ${updated.role}`
           )
-          close()
+          onClose()
         },
-        onError: (mutationError) =>
-          setError(getErrorMessage(mutationError, 'Could not update the role'))
+        onError: (mutationError) => setError(getErrorMessage(mutationError, 'Could not update the role'))
       }
     )
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm">
-      <div className="max-h-[90dvh] w-full max-w-md overflow-y-auto border border-neon-cyan/40 bg-card p-6 shadow-2xl shadow-neon-cyan/10">
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-neon-cyan">
-              {isChange ? 'Reassign' : 'Recruit'}
-            </p>
-            <h2 className="mt-2 flex items-center gap-2 font-display text-2xl uppercase tracking-tighter">
-              {isChange ? (
-                <Shield className="h-5 w-5 text-neon-cyan" />
-              ) : (
-                <UserPlus className="h-5 w-5 text-neon-cyan" />
-              )}
-              {isChange ? 'Change Role' : 'Add Team Member'}
-            </h2>
-            <p className="mt-2 text-xs text-muted-foreground">
-              {isChange
-                ? `${member.firstName} ${member.lastName} · ${member.email}`
-                : 'Promote a registered customer by email.'}
-            </p>
-          </div>
-          <button
-            onClick={close}
-            aria-label="Close"
-            className="text-muted-foreground hover:text-neon-cyan"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+    <Modal
+      eyebrow={isChange ? 'Reassign' : 'Recruit'}
+      title={isChange ? 'Change Role' : 'Add Team Member'}
+      description={
+        isChange
+          ? `${member.firstName} ${member.lastName} · ${member.email}`
+          : 'Promote a registered customer by email.'
+      }
+      icon={
+        isChange ? (
+          <Shield className="h-5 w-5 text-neon-cyan" />
+        ) : (
+          <UserPlus className="h-5 w-5 text-neon-cyan" />
+        )
+      }
+      onClose={onClose}
+    >
+      <form onSubmit={submit}>
         {error && (
-          <div className="mt-6">
+          <div className="mb-6">
             <FormError message={error} />
           </div>
         )}
-        <div className="mt-6 space-y-4">
+        <div className="space-y-4">
           {!isChange && (
             <FormField
               label="Email"
@@ -141,9 +113,7 @@ export const AdminAssignRoleDialog = ({ open, onOpenChange, member }: AdminAssig
                 onClick={() => setRole(option.value)}
                 disabled={isPending}
                 className={`flex w-full items-center justify-between border p-4 text-left transition-colors ${
-                  role === option.value
-                    ? 'border-neon-cyan bg-neon-cyan/10'
-                    : 'border-border hover:border-foreground/40'
+                  role === option.value ? 'border-neon-cyan bg-neon-cyan/10' : 'border-border hover:border-foreground/40'
                 }`}
               >
                 <div>
@@ -161,21 +131,22 @@ export const AdminAssignRoleDialog = ({ open, onOpenChange, member }: AdminAssig
         </div>
         <div className="mt-8 flex gap-3">
           <button
-            onClick={close}
+            type="button"
+            onClick={onClose}
             disabled={isPending}
             className="flex-1 border border-border py-3 text-xs font-bold uppercase tracking-widest hover:border-foreground disabled:opacity-50"
           >
             Cancel
           </button>
           <button
-            onClick={submit}
+            type="submit"
             disabled={isPending}
             className="flex-1 bg-neon-cyan py-3 text-xs font-black uppercase tracking-widest text-primary-foreground hover:opacity-80 disabled:opacity-50"
           >
             {isChange ? 'Apply' : 'Promote'}
           </button>
         </div>
-      </div>
-    </div>
+      </form>
+    </Modal>
   )
 }

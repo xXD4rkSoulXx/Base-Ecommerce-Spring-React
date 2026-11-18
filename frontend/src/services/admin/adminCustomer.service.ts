@@ -1,10 +1,11 @@
 import { api } from '@/lib/api'
-import type { AdminCustomerOrderResponse, AdminCustomerOrderSearchRequest, AdminCustomerResponse, AdminCustomerSearchRequest } from '@/types/admin/adminCustomer'
+import type { AdminCustomerOrderSearchRequest, AdminCustomerResponse, AdminCustomerSearchRequest } from '@/types/admin/adminCustomer'
+import type { OrderSummaryResponse } from '@/types/order'
 import type { PageResponse } from '@/types/page'
 
 export const adminCustomerService = {
   getCustomers: async (request: AdminCustomerSearchRequest) => {
-    const response = await api.get<PageResponse<AdminCustomerResponse>>("/api/admin/customers", {
+    const response = await api.get<PageResponse<AdminCustomerResponse>>('/api/admin/customers', {
       params: request
     })
 
@@ -18,7 +19,7 @@ export const adminCustomerService = {
   },
 
   getCustomerOrders: async (id: number, request: AdminCustomerOrderSearchRequest) => {
-    const response = await api.get<PageResponse<AdminCustomerOrderResponse>>(`/api/admin/customers/${id}/orders`, {
+    const response = await api.get<PageResponse<OrderSummaryResponse>>(`/api/admin/customers/${id}/orders`, {
       params: request
     })
 

@@ -4,6 +4,5 @@ import { userService } from '@/services/user.service'
 export const useProfile = () =>
   useQuery({
     queryKey: ['profile'],
-    queryFn: userService.getProfile
+    queryFn: () => userService.getProfile()
   })
-  

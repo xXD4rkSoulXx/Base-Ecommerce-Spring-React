@@ -6,10 +6,11 @@ export const useAdminArchiveProductSku = (productId: number) => {
 
   return useMutation({
     mutationFn: (skuId: number) => adminProductSkuService.archiveSku(productId, skuId),
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: [...['admin', 'product-skus'], productId] })
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'product-skus', productId] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'products'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'stock'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })
     }
   })
 }

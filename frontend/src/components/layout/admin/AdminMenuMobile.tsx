@@ -1,91 +1,17 @@
-import { useEffect } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
-import { X, ArrowLeft } from 'lucide-react'
-import { useAdminNavItems } from '@/hooks/admin/useAdminNavItems'
-import { useExitDemo } from '@/hooks/useExitDemo'
-import { useAuthStore } from '@/store/useAuthStore'
+import { AdminBrand } from '@/components/layout/admin/AdminBrand'
+import { AdminLeaveButton } from '@/components/layout/admin/AdminLeaveButton'
+import { AdminNavLinks } from '@/components/layout/admin/AdminNavLinks'
+import { Drawer } from '@/components/ui/Drawer'
 
 interface AdminMenuMobileProps {
   open: boolean
   onClose: () => void
 }
 
-export const AdminMenuMobile = ({ open, onClose }: AdminMenuMobileProps) => {
-  const navigate = useNavigate()
-  const adminNavItems = useAdminNavItems()
-  const exitDemo = useExitDemo()
-  const isDemo = useAuthStore((state) => state.user?.role === 'DEMO')
-
-  useEffect(() => {
-    if (open) {
-      document.body.style.overflow = 'hidden'
-    }
-
-    return () => { document.body.style.overflow = '' }
-  }, [open])
-
-  const handleLeave = () => {
-    onClose()
-
-    if (isDemo) {
-      exitDemo()
-    } else {
-      navigate('/')
-    }
-  }
-
-  return (
-    <div className={`fixed inset-0 z-50 lg:hidden ${open ? '' : 'pointer-events-none'}`} aria-hidden={!open}>
-      <div onClick={onClose} className={`absolute inset-0 bg-background/80 backdrop-blur-sm transition-opacity ${open ? 'opacity-100' : 'opacity-0'}`} />
-      <aside className={`absolute left-0 top-0 h-full w-[85%] max-w-sm border-r border-neon-cyan/30 bg-card p-6 shadow-2xl shadow-neon-cyan/10 transition-transform duration-300 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="flex items-center justify-between">
-          <div>
-            <NavLink
-              to="/admin"
-              end
-              onClick={onClose}
-              className="font-display text-xl italic tracking-tighter"
-            >
-              VELO_CITI
-            </NavLink>
-            <p className="mt-1 font-mono text-[10px] uppercase tracking-widest text-neon-cyan">Admin Console</p>
-            {isDemo && (
-              <p className="mt-1 font-mono text-[10px] uppercase tracking-widest text-neon-pink">Read-only demo</p>
-            )}
-          </div>
-          <button
-            onClick={onClose}
-            className="text-foreground/70 hover:text-neon-cyan"
-            aria-label="Close menu"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-        <nav className="mt-8">
-          {adminNavItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              onClick={onClose}
-              className={({ isActive }) =>
-                `mb-1 flex items-center gap-3 px-4 py-3 text-xs font-bold uppercase tracking-widest transition-colors ${
-                  isActive ? 'bg-neon-cyan text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
-                }`
-              }
-            >
-              <item.icon className="h-4 w-4" />
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
-        <button
-          onClick={handleLeave}
-          className="absolute bottom-6 left-6 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-neon-cyan"
-        >
-          <ArrowLeft className="h-3 w-3" /> {isDemo ? 'Exit demo' : 'Back to Store'}
-        </button>
-      </aside>
-    </div>
-  )
-}
+export const AdminMenuMobile = ({ open, onClose }: AdminMenuMobileProps) => (
+  <Drawer open={open} onClose={onClose} label="Admin menu" hideFrom="lg">
+    <AdminBrand onNavigate={onClose} />
+    <AdminNavLinks onNavigate={onClose} className="mt-8" />
+    <AdminLeaveButton onNavigate={onClose} />
+  </Drawer>
+)

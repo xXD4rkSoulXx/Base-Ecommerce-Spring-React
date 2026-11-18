@@ -2,16 +2,16 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useCartStore, type GuestCartItem } from '@/store/useCartStore'
 import { cartService } from '@/services/cart.service'
+import { getDiscountedPrice } from '@/utils/price'
 
 type Priced = {
   price: number
   discountPercentage: number
 }
 
-const getUnitPrice = (item: Priced) => {
-  const cents = Math.round(item.price * 100)
-
-  return Math.round((cents * (100 - item.discountPercentage)) / 100) / 100
+interface UpdateQuantityVariables {
+  productSkuId: number
+  quantity: number
 }
 
 export const useCart = () => {
@@ -26,7 +26,7 @@ export const useCart = () => {
 
   const { data: serverCart } = useQuery({
     queryKey: ['cart'],
-    queryFn: cartService.getCart,
+    queryFn: () => cartService.getCart(),
     enabled: isAuthenticated
   })
 
@@ -43,7 +43,7 @@ export const useCart = () => {
   })
 
   const updateQuantityMutation = useMutation({
-    mutationFn: ({ productSkuId, quantity }: { productSkuId: number; quantity: number }) =>
+    mutationFn: ({ productSkuId, quantity }: UpdateQuantityVariables) =>
       cartService.updateQuantity(productSkuId, { quantity }),
     onSuccess: invalidateCart
   })
@@ -54,12 +54,12 @@ export const useCart = () => {
   })
 
   const removeDiscountMutation = useMutation({
-    mutationFn: cartService.removeDiscountCode,
+    mutationFn: () => cartService.removeDiscountCode(),
     onSuccess: invalidateCart
   })
 
   const clearMutation = useMutation({
-    mutationFn: cartService.clearCart,
+    mutationFn: () => cartService.clearCart(),
     onSuccess: invalidateCart
   })
 
@@ -69,11 +69,12 @@ export const useCart = () => {
 
   const discountCode = isAuthenticated ? (serverCart?.discountCode ?? null) : null
   const discountPercentage = isAuthenticated ? (serverCart?.discountPercentage ?? 0) : 0
-  const getLineTotal = (item: Priced & { quantity: number }) => getUnitPrice(item) * item.quantity
+  const getLineTotal = (item: Priced & { quantity: number }) =>
+    getDiscountedPrice(item.price, item.discountPercentage) * item.quantity
   const subtotal = items
     .filter((item) => item.available !== false)
     .reduce((total, item) => total + getLineTotal(item), 0)
-  const discountAmount = (subtotal * discountPercentage) / 100
+  const discountAmount = Math.round(subtotal * discountPercentage) / 100
   const { isError: isDiscountCodeError, error: discountCodeError } = applyDiscountMutation
 
   const isInCart = (productSkuId: number) =>

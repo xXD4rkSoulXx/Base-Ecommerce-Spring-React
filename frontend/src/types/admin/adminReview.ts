@@ -1,8 +1,8 @@
 export interface AdminReviewSearchRequest {
   q?: string
   hidden?: boolean
-  page?: number
-  size?: number
+  page: number
+  size: number
 }
 
 export interface AdminReviewResponse {

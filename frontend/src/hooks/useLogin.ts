@@ -1,11 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useWishlistStore } from '@/store/useWishlistStore'
 import { useCartStore } from '@/store/useCartStore'
 import { authService } from '@/services/auth.service'
 import { wishlistService } from '@/services/wishlist.service'
 import { cartService } from '@/services/cart.service'
+import type { LoginRequest } from '@/types/auth'
 
 interface LocationState {
   from?: {
@@ -20,7 +22,7 @@ export const useLogin = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: authService.login,
+    mutationFn: (request: LoginRequest) => authService.login(request),
     onSuccess: async (data) => {
       const state = location.state as LocationState
       const from = state?.from?.pathname || '/'
@@ -36,7 +38,7 @@ export const useLogin = () => {
           await wishlistService.mergeWishlist(productIds)
           useWishlistStore.getState().clearWishlist()
         } catch {
-          void 0
+          toast.error('Could not sync your wishlist. It will be retried on your next login.')
         }
       }
 
@@ -52,7 +54,7 @@ export const useLogin = () => {
           await cartService.mergeCart({ items })
           useCartStore.getState().clearCart()
         } catch {
-          void 0
+          toast.error('Could not sync your cart. It will be retried on your next login.')
         }
       }
 

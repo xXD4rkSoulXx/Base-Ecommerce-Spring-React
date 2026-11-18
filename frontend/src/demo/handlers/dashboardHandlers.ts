@@ -183,7 +183,7 @@ const resolvers: EndpointResolvers = {
           productId,
           ref: product.ref,
           name: product.name,
-          cover: getProductCover(product) ?? null,
+          cover: getProductCover(product),
           unitsSold
         }
       })
@@ -259,7 +259,7 @@ const resolvers: EndpointResolvers = {
     const average = (from: number, to: number) => {
       const ratings = reviews.filter((review) => isWithin(review.createdAt, from, to)).map((review) => review.rating)
 
-      return ratings.length > 0 ? roundMoney(ratings.reduce((total, rating) => total + rating, 0) / ratings.length) : null
+      return ratings.length > 0 ? roundMoney(ratings.reduce((total, rating) => total + rating, 0) / ratings.length) : undefined
     }
 
     return {
@@ -274,7 +274,7 @@ const resolvers: EndpointResolvers = {
     [...getFixtures().auditLogs].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)).slice(0, LIST_LIMIT)
 }
 
-const isEndpoint = (value: string): value is keyof AdminDashboardEndpoints => value in resolvers
+const isEndpoint = (value: string): value is keyof AdminDashboardEndpoints => Object.hasOwn(resolvers, value)
 
 export const dashboardHandlers: HttpHandler[] = [
   http.get('*/api/admin/dashboard/:endpoint', ({ params, request }) => {

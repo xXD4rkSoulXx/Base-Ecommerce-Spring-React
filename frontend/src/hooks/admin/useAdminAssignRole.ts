@@ -6,6 +6,10 @@ export const useAdminAssignRole = () => {
 
   return useMutation({
     mutationFn: adminTeamService.assignRole,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'team'] })
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'team'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'customers'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })
+    }
   })
 }

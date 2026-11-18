@@ -1,53 +1,13 @@
-import { NavLink, useNavigate } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
-import { useAdminNavItems } from '@/hooks/admin/useAdminNavItems'
-import { useExitDemo } from '@/hooks/useExitDemo'
-import { useAuthStore } from '@/store/useAuthStore'
+import { AdminBrand } from '@/components/layout/admin/AdminBrand'
+import { AdminLeaveButton } from '@/components/layout/admin/AdminLeaveButton'
+import { AdminNavLinks } from '@/components/layout/admin/AdminNavLinks'
 
-export const AdminSidebar = () => {
-  const navigate = useNavigate()
-  const adminNavItems = useAdminNavItems()
-  const exitDemo = useExitDemo()
-  const isDemo = useAuthStore((state) => state.user?.role === 'DEMO')
-
-  return (
-    <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 border-r border-border bg-card lg:block">
-      <div className="border-b border-border p-6">
-        <NavLink
-          to="/"
-          end
-          className="font-display text-xl italic tracking-tighter"
-        >
-          VELO_CITI
-        </NavLink>
-        <p className="mt-1 font-mono text-[10px] uppercase tracking-widest text-neon-cyan">Admin Console</p>
-        {isDemo && (
-          <p className="mt-1 font-mono text-[10px] uppercase tracking-widest text-neon-pink">Read-only demo</p>
-        )}
-      </div>
-      <nav className="p-3">
-        {adminNavItems.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.end}
-            className={({ isActive }) =>
-              `mb-1 flex items-center gap-3 px-4 py-3 text-xs font-bold uppercase tracking-widest transition-colors ${
-                isActive ? 'bg-neon-cyan text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
-              }`
-            }
-          >
-            <item.icon className="h-4 w-4" />
-            {item.label}
-          </NavLink>
-        ))}
-      </nav>
-      <button
-        onClick={isDemo ? exitDemo : () => navigate('/')}
-        className="absolute bottom-6 left-6 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-neon-cyan"
-      >
-        <ArrowLeft className="h-3 w-3" /> {isDemo ? 'Exit demo' : 'Back to Store'}
-      </button>
-    </aside>
-  )
-}
+export const AdminSidebar = () => (
+  <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 border-r border-border bg-card lg:block">
+    <div className="border-b border-border p-6">
+      <AdminBrand />
+    </div>
+    <AdminNavLinks className="p-3" />
+    <AdminLeaveButton />
+  </aside>
+)

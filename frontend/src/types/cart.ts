@@ -1,3 +1,5 @@
+import type { ProductColor, ProductSize } from '@/types/product'
+
 export interface AddToCartRequest {
   productSkuId: number
   quantity: number
@@ -22,7 +24,7 @@ export interface UpdateCartItemRequest {
 
 export interface CartResponse {
   items: CartItemResponse[]
-  discountCode: string | null
+  discountCode?: string
   discountPercentage: number
 }
 
@@ -32,12 +34,12 @@ export interface CartItemResponse {
   productId: number
   productName: string
   productRef: string
-  size: string
-  color: string
-  cover: string
+  size: ProductSize
+  color: ProductColor
+  cover?: string
   price: number
   discountPercentage: number
   stock: number
   quantity: number
-  available?: boolean
+  available: boolean
 }

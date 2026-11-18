@@ -8,7 +8,7 @@ export const useAdminDashboardQuery = <E extends keyof AdminDashboardEndpoints>(
   days?: number
 ) =>
   useQuery({
-    queryKey: [...['admin', 'dashboard'], endpoint, days],
+    queryKey: ['admin', 'dashboard', endpoint, days],
     queryFn: () => adminDashboardService.get(endpoint, days),
     enabled,
     placeholderData: (previousData) => previousData

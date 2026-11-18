@@ -1,4 +1,4 @@
-import axios, { type InternalAxiosRequestConfig, AxiosError  } from 'axios'
+import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { refreshAuth } from '@/lib/refreshAuth'
 import { useAuthStore } from '@/store/useAuthStore'
 
@@ -8,29 +8,26 @@ export const api = axios.create({
     'Content-Type': 'application/json',
     'X-Requested-With': 'XMLHttpRequest'
   },
-  withCredentials: true,
-  xsrfCookieName: 'XSRF-TOKEN',
-  xsrfHeaderName: 'X-XSRF-TOKEN'
+  withCredentials: true
 })
 
-api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    const token = useAuthStore.getState().accessToken
-    const csrfToken = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('XSRF-TOKEN='))
-      ?.split('=')[1]
-  
-  if (token && config.headers) {
+api.interceptors.request.use((config) => {
+  const token = useAuthStore.getState().accessToken
+  const csrfToken = document.cookie
+    .split('; ')
+    .find((row) => row.startsWith('XSRF-TOKEN='))
+    ?.split('=')[1]
+
+  if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
 
-  if (csrfToken && config.headers) {
+  if (csrfToken) {
     config.headers['X-XSRF-TOKEN'] = csrfToken
   }
 
   return config
-}, (error: AxiosError) => Promise.reject(error))
+})
 
 const AUTH_ENDPOINTS = ['/api/auth/login', '/api/auth/register', '/api/auth/refresh', '/api/auth/logout']
 
@@ -43,19 +40,9 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       originalRequest._retry = true
 
-      try {
-        const { accessToken } = await refreshAuth()
+      await refreshAuth()
 
-        if (originalRequest.headers) {
-          originalRequest.headers.Authorization = `Bearer ${accessToken}`
-        }
-
-        return api(originalRequest)
-      } catch (refreshError) {
-        useAuthStore.getState().clearAuth()
-        
-        return Promise.reject(refreshError)
-      }
+      return api(originalRequest)
     }
 
     return Promise.reject(error)

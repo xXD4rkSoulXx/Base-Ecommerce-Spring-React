@@ -9,10 +9,10 @@ export interface DemoSku {
   size: ProductSize
   color: ProductColor
   stock: number
-  weight: number
-  length: number
-  width: number
-  height: number
+  weightGrams: number
+  lengthCm: number
+  widthCm: number
+  heightCm: number
   discountPercentage: number
   active: boolean
   images: AdminProductSkuImageResponse[]

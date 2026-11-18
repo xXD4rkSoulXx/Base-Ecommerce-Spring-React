@@ -4,7 +4,7 @@ import type { AdminProductSkuImageResponse } from '@/types/admin/adminProductSku
 export const adminProductSkuImageService = {
   uploadImage: async (productId: number, skuId: number, file: File) => {
     const formData = new FormData()
-    
+
     formData.append('file', file)
 
     const response = await api.post<AdminProductSkuImageResponse>(
@@ -17,9 +17,7 @@ export const adminProductSkuImageService = {
   },
 
   getImages: async (productId: number, skuId: number) => {
-    const response = await api.get<AdminProductSkuImageResponse[]>(
-      `/api/admin/products/${productId}/skus/${skuId}/images`
-    )
+    const response = await api.get<AdminProductSkuImageResponse[]>(`/api/admin/products/${productId}/skus/${skuId}/images`)
 
     return response.data
   },

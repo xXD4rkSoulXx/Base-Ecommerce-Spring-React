@@ -6,11 +6,13 @@ export const useAdminSetProductCover = (productId: number, skuId: number) => {
 
   return useMutation({
     mutationFn: (imageId: number) => adminProductSkuImageService.setProductCover(productId, skuId, imageId),
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: [...['admin', 'product-sku-images'], productId] })
-      queryClient.invalidateQueries({ queryKey: [...['admin', 'product-skus'], productId] })
-      queryClient.invalidateQueries({ queryKey: ['admin', 'product'] })
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'product-sku-images', productId] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'product-skus', productId] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'product', productId] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'products'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'stock'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })
     }
   })
 }

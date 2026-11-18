@@ -13,25 +13,31 @@ export const useWishlist = () => {
   const guestRemove = useWishlistStore((state) => state.removeFromWishlist)
   const guestClear = useWishlistStore((state) => state.clearWishlist)
 
-  const { data: serverItems } = useQuery({
+  const {
+    data: serverItems,
+    isLoading,
+    isError
+  } = useQuery({
     queryKey: ['wishlist'],
-    queryFn: wishlistService.getWishlist,
+    queryFn: () => wishlistService.getWishlist(),
     enabled: isAuthenticated
   })
 
+  const invalidateWishlist = () => queryClient.invalidateQueries({ queryKey: ['wishlist'] })
+
   const addMutation = useMutation({
     mutationFn: (productId: number) => wishlistService.addToWishlist(productId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['wishlist'] })
+    onSuccess: invalidateWishlist
   })
 
   const removeMutation = useMutation({
     mutationFn: (productId: number) => wishlistService.removeFromWishlist(productId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['wishlist'] })
+    onSuccess: invalidateWishlist
   })
 
   const clearMutation = useMutation({
-    mutationFn: wishlistService.clearWishlist,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['wishlist'] })
+    mutationFn: () => wishlistService.clearWishlist(),
+    onSuccess: invalidateWishlist
   })
 
   const items = isAuthenticated ? (serverItems ?? []) : guestItems
@@ -61,14 +67,18 @@ export const useWishlist = () => {
   const clearWishlist = () => {
     if (isAuthenticated) {
       clearMutation.mutate()
-    } else {
-      guestClear()
+
+      return
     }
+
+    guestClear()
   }
 
   return {
     items,
     totalItems: items.length,
+    isLoading,
+    isError,
     isInWishlist,
     toggleWishlist,
     clearWishlist

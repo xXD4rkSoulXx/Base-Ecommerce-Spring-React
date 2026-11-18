@@ -6,12 +6,12 @@ export const useAdminCreateProductSku = (productId: number) => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (request: AdminCreateProductSkuRequest) =>
-        adminProductSkuService.createSku(productId, request),
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: [...['admin', 'product-skus'], productId] })
+    mutationFn: (request: AdminCreateProductSkuRequest) => adminProductSkuService.createSku(productId, request),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'product-skus', productId] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'products'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'stock'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })
     }
   })
 }

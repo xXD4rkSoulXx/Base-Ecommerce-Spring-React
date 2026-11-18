@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { DiscountBadge } from '@/components/ui/DiscountBadge'
+import { DiscountBadge } from '@/components/badge/DiscountBadge'
 import { ProductPrice } from '@/components/ui/ProductPrice'
 import type { ProductResponse } from '@/types/product'
 
@@ -13,7 +13,7 @@ export const FeaturedProductCard = ({ product, secondary = false }: FeaturedProd
     <div className="relative aspect-[3/4] overflow-hidden border border-border bg-card">
       <img
         src={product.cover}
-        alt={product.name}
+        alt=""
         loading={secondary ? 'lazy' : undefined}
         className={`h-full w-full object-cover ${secondary ? 'grayscale-[30%]' : ''}`}
       />

@@ -1,20 +1,17 @@
 import { useState, type SubmitEvent } from 'react'
-import { isAxiosError } from 'axios'
 import { toast } from 'sonner'
-import { X } from 'lucide-react'
 import { FormError } from '@/components/ui/FormError'
 import { FormField } from '@/components/ui/FormField'
+import { Modal } from '@/components/ui/Modal'
 import { useAdminCreateDiscountCode } from '@/hooks/admin/useAdminCreateDiscountCode'
 import { useAdminUpdateDiscountCode } from '@/hooks/admin/useAdminUpdateDiscountCode'
+import { getErrorMessage } from '@/utils/error'
 import type { AdminDiscountCodeResponse } from '@/types/admin/adminDiscountCode'
 
 interface AdminDiscountCodeDialogProps {
   discountCode: AdminDiscountCodeResponse | null
   onClose: () => void
 }
-
-const getErrorMessage = (error: unknown, fallback: string) =>
-  isAxiosError<{ message?: string }>(error) ? (error.response?.data?.message ?? fallback) : fallback
 
 export const AdminDiscountCodeDialog = ({ discountCode, onClose }: AdminDiscountCodeDialogProps) => {
   const [code, setCode] = useState('')
@@ -24,8 +21,15 @@ export const AdminDiscountCodeDialog = ({ discountCode, onClose }: AdminDiscount
   const { mutate: updateCode, isPending: isUpdating } = useAdminUpdateDiscountCode()
   const isPending = isCreating || isUpdating
 
-  const submit = (e: SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  const submit = (event: SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    const normalizedCode = code.trim()
+
+    if (!discountCode && !/^[A-Z0-9_-]{3,20}$/.test(normalizedCode)) {
+      setError('Code must have 3 to 20 characters: letters, numbers, - or _')
+      return
+    }
 
     const discountPercentage = Number(percentage)
 
@@ -54,46 +58,20 @@ export const AdminDiscountCodeDialog = ({ discountCode, onClose }: AdminDiscount
       return
     }
 
-    if (!/^[A-Z0-9_-]{3,20}$/.test(code)) {
-      setError('Code must have 3 to 20 characters: letters, numbers, - or _')
-      return
-    }
-
-    createCode({ code, discountPercentage }, callbacks)
+    createCode({ code: normalizedCode, discountPercentage }, callbacks)
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm">
-      <form
-        onSubmit={submit}
-        className="w-full max-w-md border border-neon-cyan/40 bg-card p-6 shadow-2xl shadow-neon-cyan/10"
-      >
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-neon-cyan">Discount code</p>
-            <h2 className="mt-2 font-display text-2xl uppercase tracking-tighter">
-              {discountCode ? 'Edit code' : 'New code'}
-            </h2>
-          </div>
-          <button type="button" onClick={onClose} className="text-muted-foreground hover:text-foreground">
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-        <div className="mt-5 space-y-4">
+    <Modal eyebrow="Discount code" title={discountCode ? 'Edit code' : 'New code'} onClose={onClose}>
+      <form onSubmit={submit}>
+        <div className="space-y-4">
           {discountCode ? (
             <div>
               <p className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Code</p>
-              <p className="border border-border bg-background px-4 py-3 font-mono text-sm">
-                {discountCode.code}
-              </p>
+              <p className="border border-border bg-background px-4 py-3 font-mono text-sm">{discountCode.code}</p>
             </div>
           ) : (
-            <FormField
-              label="Code"
-              value={code}
-              onChange={(value) => setCode(value.toUpperCase())}
-              accent="cyan"
-            />
+            <FormField label="Code" value={code} onChange={(value) => setCode(value.toUpperCase())} accent="cyan" />
           )}
           <FormField label="Discount (%)" value={percentage} onChange={setPercentage} accent="cyan" />
         </div>
@@ -122,6 +100,6 @@ export const AdminDiscountCodeDialog = ({ discountCode, onClose }: AdminDiscount
           </button>
         </div>
       </form>
-    </div>
+    </Modal>
   )
 }

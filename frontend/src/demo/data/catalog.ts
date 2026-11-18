@@ -22,13 +22,13 @@ const COLOR_HEX: Record<ProductColor, string> = {
   YELLOW: '#eab308'
 }
 
-const DIMENSIONS: Record<ProductCategory, { weight: number; length: number; width: number; height: number }> = {
-  OUTERWEAR: { weight: 900, length: 40, width: 30, height: 12 },
-  TOPS: { weight: 300, length: 30, width: 25, height: 4 },
-  BOTTOMS: { weight: 500, length: 35, width: 28, height: 6 },
-  FOOTWEAR: { weight: 1100, length: 34, width: 22, height: 13 },
-  UNDERWEAR: { weight: 150, length: 22, width: 16, height: 3 },
-  ACCESSORIES: { weight: 250, length: 25, width: 20, height: 8 }
+const DIMENSIONS: Record<ProductCategory, Pick<DemoSku, 'weightGrams' | 'lengthCm' | 'widthCm' | 'heightCm'>> = {
+  OUTERWEAR: { weightGrams: 900, lengthCm: 40, widthCm: 30, heightCm: 12 },
+  TOPS: { weightGrams: 300, lengthCm: 30, widthCm: 25, heightCm: 4 },
+  BOTTOMS: { weightGrams: 500, lengthCm: 35, widthCm: 28, heightCm: 6 },
+  FOOTWEAR: { weightGrams: 1100, lengthCm: 34, widthCm: 22, heightCm: 13 },
+  UNDERWEAR: { weightGrams: 150, lengthCm: 22, widthCm: 16, heightCm: 3 },
+  ACCESSORIES: { weightGrams: 250, lengthCm: 25, widthCm: 20, heightCm: 8 }
 }
 
 const artwork = (label: string, color: ProductColor, variant: number) => {
@@ -46,15 +46,6 @@ const artwork = (label: string, color: ProductColor, variant: number) => {
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
 }
 
-interface SkuSeed {
-  size: ProductSize
-  color: ProductColor
-  stock: number
-  discountPercentage?: number
-  active?: boolean
-  images?: number
-}
-
 interface ProductSeed {
   ref: string
   name: string
@@ -65,6 +56,15 @@ interface ProductSeed {
   featuredSlot?: FeaturedSlot
   active?: boolean
   skus: SkuSeed[]
+}
+
+interface SkuSeed {
+  size: ProductSize
+  color: ProductColor
+  stock: number
+  discountPercentage?: number
+  active?: boolean
+  images?: number
 }
 
 const sku = (size: ProductSize, color: ProductColor, stock: number, extra: Partial<SkuSeed> = {}): SkuSeed => ({
@@ -208,7 +208,7 @@ const PRODUCT_SEEDS: ProductSeed[] = [
     description: 'Merino blend beanie with a woven cipher patch.',
     category: 'ACCESSORIES',
     price: 24.9,
-    skus: [sku('M', 'BLACK', 58), sku('M', 'YELLOW', 22), sku('M', 'RED', 4)]
+    skus: [sku('ONE_SIZE', 'BLACK', 58), sku('ONE_SIZE', 'YELLOW', 22), sku('ONE_SIZE', 'RED', 4)]
   },
   {
     ref: 'VC-ACC-002',
@@ -216,9 +216,11 @@ const PRODUCT_SEEDS: ProductSeed[] = [
     description: 'Compact water-resistant crossbody bag with a magnetic buckle.',
     category: 'ACCESSORIES',
     price: 59,
-    skus: [sku('M', 'BLACK', 26), sku('M', 'GOLD', 10), sku('M', 'SALMON', 0)]
+    skus: [sku('ONE_SIZE', 'BLACK', 26), sku('ONE_SIZE', 'GOLD', 10), sku('ONE_SIZE', 'SALMON', 0)]
   }
 ]
+
+export const sizeLabel = (size: ProductSize) => (size === 'ONE_SIZE' ? 'One size' : size.replace('_', ''))
 
 export const buildCatalog = (): DemoProduct[] => {
   let nextSkuId = 1
@@ -227,10 +229,13 @@ export const buildCatalog = (): DemoProduct[] => {
   return PRODUCT_SEEDS.map((seed, index) => {
     const productId = index + 1
     const dimensions = DIMENSIONS[seed.category]
+    const productCoverSkuIndex = seed.skus.findIndex(
+      (skuSeed) => (skuSeed.active ?? true) && (skuSeed.images ?? 2) > 0
+    )
 
-    const skus: DemoSku[] = seed.skus.map((skuSeed) => {
+    const skus: DemoSku[] = seed.skus.map((skuSeed, skuIndex) => {
       const imageCount = skuSeed.images ?? 2
-      const label = `${seed.ref} ${skuSeed.size.replace('_', '')}`
+      const label = `${seed.ref} ${sizeLabel(skuSeed.size)}`
 
       return {
         id: nextSkuId++,
@@ -244,7 +249,8 @@ export const buildCatalog = (): DemoProduct[] => {
         images: Array.from({ length: imageCount }, (_, imageIndex) => ({
           id: nextImageId++,
           path: artwork(label, skuSeed.color, imageIndex),
-          cover: imageIndex === 0
+          skuCover: imageIndex === 0,
+          productCover: skuIndex === productCoverSkuIndex && imageIndex === 0
         }))
       }
     })
@@ -264,12 +270,7 @@ export const buildCatalog = (): DemoProduct[] => {
   })
 }
 
-export const getSkuCover = (sku: DemoSku) => sku.images.find((image) => image.cover)?.path
+export const getSkuCover = (sku: DemoSku) => sku.images.find((image) => image.skuCover)?.path
 
-export const getProductCover = (product: DemoProduct) => {
-  const sku = product.skus.find((candidate) => candidate.active && candidate.images.length > 0)
-
-  return sku ? getSkuCover(sku) : undefined
-}
-
-export const sizeLabel = (size: ProductSize) => size.replace('_', '')
+export const getProductCover = (product: DemoProduct) =>
+  product.skus.flatMap((sku) => sku.images).find((image) => image.productCover)?.path

@@ -6,10 +6,10 @@ export const useAdminCreateDiscountCode = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (request: AdminCreateDiscountCodeRequest) =>
-        adminDiscountCodeService.createDiscountCode(request),
-    onSettled: () => {
+    mutationFn: (request: AdminCreateDiscountCodeRequest) => adminDiscountCodeService.createDiscountCode(request),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'discount-codes'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })
     }
   })
 }

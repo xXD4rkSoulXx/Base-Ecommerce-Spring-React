@@ -6,10 +6,11 @@ export const useAdminRestoreProduct = (productId: number) => {
 
   return useMutation({
     mutationFn: () => adminProductService.restoreProduct(productId),
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: [...['admin', 'product'], productId] })
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'product', productId] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'products'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'stock'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })
     }
   })
 }

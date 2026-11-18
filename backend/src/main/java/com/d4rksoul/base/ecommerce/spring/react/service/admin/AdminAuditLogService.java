@@ -48,7 +48,7 @@ public class AdminAuditLogService {
             action,
             AuditEntityType.VARIANT,
             sku.getId(),
-            sku.getProduct().getRef() + " · " + sku.getSize() + " " + sku.getColor(),
+            sku.getProduct().getRef() + " · " + sku.getSize().getLabel() + " " + sku.getColor(),
             details
         );
     }

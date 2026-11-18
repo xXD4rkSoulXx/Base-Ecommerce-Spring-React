@@ -6,7 +6,7 @@ export const authService = {
     await api.post<void>('/api/auth/register', request)
   },
 
-  login: async (request: LoginRequest): Promise<LoginResponse> => {
+  login: async (request: LoginRequest) => {
     const response = await api.post<LoginResponse>('/api/auth/login', request)
 
     return response.data
@@ -15,7 +15,7 @@ export const authService = {
   changePassword: async (request: ChangePasswordRequest) => {
     await api.put<void>('/api/auth/password', request)
   },
-  
+
   logout: async () => {
     await api.delete<void>('/api/auth/logout')
   },

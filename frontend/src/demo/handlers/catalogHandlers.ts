@@ -18,10 +18,10 @@ const toSkuResponse = (sku: DemoSku): AdminProductSkuResponse => ({
   color: sku.color,
   cover: getSkuCover(sku),
   stock: sku.stock,
-  weight: sku.weight,
-  length: sku.length,
-  width: sku.width,
-  height: sku.height,
+  weightGrams: sku.weightGrams,
+  lengthCm: sku.lengthCm,
+  widthCm: sku.widthCm,
+  heightCm: sku.heightCm,
   discountPercentage: sku.discountPercentage,
   active: sku.active
 })

@@ -1,7 +1,7 @@
 import { HttpResponse } from 'msw'
 import type { PageResponse } from '@/types/page'
 
-export const READ_ONLY_MESSAGE = 'This is a read-only demo. Changes are disabled.'
+const READ_ONLY_MESSAGE = 'This is a read-only demo. Changes are disabled.'
 
 const DEFAULT_PAGE_SIZE = 10
 const MAX_PAGE_SIZE = 100

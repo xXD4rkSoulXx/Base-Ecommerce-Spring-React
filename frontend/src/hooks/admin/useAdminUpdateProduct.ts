@@ -7,9 +7,12 @@ export const useAdminUpdateProduct = (id: number) => {
 
   return useMutation({
     mutationFn: (request: AdminProductRequest) => adminProductService.updateProduct(id, request),
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: [...['admin', 'product'], id] })
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'product', id] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'products'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'stock'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'reviews'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })
     }
   })
 }

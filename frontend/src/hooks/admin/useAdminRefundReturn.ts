@@ -6,10 +6,12 @@ export const useAdminRefundReturn = () => {
 
   return useMutation({
     mutationFn: (id: number) => adminReturnService.refund(id),
-    onSettled: () => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'returns'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'orders'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'order'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'customer-orders'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })
     }
   })
 }

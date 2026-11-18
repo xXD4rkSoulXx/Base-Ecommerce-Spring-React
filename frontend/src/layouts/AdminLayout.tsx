@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import { ScrollToTop } from '@/components/layout/ScrollToTop'
-import { AdminSidebar } from '@/components/layout/admin/AdminSideBar'
+import { AdminSidebar } from '@/components/layout/admin/AdminSidebar'
 import { AdminHeaderMobile } from '@/components/layout/admin/AdminHeaderMobile'
 import { AdminMenuMobile } from '@/components/layout/admin/AdminMenuMobile'
 

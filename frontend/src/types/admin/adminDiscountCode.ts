@@ -9,8 +9,8 @@ export interface AdminUpdateDiscountCodeRequest {
 export interface AdminDiscountCodeSearchRequest {
   q?: string
   active?: boolean
-  page?: number
-  size?: number
+  page: number
+  size: number
 }
 
 export interface AdminDiscountCodeResponse {

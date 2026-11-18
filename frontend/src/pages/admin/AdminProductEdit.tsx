@@ -1,20 +1,18 @@
 import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { isAxiosError } from 'axios'
+import { useParams } from 'react-router-dom'
 import { toast } from 'sonner'
-import { ArrowLeft } from 'lucide-react'
-import { AdminProductForm } from '@/components/section/admin/AdminProductForm'
-import { AdminProductVariants } from '@/components/section/admin/AdminProductVariants'
+import { StatusBadge } from '@/components/badge/StatusBadge'
+import { AdminProductForm } from '@/components/form/admin/AdminProductForm'
+import { AdminProductVariantsSection } from '@/components/section/admin/AdminProductVariantsSection'
+import { AdminBackLink } from '@/components/ui/admin/AdminBackLink'
 import { FormError } from '@/components/ui/FormError'
-import { useAdminProduct } from '@/hooks/admin/useAdminProduct'
 import { useAdminArchiveProduct } from '@/hooks/admin/useAdminArchiveProduct'
+import { useAdminProduct } from '@/hooks/admin/useAdminProduct'
 import { useAdminRestoreProduct } from '@/hooks/admin/useAdminRestoreProduct'
 import { useAdminUpdateProduct } from '@/hooks/admin/useAdminUpdateProduct'
 import { usePermission } from '@/hooks/usePermission'
 import type { AdminProductRequest } from '@/types/admin/adminProduct'
-
-const getErrorMessage = (error: unknown, fallback: string) =>
-  isAxiosError<{ message?: string }>(error) ? (error.response?.data?.message ?? fallback) : fallback
+import { getErrorMessage } from '@/utils/error'
 
 export const AdminProductEdit = () => {
   const { id } = useParams()
@@ -31,8 +29,7 @@ export const AdminProductEdit = () => {
 
     updateProduct(request, {
       onSuccess: () => toast.success('Product updated'),
-      onError: (mutationError) =>
-        setError(getErrorMessage(mutationError, 'Could not update the product'))
+      onError: (mutationError) => setError(getErrorMessage(mutationError, 'Could not update the product'))
     })
   }
 
@@ -41,8 +38,7 @@ export const AdminProductEdit = () => {
 
     archiveProduct(undefined, {
       onSuccess: () => toast.success('Product archived'),
-      onError: (mutationError) =>
-        setError(getErrorMessage(mutationError, 'Could not archive the product'))
+      onError: (mutationError) => setError(getErrorMessage(mutationError, 'Could not archive the product'))
     })
   }
 
@@ -51,32 +47,27 @@ export const AdminProductEdit = () => {
 
     restoreProduct(undefined, {
       onSuccess: () => toast.success('Product restored'),
-      onError: (mutationError) =>
-        setError(getErrorMessage(mutationError, 'Could not restore the product'))
+      onError: (mutationError) => setError(getErrorMessage(mutationError, 'Could not restore the product'))
     })
   }
 
   return (
     <div className="p-6 md:p-10">
-      <Link
-        to="/admin/products"
-        className="mb-6 inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground hover:text-neon-cyan"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" /> Products
-      </Link>
+      <AdminBackLink to="/admin/products">Products</AdminBackLink>
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-5xl uppercase tracking-tighter md:text-7xl">
             {product ? product.name : 'Product'}
           </h1>
           {product && !product.active && (
-            <span className="mt-3 inline-block border border-border px-2 py-1 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-              Archived · hidden from the shop
-            </span>
+            <div className="mt-3">
+              <StatusBadge tone="muted">Archived · hidden from the shop</StatusBadge>
+            </div>
           )}
         </div>
         {product && canEdit && (
           <button
+            type="button"
             onClick={product.active ? archive : restore}
             disabled={isArchiving || isRestoring}
             className={`border px-6 py-3 text-xs font-black uppercase tracking-widest hover:opacity-80 disabled:opacity-50 ${
@@ -102,7 +93,11 @@ export const AdminProductEdit = () => {
             disabled={!canEdit}
             onSubmit={submit}
           />
-          <AdminProductVariants productId={product.id} productRef={product.ref} />
+          <AdminProductVariantsSection
+            productId={product.id}
+            productRef={product.ref}
+            productCategory={product.category}
+          />
         </>
       )}
     </div>

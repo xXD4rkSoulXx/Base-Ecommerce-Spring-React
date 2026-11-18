@@ -7,9 +7,11 @@ export const useAdminChangeOrderStatus = (id: number) => {
 
   return useMutation({
     mutationFn: (status: OrderStatus) => adminOrderService.changeStatus(id, { status }),
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: [...['admin', 'order'], id] })
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'order', id] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'orders'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'customer-orders'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })
     }
   })
 }

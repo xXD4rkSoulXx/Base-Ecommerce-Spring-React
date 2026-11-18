@@ -11,10 +11,12 @@ export const useAdminRejectReturn = () => {
 
   return useMutation({
     mutationFn: ({ id, reason }: RejectReturnVariables) => adminReturnService.reject(id, { reason }),
-    onSettled: () => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'returns'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'orders'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'order'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'customer-orders'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })
     }
   })
 }

@@ -40,5 +40,13 @@ public enum ProductSize {
     _43,
     _44,
     _45,
-    _46
+    _46;
+
+    public String getLabel() {
+        if (this == ONE_SIZE) {
+            return "One size";
+        }
+
+        return name().startsWith("_") ? name().substring(1) : name();
+    }
 }

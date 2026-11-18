@@ -6,10 +6,10 @@ export interface AdminCreateProductSkuRequest extends AdminUpdateProductSkuReque
 }
 
 export interface AdminUpdateProductSkuRequest {
-  weight: number
-  length: number
-  width: number
-  height: number
+  weightGrams: number
+  lengthCm: number
+  widthCm: number
+  heightCm: number
   discountPercentage: number
 }
 
@@ -19,10 +19,10 @@ export interface AdminProductSkuResponse {
   color: ProductColor
   cover?: string
   stock: number
-  weight: number
-  length: number
-  width: number
-  height: number
+  weightGrams: number
+  lengthCm: number
+  widthCm: number
+  heightCm: number
   discountPercentage: number
   active: boolean
 }

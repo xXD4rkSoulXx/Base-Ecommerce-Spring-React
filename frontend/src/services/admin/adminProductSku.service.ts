@@ -15,7 +15,7 @@ export const adminProductSkuService = {
   restoreSku: async (productId: number, skuId: number) => {
     await api.post(`/api/admin/products/${productId}/skus/${skuId}/restore`)
   },
-  
+
   getSkus: async (productId: number) => {
     const response = await api.get<AdminProductSkuResponse[]>(`/api/admin/products/${productId}/skus`)
 
@@ -23,10 +23,7 @@ export const adminProductSkuService = {
   },
 
   updateSku: async (productId: number, skuId: number, request: AdminUpdateProductSkuRequest) => {
-    const response = await api.put<AdminProductSkuResponse>(
-      `/api/admin/products/${productId}/skus/${skuId}`,
-      request
-    )
+    const response = await api.put<AdminProductSkuResponse>(`/api/admin/products/${productId}/skus/${skuId}`, request)
 
     return response.data
   }

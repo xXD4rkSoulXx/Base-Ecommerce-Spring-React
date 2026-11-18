@@ -1,6 +1,14 @@
-import { Boxes, Contact, LayoutDashboard, MessageSquare, Package, RotateCcw, ShoppingCart, Tag, Users, History } from 'lucide-react'
+import { Boxes, Contact, LayoutDashboard, MessageSquare, Package, RotateCcw, ShoppingCart, Tag, Users, History, type LucideIcon } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
-import type { AdminNavItem } from '@/types/admin'
+import type { Permission } from '@/types/user'
+
+interface AdminNavItem {
+  to: string
+  label: string
+  icon: LucideIcon
+  permission: Permission
+  end?: boolean
+}
 
 const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, permission: 'DASHBOARD_READ', end: true },

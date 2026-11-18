@@ -1,56 +1,37 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { isAxiosError } from 'axios'
 import { toast } from 'sonner'
-import { AdminRejectReturnDialog } from '@/components/dialog/admin/AdminRejectReturnDialog'
 import { AdminReturnCard } from '@/components/card/admin/AdminReturnCard'
-import { AdminReturnTabs } from '@/components/section/admin/AdminReturnTabs'
+import { AdminRejectReturnDialog } from '@/components/dialog/admin/AdminRejectReturnDialog'
+import { AdminReturnStatusFilter } from '@/components/filter/admin/AdminReturnStatusFilter'
+import { AdminPageTitle } from '@/components/ui/admin/AdminPageTitle'
 import { FormError } from '@/components/ui/FormError'
 import { Pagination } from '@/components/ui/Pagination'
-import { useAdminReturns } from '@/hooks/admin/useAdminReturns'
+import { TODO_FILTER } from '@/constants'
 import { useAdminApproveReturn } from '@/hooks/admin/useAdminApproveReturn'
 import { useAdminReceiveReturn } from '@/hooks/admin/useAdminReceiveReturn'
 import { useAdminRefundReturn } from '@/hooks/admin/useAdminRefundReturn'
+import { useAdminReturns } from '@/hooks/admin/useAdminReturns'
+import { usePagination } from '@/hooks/usePagination'
 import { usePermission } from '@/hooks/usePermission'
 import type { AdminReturnResponse } from '@/types/admin/adminReturn'
-
-const getErrorMessage = (error: unknown, fallback: string) =>
-  isAxiosError<{ message?: string }>(error) ? (error.response?.data?.message ?? fallback) : fallback
+import { getErrorMessage } from '@/utils/error'
 
 export const AdminReturns = () => {
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const { data, isLoading, isError } = useAdminReturns()
   const { mutate: approveReturn, isPending: isApproving } = useAdminApproveReturn()
   const { mutate: receiveReturn, isPending: isReceiving } = useAdminReceiveReturn()
   const { mutate: refundReturn, isPending: isRefunding } = useAdminRefundReturn()
   const canEdit = usePermission('RETURNS_WRITE')
   const [error, setError] = useState<string | null>(null)
-  const [dialogOpen, setDialogOpen] = useState(false)
   const [rejecting, setRejecting] = useState<AdminReturnResponse | null>(null)
 
-  const urlPage = Number(searchParams.get('page')) || 1
-  const currentPage = urlPage < 1 ? 1 : urlPage
   const returns = data?.content ?? []
   const totalPages = data?.totalPages ?? 0
+  const { currentPage, changePage } = usePagination(totalPages)
   const isBusy = isApproving || isReceiving || isRefunding
-
-  useEffect(() => {
-    if (totalPages > 0 && urlPage > totalPages) {
-      const next = new URLSearchParams(searchParams)
-
-      next.set('page', totalPages.toString())
-      setSearchParams(next, { replace: true })
-    }
-  }, [urlPage, totalPages, searchParams, setSearchParams])
-
-  const changePage = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      const next = new URLSearchParams(searchParams)
-
-      next.set('page', page.toString())
-      setSearchParams(next)
-    }
-  }
+  const isTodo = (searchParams.get('status') || TODO_FILTER) === TODO_FILTER
 
   const showError = (fallback: string) => (mutationError: unknown) =>
     setError(getErrorMessage(mutationError, fallback))
@@ -91,15 +72,12 @@ export const AdminReturns = () => {
   const openReject = (orderReturn: AdminReturnResponse) => {
     setError(null)
     setRejecting(orderReturn)
-    setDialogOpen(true)
   }
 
   return (
     <div className="p-6 md:p-10">
-      <h1 className="mb-8 font-display text-5xl uppercase tracking-tighter md:text-7xl">
-        {data ? `Returns (${data.totalElements})` : 'Returns'}
-      </h1>
-      <AdminReturnTabs />
+      <AdminPageTitle count={data?.totalElements}>Returns</AdminPageTitle>
+      <AdminReturnStatusFilter />
       {error && (
         <div className="mb-6">
           <FormError message={error} />
@@ -111,9 +89,7 @@ export const AdminReturns = () => {
       )}
       {data && returns.length === 0 && (
         <p className="border border-border bg-card p-10 text-center font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
-          {(searchParams.get('status') || ['admin', 'returns']) === 'TODO'
-            ? 'Nothing waiting for action'
-            : 'No returns found'}
+          {isTodo ? 'Nothing waiting for action' : 'No returns found'}
         </p>
       )}
       <div className="space-y-4">
@@ -131,12 +107,7 @@ export const AdminReturns = () => {
         ))}
       </div>
       <Pagination currentPage={currentPage} totalPages={totalPages} onChange={changePage} />
-      <AdminRejectReturnDialog
-        key={rejecting?.id ?? 'none'}
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        orderReturn={rejecting}
-      />
+      {rejecting && <AdminRejectReturnDialog orderReturn={rejecting} onClose={() => setRejecting(null)} />}
     </div>
   )
 }

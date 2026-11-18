@@ -12,10 +12,10 @@ export const adminReviewService = {
   },
 
   getReviews: async (request: AdminReviewSearchRequest) => {
-    const response = await api.get<PageResponse<AdminReviewResponse>>("/api/admin/reviews", {
+    const response = await api.get<PageResponse<AdminReviewResponse>>('/api/admin/reviews', {
       params: request
     })
 
     return response.data
-  },
+  }
 }

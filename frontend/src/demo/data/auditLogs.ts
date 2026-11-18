@@ -18,11 +18,8 @@ interface AuditEntry {
   entityType: AuditEntityType
   entityId: number
   entityLabel: string
-  details: string | null
+  details?: string
 }
-
-const REPETITIONS = 3
-const WINDOW_IN_DAYS = 25
 
 export const buildAuditLogs = (now: number, rng: Random, source: AuditSource): AdminAuditLogResponse[] => {
   const staff = source.team.filter((member) => member.role !== 'DEMO')
@@ -36,13 +33,13 @@ export const buildAuditLogs = (now: number, rng: Random, source: AuditSource): A
   const discountCode = () => rng.pick(source.discountCodes)
   const review = () => rng.pick(source.reviews)
 
-  const productEntry = (action: AuditAction, details: string | null): AuditEntry => {
+  const productEntry = (action: AuditAction, details?: string): AuditEntry => {
     const target = product()
 
     return { action, entityType: 'PRODUCT', entityId: target.id, entityLabel: target.ref, details }
   }
 
-  const variantEntry = (action: AuditAction, details: string | null): AuditEntry => {
+  const variantEntry = (action: AuditAction, details?: string): AuditEntry => {
     const { product: target, sku } = variant()
 
     return {
@@ -54,13 +51,13 @@ export const buildAuditLogs = (now: number, rng: Random, source: AuditSource): A
     }
   }
 
-  const returnEntry = (action: AuditAction, details: string | null): AuditEntry => {
+  const returnEntry = (action: AuditAction, details?: string): AuditEntry => {
     const target = orderReturn()
 
     return { action, entityType: 'RETURN', entityId: target.id, entityLabel: `#${target.id}`, details }
   }
 
-  const codeEntry = (action: AuditAction, details: string | null): AuditEntry => {
+  const codeEntry = (action: AuditAction, details?: string): AuditEntry => {
     const target = discountCode()
 
     return { action, entityType: 'DISCOUNT_CODE', entityId: target.id, entityLabel: target.code, details }
@@ -69,27 +66,27 @@ export const buildAuditLogs = (now: number, rng: Random, source: AuditSource): A
   const reviewEntry = (action: AuditAction): AuditEntry => {
     const target = review()
 
-    return { action, entityType: 'REVIEW', entityId: target.id, entityLabel: `#${target.id}`, details: null }
+    return { action, entityType: 'REVIEW', entityId: target.id, entityLabel: `#${target.id}` }
   }
 
   const templates: Array<() => AuditEntry> = [
-    () => productEntry('CREATED', null),
+    () => productEntry('CREATED'),
     () => productEntry('UPDATED', `Price ${rng.int(30, 90)}.00 → ${rng.int(91, 160)}.90`),
-    () => productEntry('ARCHIVED', null),
-    () => productEntry('RESTORED', null),
-    () => variantEntry('CREATED', null),
+    () => productEntry('ARCHIVED'),
+    () => productEntry('RESTORED'),
+    () => variantEntry('CREATED'),
     () => variantEntry('UPDATED', `Discount ${rng.int(0, 10)}% → ${rng.int(11, 30)}%`),
-    () => variantEntry('ARCHIVED', null),
-    () => variantEntry('RESTORED', null),
+    () => variantEntry('ARCHIVED'),
+    () => variantEntry('RESTORED'),
     () => {
       const delta = rng.int(1, 25)
 
       return variantEntry('STOCK_ADJUSTED', `+${delta} (stock now ${delta + rng.int(0, 30)})`)
     },
     () => variantEntry('STOCK_SET', `Set to ${rng.int(0, 60)}`),
-    () => variantEntry('IMAGE_UPLOADED', null),
-    () => variantEntry('IMAGE_DELETED', null),
-    () => variantEntry('COVER_CHANGED', null),
+    () => variantEntry('IMAGE_UPLOADED'),
+    () => variantEntry('IMAGE_DELETED'),
+    () => variantEntry('COVER_CHANGED'),
     () => {
       const target = order()
 
@@ -112,14 +109,14 @@ export const buildAuditLogs = (now: number, rng: Random, source: AuditSource): A
         details: `Parcel ${shipment.id}: ${rng.pick(['PRE_TRANSIT → IN_TRANSIT', 'IN_TRANSIT → OUT_FOR_DELIVERY', 'OUT_FOR_DELIVERY → DELIVERED'])}`
       }
     },
-    () => returnEntry('APPROVED', null),
+    () => returnEntry('APPROVED'),
     () => returnEntry('REJECTED', rng.pick(['Item shows signs of wear and was washed.', 'Outside of the allowed conditions.'])),
-    () => returnEntry('RECEIVED', null),
-    () => returnEntry('REFUNDED', null),
+    () => returnEntry('RECEIVED'),
+    () => returnEntry('REFUNDED'),
     () => codeEntry('CREATED', `${rng.int(5, 30)}%`),
     () => codeEntry('UPDATED', `${rng.int(5, 15)}% → ${rng.int(16, 30)}%`),
-    () => codeEntry('ACTIVATED', null),
-    () => codeEntry('DEACTIVATED', null),
+    () => codeEntry('ACTIVATED'),
+    () => codeEntry('DEACTIVATED'),
     () => reviewEntry('HIDDEN'),
     () => reviewEntry('SHOWN'),
     () => {
@@ -135,9 +132,9 @@ export const buildAuditLogs = (now: number, rng: Random, source: AuditSource): A
     }
   ]
 
-  return Array.from({ length: templates.length * REPETITIONS }, (_, index) => ({
+  return Array.from({ length: templates.length * 3 }, (_, index) => ({
     entry: templates[index % templates.length](),
-    createdAt: now - (0.02 + Math.pow(rng.next(), 1.2) * WINDOW_IN_DAYS) * DAY,
+    createdAt: now - (0.02 + Math.pow(rng.next(), 1.2) * 25) * DAY,
     actorEmail: rng.pick(staff).email
   }))
     .sort((a, b) => a.createdAt - b.createdAt)
