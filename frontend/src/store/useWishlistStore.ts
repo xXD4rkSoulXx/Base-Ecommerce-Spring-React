@@ -10,7 +10,7 @@ interface WishlistState {
   clearWishlist: () => void
 }
 
-export const MAX_GUEST_WISHLIST_ITEMS = 100
+const MAX_GUEST_WISHLIST_ITEMS = 100
 
 export const useWishlistStore = create<WishlistState>()(
   persist(
