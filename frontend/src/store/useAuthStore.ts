@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { clearSessionHint, markSessionHint } from '@/lib/sessionHint'
 import type { UserResponse } from '@/types/user'
 
 interface AuthState {
@@ -16,11 +17,17 @@ export const useAuthStore = create<AuthState>((set) => ({
   accessToken: null,
   isHydrated: false,
 
-  setAuth: (user, token) => set({ user, accessToken: token }),
+  setAuth: (user, token) => {
+    markSessionHint()
+    set({ user, accessToken: token })
+  },
 
   setUser: (user) => set({ user }),
 
-  clearAuth: () => set({ user: null, accessToken: null }),
+  clearAuth: () => {
+    clearSessionHint()
+    set({ user: null, accessToken: null })
+  },
 
   setHydrated: () => set({ isHydrated: true })
 }))

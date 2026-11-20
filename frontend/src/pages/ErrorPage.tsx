@@ -4,7 +4,7 @@ import { StatusScreenLayout } from '@/components/layout/StatusScreenLayout'
 import { StatusReadout } from '@/components/ui/StatusReadout'
 
 export const ErrorPage = () => (
-  <StatusScreenLayout glow="bottom">
+  <StatusScreenLayout title="Error" glow="bottom">
     <p className="font-mono text-[10px] uppercase tracking-[0.5em] text-neon-pink">System Failure · Node Crashed</p>
     <div className="mx-auto mt-8 flex h-24 w-24 animate-pulse items-center justify-center border-2 border-neon-pink">
       <AlertTriangle className="h-10 w-10 text-neon-pink" />

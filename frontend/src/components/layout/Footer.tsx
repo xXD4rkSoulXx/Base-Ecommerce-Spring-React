@@ -46,9 +46,9 @@ export const Footer = () => (
     <div className="mx-auto max-w-[1440px] px-6 py-20 md:px-10">
       <div className="grid gap-12 md:grid-cols-5">
         <div className="md:col-span-2">
-          <h3 className="font-display text-5xl italic tracking-tighter md:text-7xl">
+          <h2 className="font-display text-5xl italic tracking-tighter md:text-7xl">
             THIS IS A <span className="text-neon-cyan">DEMO</span>
-          </h3>
+          </h2>
           <p className="mt-4 max-w-md text-sm text-muted-foreground">
             {APP_NAME} is a portfolio project, not a real store. Payments run in Stripe test mode, shipping labels and
             tracking are simulated, and no order will ever be shipped.
@@ -56,9 +56,9 @@ export const Footer = () => (
         </div>
         {FOOTER_COLUMNS.map((column) => (
           <div key={column.title}>
-            <h4 className="mb-6 text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">
+            <h3 className="mb-6 text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">
               {column.title}
-            </h4>
+            </h3>
             <ul className="space-y-3 text-sm">
               {column.links.map((link) => (
                 <li key={link.to}>

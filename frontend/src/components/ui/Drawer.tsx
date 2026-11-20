@@ -51,7 +51,7 @@ export const Drawer = ({ open, onClose, label, hideFrom, children }: DrawerProps
           open ? 'opacity-100' : 'opacity-0'
         }`}
       />
-      <aside
+      <div
         role="dialog"
         aria-label={label}
         className={`absolute left-0 top-0 h-full w-[85%] max-w-sm border-r border-neon-cyan/30 bg-card p-6 shadow-2xl shadow-neon-cyan/10 transition-transform duration-300 ${
@@ -67,7 +67,7 @@ export const Drawer = ({ open, onClose, label, hideFrom, children }: DrawerProps
           <X className="h-5 w-5" />
         </button>
         {children}
-      </aside>
+      </div>
     </div>
   )
 }

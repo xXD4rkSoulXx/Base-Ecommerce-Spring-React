@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useId } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { FieldError } from '@/components/ui/FieldError'
@@ -15,6 +16,9 @@ interface ReviewFormProps {
 
 export const ReviewForm = ({ productId, onClose }: ReviewFormProps) => {
   const { mutate, isPending, error } = useCreateReview(productId)
+  const formId = useId()
+  const titleErrorId = `${formId}-title-error`
+  const descriptionErrorId = `${formId}-description-error`
 
   const {
     register,
@@ -52,21 +56,23 @@ export const ReviewForm = ({ productId, onClose }: ReviewFormProps) => {
           placeholder="Title"
           aria-label="Title"
           aria-invalid={!!errors.title}
+          aria-describedby={errors.title ? titleErrorId : undefined}
           className="w-full border border-border bg-background px-3 py-2.5 text-sm focus:border-neon-cyan focus:outline-none"
           {...register('title')}
         />
-        <FieldError message={errors.title?.message} />
+        <FieldError id={titleErrorId} message={errors.title?.message} />
       </div>
       <div>
         <textarea
           placeholder="Field report…"
           aria-label="Description"
           aria-invalid={!!errors.description}
+          aria-describedby={errors.description ? descriptionErrorId : undefined}
           rows={4}
           className="w-full resize-none border border-border bg-background px-3 py-2.5 text-sm focus:border-neon-cyan focus:outline-none"
           {...register('description')}
         />
-        <FieldError message={errors.description?.message} />
+        <FieldError id={descriptionErrorId} message={errors.description?.message} />
       </div>
       {error && <FormError message={getErrorMessage(error, 'Could not submit your review')} />}
       <div className="flex justify-end gap-3">

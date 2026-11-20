@@ -6,7 +6,7 @@ export const NotFound = () => {
   const location = useLocation()
 
   return (
-    <StatusScreenLayout glow="top">
+    <StatusScreenLayout title="Page Not Found" glow="top">
       <p className="font-mono text-[10px] uppercase tracking-[0.5em] text-neon-cyan">Signal Lost · Node Unreachable</p>
       <h1 className="mt-6 font-display text-[28vw] leading-none tracking-tighter md:text-[14rem]">
         <span className="text-neon-pink">4</span>

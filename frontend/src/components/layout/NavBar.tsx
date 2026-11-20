@@ -37,7 +37,7 @@ export const NavBar = () => {
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className="text-foreground/80 transition-colors hover:text-neon-cyan xl:hidden"
+              className="-m-2 p-2 text-foreground/80 transition-colors hover:text-neon-cyan xl:hidden"
               aria-label="Open menu"
             >
               <Menu className="h-5 w-5" />
@@ -66,19 +66,19 @@ export const NavBar = () => {
             <UtcClock className="hidden md:inline" />
             <Link
               to="/search"
-              className="text-foreground/70 transition-colors hover:text-neon-cyan"
+              className="-m-2 p-2 text-foreground/70 transition-colors hover:text-neon-cyan"
               aria-label="Search"
             >
               <Search className="h-4 w-4" />
             </Link>
             <Link
               to="/wishlist"
-              className="relative text-foreground/70 transition-colors hover:text-neon-pink"
+              className="relative -m-2 p-2 text-foreground/70 transition-colors hover:text-neon-pink"
               aria-label="Wishlist"
             >
               <Heart className="h-4 w-4" />
               {wishlistCount > 0 && (
-                <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center bg-neon-pink px-1 font-mono text-[9px] font-black text-primary-foreground">
+                <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center bg-neon-pink px-1 font-mono text-[9px] font-black text-primary-foreground">
                   {wishlistCount}
                 </span>
               )}
@@ -86,7 +86,7 @@ export const NavBar = () => {
             {user ? (
               <Link
                 to="/account"
-                className="text-foreground/70 transition-colors hover:text-neon-cyan"
+                className="-m-2 p-2 text-foreground/70 transition-colors hover:text-neon-cyan"
                 aria-label="Account"
               >
                 <User className="h-4 w-4" />

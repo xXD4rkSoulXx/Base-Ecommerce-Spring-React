@@ -13,7 +13,7 @@ interface AdminReviewRowProps {
 }
 
 export const AdminReviewRow = ({ review, canEdit, canViewProduct, isBusy, onToggle }: AdminReviewRowProps) => (
-  <tr className={`border-b border-border align-top last:border-b-0 ${review.hidden ? 'opacity-60' : ''}`}>
+  <tr className="border-b border-border align-top last:border-b-0">
     <td className="p-4">
       {canViewProduct ? (
         <Link to={`/admin/products/${review.productId}`} className="font-bold hover:text-neon-cyan">

@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useId } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { Package, RotateCcw } from 'lucide-react'
 import { toast } from 'sonner'
@@ -22,6 +23,9 @@ const RETURN_REASONS = Object.entries(RETURN_REASON_LABELS) as [ReturnReason, st
 
 export const ReturnDialog = ({ order, onClose }: ReturnDialogProps) => {
   const { mutate, isPending, error } = useRequestReturn(order.id)
+  const formId = useId()
+  const reasonErrorId = `${formId}-reason-error`
+  const commentErrorId = `${formId}-comment-error`
 
   const {
     register,
@@ -85,6 +89,7 @@ export const ReturnDialog = ({ order, onClose }: ReturnDialogProps) => {
             <select
               aria-label="Reason"
               aria-invalid={!!errors.reason}
+              aria-describedby={errors.reason ? reasonErrorId : undefined}
               className="w-full border border-border bg-background px-3 py-2 font-mono text-xs"
               {...register('reason')}
             >
@@ -95,18 +100,19 @@ export const ReturnDialog = ({ order, onClose }: ReturnDialogProps) => {
                 </option>
               ))}
             </select>
-            <FieldError message={errors.reason?.message} />
+            <FieldError id={reasonErrorId} message={errors.reason?.message} />
           </div>
           <div>
             <textarea
               aria-label="Comment"
               aria-invalid={!!errors.comment}
+              aria-describedby={errors.comment ? commentErrorId : undefined}
               rows={3}
               placeholder={reason === 'OTHER' ? 'Please describe the reason (required)' : 'Comment (optional)'}
               className="w-full resize-none border border-border bg-background px-3 py-2 font-mono text-xs"
               {...register('comment')}
             />
-            <FieldError message={errors.comment?.message} />
+            <FieldError id={commentErrorId} message={errors.comment?.message} />
           </div>
         </div>
         <p className="font-mono text-[10px] leading-relaxed text-muted-foreground">

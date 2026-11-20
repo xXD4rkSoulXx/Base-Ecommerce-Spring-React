@@ -17,7 +17,7 @@ export const CartItemRow = ({ item, lineTotal, onQuantityChange, onRemove }: Car
   const maxQuantity = Math.min(item.stock, MAX_CART_ITEM_QUANTITY)
 
   return (
-    <div className={`flex gap-4 border-b border-border py-6 md:gap-6 ${isUnavailable ? 'opacity-60' : ''}`}>
+    <div className="flex gap-4 border-b border-border py-6 md:gap-6">
       <Link to={`/product/${item.productId}`} className="block w-24 shrink-0 md:w-32">
         <div className="aspect-square overflow-hidden border border-border bg-card">
           <img src={item.cover} alt={item.productName} loading="lazy" className="h-full w-full object-cover" />

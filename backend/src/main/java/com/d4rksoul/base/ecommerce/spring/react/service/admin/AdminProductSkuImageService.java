@@ -12,7 +12,9 @@ import com.d4rksoul.base.ecommerce.spring.react.mapper.admin.AdminProductSkuImag
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderItemRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.ProductSkuImageRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.ProductSkuRepository;
+import com.d4rksoul.base.ecommerce.spring.react.storage.ImageOptimizer;
 import com.d4rksoul.base.ecommerce.spring.react.storage.ImageStorage;
+import com.d4rksoul.base.ecommerce.spring.react.storage.OptimizedImage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +41,7 @@ public class AdminProductSkuImageService {
     private final ProductSkuImageRepository productSkuImageRepository;
     private final OrderItemRepository orderItemRepository;
     private final ImageStorage imageStorage;
+    private final ImageOptimizer imageOptimizer;
     private final AdminAuditLogService adminAuditLogService;
     private final AdminProductSkuImageMapper adminProductSkuImageMapper;
 
@@ -58,7 +61,8 @@ public class AdminProductSkuImageService {
             throw new UncheckedIOException(exception);
         }
 
-        String path = imageStorage.store(content, detectFormat(content).getExtension());
+        OptimizedImage optimized = imageOptimizer.optimize(content, detectFormat(content));
+        String path = imageStorage.store(optimized.content(), optimized.format().getExtension());
 
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
@@ -178,7 +182,7 @@ public class AdminProductSkuImageService {
     private boolean startsWith(byte[] content, byte[] signature) {
         return content.length >= signature.length
             && Arrays.equals(
-                content, 0, signature.length, signature, 0, signature.length
-            );
+            content, 0, signature.length, signature, 0, signature.length
+        );
     }
 }

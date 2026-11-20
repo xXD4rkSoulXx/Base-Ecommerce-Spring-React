@@ -10,6 +10,7 @@ interface ProductShelfSectionProps {
   accent: ProductShelfAccent
   linkTo: string
   products: ProductResponse[] | undefined
+  isLoading: boolean
 }
 
 const ACCENT_CLASS_NAMES: Record<ProductShelfAccent, string> = {
@@ -17,8 +18,17 @@ const ACCENT_CLASS_NAMES: Record<ProductShelfAccent, string> = {
   cyan: 'text-neon-cyan'
 }
 
-export const ProductShelfSection = ({ title, highlight, accent, linkTo, products }: ProductShelfSectionProps) => {
-  if (!products || products.length === 0) {
+const SKELETON_ITEMS = Array.from({ length: 8 }, (_, index) => index)
+
+export const ProductShelfSection = ({
+  title,
+  highlight,
+  accent,
+  linkTo,
+  products,
+  isLoading
+}: ProductShelfSectionProps) => {
+  if (!isLoading && (!products || products.length === 0)) {
     return null
   }
 
@@ -31,15 +41,20 @@ export const ProductShelfSection = ({ title, highlight, accent, linkTo, products
             <span className={ACCENT_CLASS_NAMES[accent]}>{highlight}</span>
           </h2>
           <Link to={linkTo} className="text-[10px] font-bold uppercase tracking-[0.3em] hover:text-neon-cyan">
-            View All →
+            View All<span className="sr-only"> {title} {highlight}</span> →
           </Link>
         </div>
       </div>
       <div className="mx-auto max-w-[1440px] px-6 py-20 md:px-10">
         <div className="grid grid-cols-2 gap-x-4 gap-y-12 md:grid-cols-4 lg:gap-x-6">
-          {products.map((product, index) => (
-            <ProductCard key={product.id} product={product} index={index} />
-          ))}
+          {isLoading
+            ? SKELETON_ITEMS.map((item) => (
+                <div key={item} aria-hidden="true" className="animate-pulse">
+                  <div className="aspect-[3/4] border border-border bg-card" />
+                  <div className="mt-4 h-11" />
+                </div>
+              ))
+            : products?.map((product, index) => <ProductCard key={product.id} product={product} index={index} />)}
         </div>
       </div>
     </section>

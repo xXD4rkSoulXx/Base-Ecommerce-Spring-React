@@ -4,15 +4,18 @@ import type { ProductResponse } from '@/types/product'
 
 interface HomeHeroSectionProps {
   products: ProductResponse[] | undefined
+  isLoading: boolean
 }
 
-export const HomeHeroSection = ({ products }: HomeHeroSectionProps) => {
+export const HomeHeroSection = ({ products, isLoading }: HomeHeroSectionProps) => {
   const left = products?.find((product) => product.featuredSlot === 'LEFT')
   const right = products?.find((product) => product.featuredSlot === 'RIGHT')
 
-  if (!left && !right) {
+  if (!isLoading && !left && !right) {
     return null
   }
+
+  const hasTwoColumns = isLoading || (left && right)
 
   return (
     <section className="grid-noise relative overflow-hidden">
@@ -40,8 +43,14 @@ export const HomeHeroSection = ({ products }: HomeHeroSectionProps) => {
           </div>
         </div>
         <div
-          className={`col-span-12 grid gap-4 lg:col-span-7 lg:gap-6 ${left && right ? 'sm:grid-cols-2' : 'grid-cols-1'}`}
+          className={`col-span-12 grid gap-4 lg:col-span-7 lg:gap-6 ${hasTwoColumns ? 'sm:grid-cols-2' : 'grid-cols-1'}`}
         >
+          {isLoading && (
+            <>
+              <div className="aspect-[3/4] animate-pulse border border-border bg-card" />
+              <div className="aspect-[3/4] animate-pulse border border-border bg-card" />
+            </>
+          )}
           {left && <FeaturedProductCard product={left} />}
           {right && <FeaturedProductCard product={right} secondary />}
         </div>

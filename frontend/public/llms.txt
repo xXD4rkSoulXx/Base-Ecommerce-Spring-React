@@ -1,0 +1,25 @@
+# VELO_CITI
+
+> Urban technical streetwear store: limited drops, technical fabrics and worldwide delivery. A portfolio project, a full-stack e-commerce app built with Spring Boot and React.
+
+## Home
+
+- [Home](/): Featured drops, sales and best sellers.
+
+## Authentication
+
+- [Create account](/register): Register a customer account.
+- [Sign in](/login): Sign in to an existing account.
+
+## Shop
+
+- [Shop](/shop): Browse the full catalog, filter by category and sort by recency, price, discount, rating or best sellers.
+- [Search](/search): Search products by name.
+
+## Information
+
+- [About](/about): The brand and what it stands for.
+- [FAQ](/faq): Answers about orders, shipping and returns.
+- [Return policy](/returns): Items can be returned within 14 days of delivery.
+- [Terms and conditions](/terms): Terms of use of the store.
+- [Privacy policy](/privacy): How personal data is handled.

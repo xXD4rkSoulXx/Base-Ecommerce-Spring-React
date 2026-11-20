@@ -4,7 +4,7 @@ import { StatusScreenLayout } from '@/components/layout/StatusScreenLayout'
 import { StatusReadout } from '@/components/ui/StatusReadout'
 
 export const NoPermission = () => (
-  <StatusScreenLayout glow="top">
+  <StatusScreenLayout title="Access Denied" glow="top">
     <p className="font-mono text-[10px] uppercase tracking-[0.5em] text-neon-pink">
       Access Denied · Clearance Insufficient
     </p>

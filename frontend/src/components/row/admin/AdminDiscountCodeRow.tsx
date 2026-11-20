@@ -17,7 +17,7 @@ export const AdminDiscountCodeRow = ({
   onEdit,
   onToggle
 }: AdminDiscountCodeRowProps) => (
-  <tr className={`border-b border-border last:border-b-0 ${discountCode.active ? '' : 'opacity-60'}`}>
+  <tr className="border-b border-border last:border-b-0">
     <td className="p-4 font-mono text-sm font-bold">{discountCode.code}</td>
     <td className="p-4 font-mono text-sm text-neon-pink">-{discountCode.discountPercentage}%</td>
     <td className="p-4 font-mono text-sm">{discountCode.orders}</td>

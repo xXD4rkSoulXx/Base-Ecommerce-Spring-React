@@ -8,22 +8,30 @@ import { useNewArrivals } from '@/hooks/useNewArrivals'
 import { useTopRatedProducts } from '@/hooks/useTopRatedProducts'
 
 export const Home = () => {
-  const { data: featured } = useFeaturedProducts()
-  const { data: deals } = useDealProducts()
-  const { data: bestSellers } = useBestSellers()
-  const { data: newArrivals } = useNewArrivals()
-  const { data: topRated } = useTopRatedProducts()
+  const { data: featured, isPending: isFeaturedPending } = useFeaturedProducts()
+  const { data: deals, isPending: isDealsPending } = useDealProducts()
+  const { data: bestSellers, isPending: isBestSellersPending } = useBestSellers()
+  const { data: newArrivals, isPending: isNewArrivalsPending } = useNewArrivals()
+  const { data: topRated, isPending: isTopRatedPending } = useTopRatedProducts()
 
   return (
     <>
-      <HomeHeroSection products={featured} />
-      <ProductShelfSection title="On" highlight="Sale" accent="pink" linkTo="/shop?sort=discount" products={deals} />
+      <HomeHeroSection products={featured} isLoading={isFeaturedPending} />
+      <ProductShelfSection
+        title="On"
+        highlight="Sale"
+        accent="pink"
+        linkTo="/shop?sort=discount"
+        products={deals}
+        isLoading={isDealsPending}
+      />
       <ProductShelfSection
         title="Most"
         highlight="Wanted"
         accent="cyan"
         linkTo="/shop?sort=best_sellers"
         products={bestSellers}
+        isLoading={isBestSellersPending}
       />
       <section className="border-y border-border bg-card py-32">
         <div className="mx-auto max-w-[1440px] px-6 md:px-10">
@@ -43,6 +51,7 @@ export const Home = () => {
         accent="pink"
         linkTo="/shop?sort=recent"
         products={newArrivals}
+        isLoading={isNewArrivalsPending}
       />
       <ProductShelfSection
         title="Top"
@@ -50,6 +59,7 @@ export const Home = () => {
         accent="cyan"
         linkTo="/shop?sort=top_rated"
         products={topRated}
+        isLoading={isTopRatedPending}
       />
     </>
   )

@@ -89,7 +89,7 @@ export const Login = () => {
       </div>
       <p className="mt-10 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
         New operator?{' '}
-        <Link to="/register" className="text-neon-cyan hover:text-neon-pink">
+        <Link to="/register" className="text-neon-cyan underline underline-offset-2 hover:text-neon-pink">
           Request access →
         </Link>
       </p>

@@ -3,6 +3,7 @@ import { isDemoSession, unmarkDemoSession } from '@/demo/demoSession'
 import { DEMO_ACCESS_TOKEN, DEMO_USER } from '@/demo/data/people'
 import { startDemo } from '@/demo/startDemo'
 import { refreshAuth } from '@/lib/refreshAuth'
+import { hasSessionHint } from '@/lib/sessionHint'
 import { useAuthStore } from '@/store/useAuthStore'
 
 export const useInitializeAuth = () => {
@@ -25,7 +26,9 @@ export const useInitializeAuth = () => {
         }
       }
 
-      await refreshAuth().catch(() => {})
+      if (hasSessionHint()) {
+        await refreshAuth().catch(() => {})
+      }
     }
 
     initialize().finally(() => {

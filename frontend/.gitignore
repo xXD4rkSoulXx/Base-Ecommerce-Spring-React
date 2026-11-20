@@ -24,3 +24,6 @@ dist-ssr
 
 # Environment Variables
 .env
+
+# Bundle analysis
+stats.html

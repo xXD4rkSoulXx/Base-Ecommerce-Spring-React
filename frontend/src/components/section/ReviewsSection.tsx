@@ -1,7 +1,6 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { MessageSquarePlus } from 'lucide-react'
 import { ReviewCard } from '@/components/card/ReviewCard'
-import { ReviewForm } from '@/components/form/ReviewForm'
 import { ReviewLockedNotice } from '@/components/ui/ReviewLockedNotice'
 import { StarRating } from '@/components/ui/StarRating'
 import { useInfiniteProductReviews } from '@/hooks/useInfiniteProductReviews'
@@ -10,6 +9,12 @@ import { useReviewEligibility } from '@/hooks/useReviewEligibility'
 import { useAuthStore } from '@/store/useAuthStore'
 import type { ProductDetailsResponse } from '@/types/product'
 import type { ReviewLockReason } from '@/types/review'
+
+const ReviewForm = lazy(() =>
+  import('@/components/form/ReviewForm').then((module) => ({
+    default: module.ReviewForm
+  }))
+)
 
 interface ReviewsSectionProps {
   product: ProductDetailsResponse
@@ -59,7 +64,13 @@ export const ReviewsSection = ({ product }: ReviewsSectionProps) => {
             <MessageSquarePlus className="h-4 w-4" /> Write a Review
           </button>
         )}
-        {status === 'ELIGIBLE' && isFormOpen && <ReviewForm productId={id} onClose={() => setIsFormOpen(false)} />}
+        {status === 'ELIGIBLE' && isFormOpen && (
+          <Suspense
+            fallback={<p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Loading...</p>}
+          >
+            <ReviewForm productId={id} onClose={() => setIsFormOpen(false)} />
+          </Suspense>
+        )}
         {status && status !== 'ELIGIBLE' && <ReviewLockedNotice message={REVIEW_LOCKED_MESSAGES[status]} />}
       </div>
       <div className="mt-10 grid gap-4 md:grid-cols-2">

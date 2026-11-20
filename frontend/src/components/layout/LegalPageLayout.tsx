@@ -15,7 +15,7 @@ export const LegalPageLayout = ({ title, updated, children }: LegalPageLayoutPro
       <div className="mt-8 border border-neon-pink/40 bg-neon-pink/5 p-4">
         <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-neon-pink">Demo store</p>
         <p className="mt-2 text-sm text-muted-foreground">
-          ${APP_NAME} is a portfolio project, not a real store. Payments run in Stripe test mode, shipping labels and
+          {APP_NAME} is a portfolio project, not a real store. Payments run in Stripe test mode, shipping labels and
           tracking are simulated, and no order will ever be shipped.
         </p>
       </div>

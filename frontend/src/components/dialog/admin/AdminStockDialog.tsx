@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useId } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { FieldError } from '@/components/ui/FieldError'
@@ -22,6 +23,8 @@ const MODES: { value: StockFormValues['mode']; label: string }[] = [
 ]
 
 export const AdminStockDialog = ({ item, onClose }: AdminStockDialogProps) => {
+  const amountErrorId = useId()
+
   const {
     register,
     control,
@@ -97,11 +100,12 @@ export const AdminStockDialog = ({ item, onClose }: AdminStockDialogProps) => {
           step={1}
           aria-label={mode === 'ADJUST' ? 'Amount to adjust the stock by' : 'New stock value'}
           aria-invalid={!!errors.amount}
+          aria-describedby={errors.amount ? amountErrorId : undefined}
           placeholder={mode === 'ADJUST' ? 'e.g. 10 or -2' : 'e.g. 25'}
           className="mt-4 w-full border border-border bg-background px-3 py-2.5 font-mono text-sm outline-none focus:border-neon-cyan"
           {...register('amount', { valueAsNumber: true })}
         />
-        <FieldError message={errors.amount?.message} />
+        <FieldError id={amountErrorId} message={errors.amount?.message} />
         <p className="mt-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
           New stock: {isValidAmount && newStock >= 0 ? newStock : '—'}
         </p>

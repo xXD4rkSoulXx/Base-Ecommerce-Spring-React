@@ -36,6 +36,7 @@ export const StarRating = ({ value, onChange, size = 18, readOnly = false }: Sta
             key={n}
             type="button"
             aria-label={`${n} star${n > 1 ? 's' : ''}`}
+            aria-pressed={n === rounded}
             onClick={() => onChange?.(n)}
             className={`transition-colors hover:scale-110 ${color}`}
           >

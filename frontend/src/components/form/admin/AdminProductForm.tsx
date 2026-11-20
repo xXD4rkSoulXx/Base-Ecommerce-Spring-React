@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useId } from 'react'
 import { useForm } from 'react-hook-form'
 import { Field } from '@/components/ui/Field'
 import { FieldError } from '@/components/ui/FieldError'
@@ -32,6 +33,8 @@ export const AdminProductForm = ({
   disabled = false,
   onSubmit
 }: AdminProductFormProps) => {
+  const descriptionErrorId = useId()
+
   const {
     register,
     handleSubmit,
@@ -71,13 +74,14 @@ export const AdminProductForm = ({
             rows={6}
             disabled={disabled}
             aria-invalid={!!errors.description}
+            aria-describedby={errors.description ? descriptionErrorId : undefined}
             className={`mt-2 w-full border bg-card px-4 py-3 text-sm transition-colors focus:border-neon-cyan focus:outline-none disabled:opacity-50 ${
               errors.description ? 'border-destructive' : 'border-border'
             }`}
             {...register('description')}
           />
         </label>
-        <FieldError message={errors.description?.message} />
+        <FieldError id={descriptionErrorId} message={errors.description?.message} />
       </div>
       <div className="grid gap-5 sm:grid-cols-2">
         <Field

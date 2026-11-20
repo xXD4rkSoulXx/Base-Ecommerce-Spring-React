@@ -26,7 +26,7 @@ export const AdminVariantRow = ({
   onArchive,
   onRestore
 }: AdminVariantRowProps) => (
-  <tr className={`border-b border-border last:border-b-0 ${variant.active ? '' : 'opacity-60'}`}>
+  <tr className="border-b border-border last:border-b-0">
     <td className="p-4">
       <div className="flex items-center gap-3">
         <div className="h-12 w-12 shrink-0 overflow-hidden border border-border bg-background">

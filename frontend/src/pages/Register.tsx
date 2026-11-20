@@ -1,9 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useId } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Lock, Mail, User } from 'lucide-react'
 import { AuthPageLayout } from '@/components/layout/AuthPageLayout'
 import { Field } from '@/components/ui/Field'
+import { FieldError } from '@/components/ui/FieldError'
 import { FormError } from '@/components/ui/FormError'
 import { Perk } from '@/components/ui/Perk'
 import { useRegister } from '@/hooks/useRegister'
@@ -17,6 +19,8 @@ const PERKS = [
 ]
 
 export const Register = () => {
+  const acceptErrorId = useId()
+
   const {
     register,
     handleSubmit,
@@ -110,22 +114,23 @@ export const Register = () => {
               type="checkbox"
               disabled={isPending}
               aria-invalid={!!errors.accept}
+              aria-describedby={errors.accept ? acceptErrorId : undefined}
               className="mt-0.5 h-3 w-3 accent-neon-pink"
               {...register('accept')}
             />
             <span className="font-mono uppercase leading-relaxed tracking-widest text-muted-foreground">
               I accept the{' '}
-              <Link to="/terms" className="text-neon-cyan hover:text-neon-pink">
+              <Link to="/terms" className="text-neon-cyan underline underline-offset-2 hover:text-neon-pink">
                 Terms
               </Link>{' '}
               and the{' '}
-              <Link to="/privacy" className="text-neon-cyan hover:text-neon-pink">
+              <Link to="/privacy" className="text-neon-cyan underline underline-offset-2 hover:text-neon-pink">
                 Privacy policy
               </Link>
               .
             </span>
           </label>
-          {errors.accept && <p className="mt-2 font-mono text-[10px] text-destructive">{errors.accept.message}</p>}
+          <FieldError id={acceptErrorId} message={errors.accept?.message} />
         </div>
         <button
           type="submit"
@@ -138,7 +143,7 @@ export const Register = () => {
       </form>
       <p className="mt-10 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
         Already an operator?{' '}
-        <Link to="/login" className="text-neon-cyan hover:text-neon-pink">
+        <Link to="/login" className="text-neon-cyan underline underline-offset-2 hover:text-neon-pink">
           Sign in →
         </Link>
       </p>
