@@ -15,6 +15,10 @@ export const orderService = {
     return response.data
   },
 
+  cancelOrder: async (orderId: number) => {
+    await api.post(`/api/orders/${orderId}/cancel`)
+  },
+
   getOrders: async (request: OrderSearchRequest) => {
     const response = await api.get<PageResponse<OrderSummaryResponse>>('/api/orders', {
       params: request

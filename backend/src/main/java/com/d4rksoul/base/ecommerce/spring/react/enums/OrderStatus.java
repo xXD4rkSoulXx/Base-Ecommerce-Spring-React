@@ -12,7 +12,8 @@ public enum OrderStatus {
     SHIPPED,
     DELIVERED,
     RETURN_REQUESTED,
-    REFUNDED;
+    REFUNDED,
+    CANCELED_REFUNDED;
 
     public static final List<OrderStatus> HISTORY_STATUSES = List.of(
         PAID,
@@ -21,6 +22,16 @@ public enum OrderStatus {
         DELIVERED,
         RETURN_REQUESTED,
         REFUNDED
+    );
+
+    public static final List<OrderStatus> VISIBLE_STATUSES = List.of(
+        PAID,
+        PROCESSING,
+        SHIPPED,
+        DELIVERED,
+        RETURN_REQUESTED,
+        REFUNDED,
+        CANCELED_REFUNDED
     );
 
     public static final List<OrderStatus> FULFILLMENT_STATUSES = List.of(
@@ -32,6 +43,7 @@ public enum OrderStatus {
         PENDING,
         FAILED,
         CANCELED,
-        REFUNDED
+        REFUNDED,
+        CANCELED_REFUNDED
     );
 }

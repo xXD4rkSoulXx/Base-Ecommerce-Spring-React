@@ -200,6 +200,18 @@ public class StripeMapper {
             .build();
     }
 
+    public RefundCreateParams toCancellationRefundParams(Order order) {
+        return RefundCreateParams.builder()
+            .setPaymentIntent(order.getStripePaymentIntentId())
+            .setAmount(
+                order.getTotalAmount().setScale(2, RoundingMode.HALF_UP).movePointRight(2)
+                    .longValueExact()
+            )
+            .setReason(RefundCreateParams.Reason.REQUESTED_BY_CUSTOMER)
+            .putMetadata("orderId", String.valueOf(order.getId()))
+            .build();
+    }
+
     public RefundCreateParams toRefundCreateParams(
         Order order, OrderReturn orderReturn, BigDecimal amount
     ) {

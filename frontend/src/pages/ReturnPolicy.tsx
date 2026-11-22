@@ -4,10 +4,22 @@ import { LEGAL_LAST_UPDATED, RETURN_REASON_LABELS } from '@/constants'
 
 const SECTIONS: LegalSectionProps[] = [
   {
+    title: 'Cancel an order',
+    paragraphs: [
+      'You can cancel an order after it has been paid, for as long as its status is Paid. Once we start preparing it (Processing) it can no longer be canceled, but you can return it after delivery.'
+    ],
+    items: [
+      'Open your account, select the order and click Cancel order.',
+      'The full amount you paid, including shipping and tax, is refunded to the original payment method.',
+      'The items go back into stock.',
+      'If you used a discount code, it is released and you can use it again.'
+    ]
+  },
+  {
     title: 'Return window',
     paragraphs: [
       'You can return items within 14 days of delivery. The 14 days start on the date your order was first marked as Delivered.',
-      'Orders that have not been delivered yet cannot be returned. In this demo store an order cannot be cancelled after payment either.'
+      'Orders that have not been delivered yet cannot be returned, but you can cancel them while they are still Paid.'
     ]
   },
   {
@@ -54,13 +66,13 @@ const SECTIONS: LegalSectionProps[] = [
   {
     title: 'Discount codes',
     paragraphs: [
-      'A discount code can be used once per account. If you return only part of an order, the code stays used. If you return every item and the order becomes Refunded, the code is released and you can use it again.'
+      'A discount code can be used once per account. If you return only part of an order, the code stays used. If you cancel an order, or return every item and the order becomes Refunded, the code is released and you can use it again.'
     ]
   },
   {
     title: 'If a refund fails',
     paragraphs: [
-      'If the payment provider cannot process the refund, the return is marked as Failed and its items become available to return again. You can submit a new request.'
+      'If the payment provider cannot process a return refund, the return is marked as Failed and its items become available to return again. You can submit a new request. If a cancellation refund fails, the order stays Paid and you can try again.'
     ]
   }
 ]

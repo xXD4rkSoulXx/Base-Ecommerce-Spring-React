@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Activity, Box, Clock, MapPin, Package, RotateCcw, Truck } from 'lucide-react'
+import { Activity, Ban, Box, Clock, MapPin, Package, RotateCcw, Truck } from 'lucide-react'
 import { OrderStatusBadge } from '@/components/badge/OrderStatusBadge'
+import { CancelOrderDialog } from '@/components/dialog/CancelOrderDialog'
 import { ReturnDialog } from '@/components/dialog/ReturnDialog'
 import { OrderItemRow } from '@/components/row/OrderItemRow'
 import { ParcelRow } from '@/components/row/ParcelRow'
@@ -23,6 +24,7 @@ interface OrderDetailDialogProps {
 export const OrderDetailDialog = ({ orderId, onClose }: OrderDetailDialogProps) => {
   const { data: order, isLoading } = useOrder(orderId)
   const [returnOpen, setReturnOpen] = useState(false)
+  const [cancelOpen, setCancelOpen] = useState(false)
 
   if (orderId === null) {
     return null
@@ -57,6 +59,21 @@ export const OrderDetailDialog = ({ orderId, onClose }: OrderDetailDialogProps) 
                 </div>
               </InfoBox>
             </div>
+            {order.status === 'PAID' && (
+              <div className="flex flex-wrap items-center justify-between gap-3 border border-border p-4">
+                <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  You can cancel until we start preparing your order.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setCancelOpen(true)}
+                  className="flex items-center gap-1.5 border border-neon-pink/40 px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-neon-pink hover:bg-neon-pink/10"
+                >
+                  <Ban className="h-3 w-3" />
+                  Cancel order
+                </button>
+              </div>
+            )}
             {order.events.length > 0 && (
               <div>
                 <SectionTitle as="h3" icon={<Clock className="h-3.5 w-3.5" />}>
@@ -124,6 +141,7 @@ export const OrderDetailDialog = ({ orderId, onClose }: OrderDetailDialogProps) 
         )}
       </Modal>
       {returnOpen && order && <ReturnDialog order={order} onClose={() => setReturnOpen(false)} />}
+      {cancelOpen && order && <CancelOrderDialog order={order} onClose={() => setCancelOpen(false)} />}
     </>
   )
 }

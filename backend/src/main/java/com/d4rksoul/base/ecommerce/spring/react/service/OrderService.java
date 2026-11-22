@@ -13,6 +13,7 @@ import com.d4rksoul.base.ecommerce.spring.react.dto.response.OrderStatusEventRes
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.OrderSummaryResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.PageResponse;
 import com.d4rksoul.base.ecommerce.spring.react.dto.response.ShippingRateResponse;
+import com.d4rksoul.base.ecommerce.spring.react.dto.result.StripeRefundResult;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Cart;
 import com.d4rksoul.base.ecommerce.spring.react.entity.CartItem;
 import com.d4rksoul.base.ecommerce.spring.react.entity.DiscountCode;
@@ -30,9 +31,12 @@ import com.d4rksoul.base.ecommerce.spring.react.enums.ReturnStatus;
 import com.d4rksoul.base.ecommerce.spring.react.exception.EmptyCartException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.InsufficientStockException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidDiscountCodeException;
+import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidOrderTransitionException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidShippingRateException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.OrderNotFoundException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.ProductUnavailableException;
+import com.d4rksoul.base.ecommerce.spring.react.exception.RefundFailedException;
+import com.d4rksoul.base.ecommerce.spring.react.exception.StripeApiException;
 import com.d4rksoul.base.ecommerce.spring.react.integration.stripe.StripeApiClient;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.OrderItemMapper;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.OrderMapper;
@@ -64,13 +68,16 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.d4rksoul.base.ecommerce.spring.react.enums.OrderStatus.HISTORY_STATUSES;
+import static com.d4rksoul.base.ecommerce.spring.react.enums.OrderStatus.VISIBLE_STATUSES;
 
 @Service
 @RequiredArgsConstructor
 public class OrderService {
+
+    private static final Set<String> FAILED_REFUND_STATUSES = Set.of("failed", "canceled");
 
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
@@ -85,6 +92,7 @@ public class OrderService {
     private final UserService userService;
     private final ProductSkuImageService productSkuImageService;
     private final ShippingRateService shippingRateService;
+    private final OrderStatusEventService orderStatusEventService;
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
     private final OrderStatusEventMapper orderStatusEventMapper;
@@ -182,7 +190,7 @@ public class OrderService {
 
         Specification<Order> specification = Specification
             .where(OrderSpecification.belongsToUser(user.getId()))
-            .and(OrderSpecification.hasStatusIn(HISTORY_STATUSES))
+            .and(OrderSpecification.hasStatusIn(VISIBLE_STATUSES))
             .and(OrderSpecification.createdFrom(filter.from()))
             .and(OrderSpecification.createdTo(filter.to()))
             .and(OrderSpecification.matchesSearch(filter.q()))
@@ -199,7 +207,7 @@ public class OrderService {
     public OrderDetailsResponse getOrder(Long id) {
         User user = userService.getCurrentUser();
 
-        Order order = orderRepository.findByIdAndUserIdAndStatusIn(id, user.getId(), HISTORY_STATUSES)
+        Order order = orderRepository.findByIdAndUserIdAndStatusIn(id, user.getId(), VISIBLE_STATUSES)
             .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + id));
 
         return buildDetails(order);
@@ -208,6 +216,41 @@ public class OrderService {
     @Transactional
     public void cancelOrder(Order order) {
         releaseReservation(order, OrderStatus.CANCELED);
+    }
+
+    @Transactional
+    public void cancelPaidOrder(Long id) {
+        User user = userService.getCurrentUser();
+
+        Order order = orderRepository.findByIdAndUserIdAndStatusIn(id, user.getId(), VISIBLE_STATUSES)
+            .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + id));
+
+        boolean transitioned = orderStatusEventService
+            .transition(id, OrderStatus.PAID, OrderStatus.CANCELED_REFUNDED);
+        if (!transitioned) {
+            throw new InvalidOrderTransitionException(
+                "Order " + id + " can no longer be canceled. Only paid orders that are not being prepared can be."
+            );
+        }
+
+        for (OrderItem item : order.getOrderItems()) {
+            productSkuRepository.incrementStock(item.getProductSku().getId(), item.getQuantity());
+        }
+
+        if (order.getTotalAmount().signum() == 0) {
+            return;
+        }
+
+        StripeRefundResult refund;
+        try {
+            refund = stripeApiClient.createCancellationRefund(order);
+        } catch (StripeApiException _) {
+            throw new RefundFailedException("The refund could not be completed. Please try again.");
+        }
+
+        if (FAILED_REFUND_STATUSES.contains(refund.status())) {
+            throw new RefundFailedException("The refund could not be completed. Please try again.");
+        }
     }
 
     public void releaseReservation(Order order, OrderStatus newStatus) {

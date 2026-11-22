@@ -41,7 +41,12 @@ export const ProductShelfSection = ({
             <span className={ACCENT_CLASS_NAMES[accent]}>{highlight}</span>
           </h2>
           <Link to={linkTo} className="text-[10px] font-bold uppercase tracking-[0.3em] hover:text-neon-cyan">
-            View All<span className="sr-only"> {title} {highlight}</span> →
+            View All
+            <span className="sr-only">
+              {' '}
+              {title} {highlight}
+            </span>{' '}
+            →
           </Link>
         </div>
       </div>

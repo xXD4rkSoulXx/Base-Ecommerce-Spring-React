@@ -1,6 +1,7 @@
 import type { ProductColor, ProductSize } from '@/types/product'
 
-export type OrderStatus = 'PAID' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'RETURN_REQUESTED' | 'REFUNDED'
+export type OrderStatus =
+  'PAID' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'RETURN_REQUESTED' | 'REFUNDED' | 'CANCELED_REFUNDED'
 
 export type ShipmentStatus = 'PRE_TRANSIT' | 'IN_TRANSIT' | 'OUT_FOR_DELIVERY' | 'DELIVERED' | 'FAILURE'
 

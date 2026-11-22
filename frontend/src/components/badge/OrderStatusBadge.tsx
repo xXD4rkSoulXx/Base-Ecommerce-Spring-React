@@ -11,7 +11,8 @@ const ORDER_STATUS_COLORS: Record<OrderStatus, string> = {
   SHIPPED: 'text-neon-cyan',
   DELIVERED: 'text-muted-foreground',
   RETURN_REQUESTED: 'text-neon-pink',
-  REFUNDED: 'text-muted-foreground'
+  REFUNDED: 'text-muted-foreground',
+  CANCELED_REFUNDED: 'text-muted-foreground'
 }
 
 export const OrderStatusBadge = ({ status }: OrderStatusBadgeProps) => (

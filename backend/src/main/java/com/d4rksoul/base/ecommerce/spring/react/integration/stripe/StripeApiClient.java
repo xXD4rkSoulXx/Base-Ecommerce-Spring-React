@@ -135,6 +135,21 @@ public class StripeApiClient {
         }
     }
 
+    public StripeRefundResult createCancellationRefund(Order order) {
+        try {
+            RequestOptions options = RequestOptions.builder()
+                .setIdempotencyKey("cancel-refund-" + order.getId())
+                .build();
+
+            RefundCreateParams refundParams = stripeMapper.toCancellationRefundParams(order);
+            Refund refund = stripeClient.v1().refunds().create(refundParams, options);
+
+            return stripeMapper.toRefundResult(refund);
+        } catch (StripeException e) {
+            throw new StripeApiException("Failed to create refund with Stripe. ", e);
+        }
+    }
+
     public StripeRefundResult createRefund(
         Order order, OrderReturn orderReturn, BigDecimal amount
     ) {

@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.d4rksoul.base.ecommerce.spring.react.enums.OrderStatus.HISTORY_STATUSES;
+import static com.d4rksoul.base.ecommerce.spring.react.enums.OrderStatus.VISIBLE_STATUSES;
 
 @Service
 @RequiredArgsConstructor
@@ -85,7 +85,7 @@ public class AdminCustomerService {
 
         Specification<Order> specification = Specification
             .where(OrderSpecification.belongsToUser(id))
-            .and(OrderSpecification.hasStatusIn(HISTORY_STATUSES))
+            .and(OrderSpecification.hasStatusIn(VISIBLE_STATUSES))
             .and(OrderSpecification.orderByRecentDesc());
 
         Pageable pageable = PageRequest.of(filter.page(), filter.size());
@@ -95,8 +95,10 @@ public class AdminCustomerService {
         return pageMapper.toDto(ordersPage);
     }
 
-    private Map<Long, CustomerOrderStatsProjection> findStatsByUserId(Collection<Long> userIds) {
-        return orderRepository.findCustomerStatsByUserIds(userIds, HISTORY_STATUSES).stream()
+    private Map<Long, CustomerOrderStatsProjection> findStatsByUserId(
+        Collection<Long> userIds
+    ) {
+        return orderRepository.findCustomerStatsByUserIds(userIds, VISIBLE_STATUSES).stream()
             .collect(Collectors.toMap(CustomerOrderStatsProjection::userId, Function.identity()));
     }
 }

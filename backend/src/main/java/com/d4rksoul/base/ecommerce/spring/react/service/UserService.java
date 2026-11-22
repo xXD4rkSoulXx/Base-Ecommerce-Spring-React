@@ -30,7 +30,7 @@ public class UserService {
     public ProfileResponse getProfile() {
         User user = getCurrentUser();
         long totalOrders = orderRepository
-            .countByUserIdAndStatusIn(user.getId(), OrderStatus.HISTORY_STATUSES);
+            .countByUserIdAndStatusIn(user.getId(), OrderStatus.VISIBLE_STATUSES);
 
         return userMapper.toProfileDto(user, totalOrders);
     }

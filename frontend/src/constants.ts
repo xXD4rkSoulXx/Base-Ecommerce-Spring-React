@@ -5,7 +5,7 @@ import type { OrderStatus, ReturnReason, ReturnStatus, ShipmentStatus } from '@/
 export const APP_NAME = 'VELO_CITI'
 export const MAIN_CONTENT_ID = 'main-content'
 
-export const LEGAL_LAST_UPDATED = 'October 27, 2026'
+export const LEGAL_LAST_UPDATED = 'November 22, 2026'
 
 export const MAX_CART_ITEM_QUANTITY = 10
 export const MAX_CART_LINES = 20
@@ -34,7 +34,8 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   SHIPPED: 'Shipped',
   DELIVERED: 'Delivered',
   RETURN_REQUESTED: 'Return Requested',
-  REFUNDED: 'Refunded'
+  REFUNDED: 'Refunded',
+  CANCELED_REFUNDED: 'Canceled'
 }
 
 export const SHIPMENT_STATUS_LABELS: Record<ShipmentStatus, string> = {

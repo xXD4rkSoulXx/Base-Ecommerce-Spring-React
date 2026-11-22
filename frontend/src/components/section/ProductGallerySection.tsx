@@ -29,7 +29,7 @@ export const ProductGallerySection = ({ product, images, activeIndex, onSelect }
   return (
     <div className="relative">
       <div className="aspect-[4/5] overflow-hidden border border-border bg-card">
-                <img src={images[activeIndex]} alt={product.name} fetchPriority="high" className="h-full w-full object-cover" />
+        <img src={images[activeIndex]} alt={product.name} fetchPriority="high" className="h-full w-full object-cover" />
       </div>
       <div className="absolute left-4 top-4 bg-background/70 px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-widest backdrop-blur">
         REF: {product.ref}

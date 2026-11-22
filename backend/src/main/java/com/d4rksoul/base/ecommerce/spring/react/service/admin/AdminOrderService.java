@@ -62,7 +62,7 @@ public class AdminOrderService {
             .where(OrderSpecification.hasStatusIn(
                 Boolean.TRUE.equals(filter.pending())
                     ? OrderStatus.FULFILLMENT_STATUSES
-                    : OrderStatus.HISTORY_STATUSES
+                    : OrderStatus.VISIBLE_STATUSES
             ))
             .and(OrderSpecification.hasStatus(filter.status()))
             .and(OrderSpecification.createdFrom(filter.from()))
@@ -82,7 +82,7 @@ public class AdminOrderService {
 
     @Transactional(readOnly = true)
     public AdminOrderDetailsResponse getOrder(Long id) {
-        Order order = orderRepository.findByIdAndStatusIn(id, OrderStatus.HISTORY_STATUSES)
+        Order order = orderRepository.findByIdAndStatusIn(id, OrderStatus.VISIBLE_STATUSES)
             .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + id));
 
         OrderDetailsResponse details = orderService.buildDetails(order);
@@ -100,7 +100,7 @@ public class AdminOrderService {
 
     @Transactional
     public void changeStatus(Long id, OrderStatus target) {
-        Order order = orderRepository.findByIdAndStatusIn(id, OrderStatus.HISTORY_STATUSES)
+        Order order = orderRepository.findByIdAndStatusIn(id, OrderStatus.VISIBLE_STATUSES)
             .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + id));
 
         if (order.getStatus() != OrderStatus.PAID || target != OrderStatus.PROCESSING) {

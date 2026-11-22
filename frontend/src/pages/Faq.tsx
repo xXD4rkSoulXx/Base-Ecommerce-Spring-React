@@ -33,7 +33,8 @@ const FAQS = [
   },
   {
     question: 'Can I cancel an order?',
-    answer: 'Not after payment in this demo. Once it is delivered you can return it within 14 days.'
+    answer:
+      'Yes, while it is still Paid and has not started processing. Open the order in your account and click Cancel order. You are refunded in full. Once it is delivered you can return it within 14 days.'
   },
   {
     question: 'How do I return an item?',
@@ -51,7 +52,7 @@ const FAQS = [
   {
     question: 'Can I reuse a discount code?',
     answer:
-      'Codes can be used once per account. If you return the entire order and it becomes Refunded, the code is released.'
+      'Codes can be used once per account. If you cancel an order, or return the entire order and it becomes Refunded, the code is released.'
   },
   {
     question: 'What happens to my data?',
