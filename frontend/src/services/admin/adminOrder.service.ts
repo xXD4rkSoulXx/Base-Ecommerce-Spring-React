@@ -23,6 +23,14 @@ export const adminOrderService = {
     return response.data
   },
 
+  getShippingSlip: async (id: number) => {
+    const response = await api.get<Blob>(`/api/admin/orders/${id}/shipping-slip`, {
+      responseType: 'blob'
+    })
+
+    return response.data
+  },
+
   changeStatus: async (id: number, request: AdminUpdateOrderStatusRequest) => {
     await api.put(`/api/admin/orders/${id}/status`, request)
   },

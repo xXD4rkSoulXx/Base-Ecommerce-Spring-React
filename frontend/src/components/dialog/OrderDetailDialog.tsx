@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Activity, Ban, Box, Clock, MapPin, Package, RotateCcw, Truck } from 'lucide-react'
+import { toast } from 'sonner'
+import { Activity, Ban, Box, Clock, MapPin, Package, Printer, RotateCcw, Truck } from 'lucide-react'
 import { OrderStatusBadge } from '@/components/badge/OrderStatusBadge'
 import { CancelOrderDialog } from '@/components/dialog/CancelOrderDialog'
 import { ReturnDialog } from '@/components/dialog/ReturnDialog'
@@ -13,7 +14,9 @@ import { OrderTimelineSection } from '@/components/section/OrderTimelineSection'
 import { OrderTotalsSection } from '@/components/section/OrderTotalsSection'
 import { OrderRowsSection } from '@/components/section/OrderRowsSection'
 import { SectionTitle } from '@/components/ui/SectionTitle'
+import { useDownloadReturnSlip } from '@/hooks/useDownloadReturnSlip'
 import { useOrder } from '@/hooks/useOrder'
+import { getErrorMessage } from '@/utils/error'
 import { formatDate, formatDateTime } from '@/utils/format'
 
 interface OrderDetailDialogProps {
@@ -23,11 +26,19 @@ interface OrderDetailDialogProps {
 
 export const OrderDetailDialog = ({ orderId, onClose }: OrderDetailDialogProps) => {
   const { data: order, isLoading } = useOrder(orderId)
+  const { mutate: downloadReturnSlip, isPending: isDownloadingSlip } = useDownloadReturnSlip()
   const [returnOpen, setReturnOpen] = useState(false)
   const [cancelOpen, setCancelOpen] = useState(false)
 
   if (orderId === null) {
     return null
+  }
+
+  const printReturnSlip = (returnId: number) => {
+    downloadReturnSlip(
+      { orderId, returnId },
+      { onError: (error) => toast.error(getErrorMessage(error, 'Could not download the return slip')) }
+    )
   }
 
   return (
@@ -132,7 +143,24 @@ export const OrderDetailDialog = ({ orderId, onClose }: OrderDetailDialogProps) 
                 count={order.returns.length}
               >
                 {order.returns.map((orderReturn) => (
-                  <ReturnRow key={orderReturn.id} orderReturn={orderReturn} orderItems={order.items} />
+                  <ReturnRow
+                    key={orderReturn.id}
+                    orderReturn={orderReturn}
+                    orderItems={order.items}
+                    actions={
+                      orderReturn.status === 'APPROVED' ? (
+                        <button
+                          type="button"
+                          onClick={() => printReturnSlip(orderReturn.id)}
+                          disabled={isDownloadingSlip}
+                          className="flex items-center gap-1.5 border border-neon-cyan/40 px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-neon-cyan hover:bg-neon-cyan/10 disabled:opacity-50"
+                        >
+                          <Printer className="h-3 w-3" />
+                          Print return slip
+                        </button>
+                      ) : undefined
+                    }
+                  />
                 ))}
               </OrderRowsSection>
             )}

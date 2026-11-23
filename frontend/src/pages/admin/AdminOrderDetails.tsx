@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { toast } from 'sonner'
-import { Activity, Box, Clock, MapPin, Package, RotateCcw, Truck, User } from 'lucide-react'
+import { Activity, Box, Clock, MapPin, Package, Printer, RotateCcw, Truck, User } from 'lucide-react'
 import { OrderStatusBadge } from '@/components/badge/OrderStatusBadge'
 import { OrderItemRow } from '@/components/row/OrderItemRow'
 import { ParcelRow } from '@/components/row/ParcelRow'
@@ -18,6 +18,7 @@ import { SectionTitle } from '@/components/ui/SectionTitle'
 import { ORDER_STATUS_LABELS, SHIPMENT_STATUS_LABELS } from '@/constants'
 import { useAdminChangeOrderStatus } from '@/hooks/admin/useAdminChangeOrderStatus'
 import { useAdminChangeShipmentStatus } from '@/hooks/admin/useAdminChangeShipmentStatus'
+import { useAdminDownloadShippingSlip } from '@/hooks/admin/useAdminDownloadShippingSlip'
 import { useAdminOrder } from '@/hooks/admin/useAdminOrder'
 import { usePermission } from '@/hooks/usePermission'
 import type { OrderStatus, ShipmentStatus } from '@/types/order'
@@ -33,6 +34,7 @@ export const AdminOrderDetails = () => {
   const { data, isLoading, isError } = useAdminOrder(id)
   const { mutate: changeStatus, isPending } = useAdminChangeOrderStatus(id)
   const { mutate: changeShipmentStatus, isPending: isShipmentPending } = useAdminChangeShipmentStatus(id)
+  const { mutate: downloadSlip, isPending: isDownloadingSlip } = useAdminDownloadShippingSlip()
   const canEdit = usePermission('ORDERS_WRITE')
   const [error, setError] = useState<string | null>(null)
 
@@ -71,6 +73,14 @@ export const AdminOrderDetails = () => {
     )
   }
 
+  const printShippingSlip = () => {
+    setError(null)
+
+    downloadSlip(id, {
+      onError: (mutationError) => setError(getErrorMessage(mutationError, 'Could not download the shipping slip'))
+    })
+  }
+
   const busy = isPending || isShipmentPending
   const hasNoParcels = order.shipments.length === 0 && ['PROCESSING', 'SHIPPED'].includes(order.status)
 
@@ -82,16 +92,29 @@ export const AdminOrderDetails = () => {
           <h1 className="font-display text-5xl uppercase tracking-tighter md:text-7xl">Order #{order.id}</h1>
           <p className="mt-2 font-mono text-xs text-muted-foreground">{formatDateTime(order.createdAt)}</p>
         </div>
-        {canEdit && nextStatus && (
-          <button
-            type="button"
-            onClick={() => advance(nextStatus)}
-            disabled={busy}
-            className="bg-neon-cyan px-5 py-3 text-xs font-black uppercase tracking-widest text-primary-foreground hover:opacity-80 disabled:opacity-50"
-          >
-            {NEXT_STATUS_LABELS[nextStatus]}
-          </button>
-        )}
+        <div className="flex flex-wrap gap-3">
+          {order.status !== 'CANCELED_REFUNDED' && (
+            <button
+              type="button"
+              onClick={printShippingSlip}
+              disabled={isDownloadingSlip}
+              className="flex items-center gap-2 border border-neon-cyan/40 px-5 py-3 text-xs font-black uppercase tracking-widest text-neon-cyan hover:bg-neon-cyan/10 disabled:opacity-50"
+            >
+              <Printer className="h-3.5 w-3.5" />
+              Shipping slip
+            </button>
+          )}
+          {canEdit && nextStatus && (
+            <button
+              type="button"
+              onClick={() => advance(nextStatus)}
+              disabled={busy}
+              className="bg-neon-cyan px-5 py-3 text-xs font-black uppercase tracking-widest text-primary-foreground hover:opacity-80 disabled:opacity-50"
+            >
+              {NEXT_STATUS_LABELS[nextStatus]}
+            </button>
+          )}
+        </div>
       </div>
       {error && (
         <div className="mb-6">

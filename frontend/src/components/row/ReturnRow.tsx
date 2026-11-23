@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { ReturnStatusBadge } from '@/components/badge/ReturnStatusBadge'
 import { RETURN_REASON_LABELS } from '@/constants'
 import { formatDateTime, formatPrice, formatSize } from '@/utils/format'
@@ -6,9 +7,10 @@ import type { OrderItemResponse, OrderReturnResponse } from '@/types/order'
 interface ReturnRowProps {
   orderReturn: OrderReturnResponse
   orderItems: OrderItemResponse[]
+  actions?: ReactNode
 }
 
-export const ReturnRow = ({ orderReturn, orderItems }: ReturnRowProps) => (
+export const ReturnRow = ({ orderReturn, orderItems, actions }: ReturnRowProps) => (
   <div className="space-y-2 border-b border-border p-3 text-xs last:border-b-0">
     <div className="flex items-center justify-between gap-3">
       <ReturnStatusBadge status={orderReturn.status} />
@@ -19,6 +21,7 @@ export const ReturnRow = ({ orderReturn, orderItems }: ReturnRowProps) => (
       {orderReturn.comment && ` · ${orderReturn.comment}`}
     </p>
     {orderReturn.status === 'APPROVED' && <p className="text-neon-cyan">Approved: send the items back.</p>}
+    {actions && <div className="flex gap-2">{actions}</div>}
     {orderReturn.rejectionReason && <p className="text-destructive">Reason: {orderReturn.rejectionReason}</p>}
     <ul className="space-y-0.5">
       {orderReturn.items.map((returned) => {

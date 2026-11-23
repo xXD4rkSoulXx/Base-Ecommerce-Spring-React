@@ -5,8 +5,12 @@ import com.d4rksoul.base.ecommerce.spring.react.dto.response.OrderReturnResponse
 import com.d4rksoul.base.ecommerce.spring.react.service.OrderReturnService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,5 +31,19 @@ public class OrderReturnController {
         OrderReturnResponse response = orderReturnService.requestReturn(orderId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/{returnId}/slip")
+    public ResponseEntity<byte[]> getReturnSlip(@PathVariable Long orderId, @PathVariable Long returnId) {
+        byte[] pdf = orderReturnService.getReturnSlip(orderId, returnId);
+
+        return ResponseEntity.ok()
+            .contentType(MediaType.APPLICATION_PDF)
+            .header(
+                HttpHeaders.CONTENT_DISPOSITION,
+                ContentDisposition.attachment().filename("return-" + returnId + "-slip.pdf")
+                    .build().toString()
+            )
+            .body(pdf);
     }
 }

@@ -9,6 +9,9 @@ import com.d4rksoul.base.ecommerce.spring.react.dto.response.admin.AdminOrderSum
 import com.d4rksoul.base.ecommerce.spring.react.service.admin.AdminOrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,6 +45,21 @@ public class AdminOrderController {
         AdminOrderDetailsResponse order = adminOrderService.getOrder(id);
 
         return ResponseEntity.ok(order);
+    }
+
+    @GetMapping("/{id}/shipping-slip")
+    @PreAuthorize("hasAuthority('ORDERS_READ')")
+    public ResponseEntity<byte[]> getShippingSlip(@PathVariable Long id) {
+        byte[] pdf = adminOrderService.getShippingSlip(id);
+
+        return ResponseEntity.ok()
+            .contentType(MediaType.APPLICATION_PDF)
+            .header(
+                HttpHeaders.CONTENT_DISPOSITION,
+                ContentDisposition.attachment().filename("order-" + id + "-shipping-slip.pdf")
+                    .build().toString()
+            )
+            .body(pdf);
     }
 
     @PutMapping("/{id}/status")

@@ -17,8 +17,10 @@ import com.d4rksoul.base.ecommerce.spring.react.enums.ReturnStatus;
 import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidReturnRequestException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.OrderNotFoundException;
 import com.d4rksoul.base.ecommerce.spring.react.exception.ReturnNotAllowedException;
+import com.d4rksoul.base.ecommerce.spring.react.exception.ReturnNotFoundException;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.OrderReturnItemMapper;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.OrderReturnMapper;
+import com.d4rksoul.base.ecommerce.spring.react.pdf.ShippingSlipPdfGenerator;
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderReturnItemRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderReturnRepository;
@@ -48,6 +50,7 @@ public class OrderReturnService {
     private final OrderStatusEventService orderStatusEventService;
     private final OrderReturnMapper orderReturnMapper;
     private final OrderReturnItemMapper orderReturnItemMapper;
+    private final ShippingSlipPdfGenerator shippingSlipPdfGenerator;
 
     @Transactional
     public OrderReturnResponse requestReturn(Long orderId, CreateReturnRequest request) {
@@ -130,5 +133,27 @@ public class OrderReturnService {
         );
 
         return orderReturnMapper.toDto(orderReturn, returnItems);
+    }
+
+    @Transactional(readOnly = true)
+    public byte[] getReturnSlip(Long orderId, Long returnId) {
+        User user = userService.getCurrentUser();
+
+        orderRepository
+            .findByIdAndUserIdAndStatusIn(orderId, user.getId(), OrderStatus.HISTORY_STATUSES)
+            .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + orderId));
+
+        OrderReturn orderReturn = orderReturnRepository.findByIdAndOrderId(returnId, orderId)
+            .orElseThrow(() -> new ReturnNotFoundException("Return not found with id: " + returnId));
+
+        if (orderReturn.getStatus() != ReturnStatus.APPROVED) {
+            throw new ReturnNotAllowedException(
+                "The return slip is only available once the return is approved."
+            );
+        }
+
+        List<OrderReturnItem> returnItems = orderReturnItemRepository.findByOrderReturnId(returnId);
+
+        return shippingSlipPdfGenerator.generateReturnSlip(orderReturn, returnItems);
     }
 }

@@ -16,6 +16,7 @@ import com.d4rksoul.base.ecommerce.spring.react.exception.OrderNotFoundException
 import com.d4rksoul.base.ecommerce.spring.react.exception.InvalidOrderTransitionException;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.PageMapper;
 import com.d4rksoul.base.ecommerce.spring.react.mapper.admin.AdminOrderMapper;
+import com.d4rksoul.base.ecommerce.spring.react.pdf.ShippingSlipPdfGenerator;
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderShipmentRepository;
 import com.d4rksoul.base.ecommerce.spring.react.service.OrderService;
@@ -55,6 +56,7 @@ public class AdminOrderService {
     private final AdminAuditLogService adminAuditLogService;
     private final AdminOrderMapper adminOrderMapper;
     private final PageMapper pageMapper;
+    private final ShippingSlipPdfGenerator shippingSlipPdfGenerator;
 
     @Transactional(readOnly = true)
     public PageResponse<AdminOrderSummaryResponse> getOrders(AdminOrderSearchRequest filter) {
@@ -96,6 +98,16 @@ public class AdminOrderService {
             ));
 
         return adminOrderMapper.toDetailsDto(order, details, nextStatus, shipmentActions);
+    }
+
+    @Transactional(readOnly = true)
+    public byte[] getShippingSlip(Long id) {
+        Order order = orderRepository.findByIdAndStatusIn(id, OrderStatus.HISTORY_STATUSES)
+            .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + id));
+
+        List<OrderShipment> shipments = orderShipmentRepository.findByOrderIdOrderByIdAsc(id);
+
+        return shippingSlipPdfGenerator.generateShippingSlip(order, shipments);
     }
 
     @Transactional

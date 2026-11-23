@@ -5,6 +5,7 @@ import type { OrderStatus, OrderSummaryResponse, ReturnStatus } from '@/types/or
 import type { DemoCustomer, DemoOrder } from '@/demo/types'
 import { getShipmentActions } from '@/demo/data/orders'
 import { getFixtures } from '@/demo/data/fixtures'
+import { buildDemoPdf } from '@/demo/data/pdf'
 import { toIso } from '@/demo/data/random'
 import { matchesQuery, notFound, paginate, readBoolean, readId } from '@/demo/handlers/support'
 
@@ -70,6 +71,29 @@ export const salesHandlers: HttpHandler[] = [
     const order = getFixtures().orders.find((candidate) => candidate.id === readId(params.id))
 
     return order ? HttpResponse.json(toOrderDetails(order)) : notFound()
+  }),
+
+  http.get('*/api/admin/orders/:id/shipping-slip', ({ params }) => {
+    const order = getFixtures().orders.find((candidate) => candidate.id === readId(params.id))
+
+    if (!order) {
+      return notFound()
+    }
+
+    const { details } = order
+
+    return new HttpResponse(
+      buildDemoPdf([
+        'SHIPPING SLIP (DEMO)',
+        `Order #${order.id}`,
+        '',
+        `Ship to: ${details.recipientName}`,
+        `${details.addressLine1}, ${details.postalCode} ${details.city}`,
+        '',
+        ...details.items.map((item) => `${item.quantity} x ${item.productName}`)
+      ]),
+      { headers: { 'Content-Type': 'application/pdf' } }
+    )
   }),
 
   http.get('*/api/admin/returns', ({ request }) => {

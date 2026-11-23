@@ -31,5 +31,13 @@ export const orderService = {
     const response = await api.get<OrderDetailsResponse>(`/api/orders/${id}`)
 
     return response.data
+  },
+
+  getReturnSlip: async (orderId: number, returnId: number) => {
+    const response = await api.get<Blob>(`/api/orders/${orderId}/returns/${returnId}/slip`, {
+      responseType: 'blob'
+    })
+
+    return response.data
   }
 }

@@ -32,6 +32,8 @@ public interface OrderReturnRepository
     @NonNull
     Page<OrderReturn> findAll(@NonNull Specification<OrderReturn> specification, @NonNull Pageable pageable);
 
+    Optional<OrderReturn> findByIdAndOrderId(Long id, Long orderId);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints(@QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000"))
     Optional<OrderReturn> findByIdAndStatus(Long id, ReturnStatus status);
