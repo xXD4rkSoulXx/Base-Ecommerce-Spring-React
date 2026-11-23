@@ -36,7 +36,7 @@ public record CheckoutAddressRequest(
     String country,
 
     @NotBlank(message = "Phone is required")
-    @Size(max = 30, message = "Phone must be at most 30 characters")
+    @Pattern(regexp = "\\+[1-9]\\d{6,14}", message = "Phone must be in international format, e.g. +351912345678")
     String phone
 ) {
 

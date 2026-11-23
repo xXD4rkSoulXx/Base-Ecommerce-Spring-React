@@ -1,8 +1,14 @@
 const sanitize = (text: string) => text.replace(/[^\x20-\x7E]/g, '').replace(/[\\()]/g, '\\$&')
 
 export const buildDemoPdf = (lines: string[]) => {
-  const content = ['BT', '/F1 12 Tf', '50 780 Td', '16 TL', ...lines.map((line) => `(${sanitize(line)}) Tj T*`), 'ET']
-    .join('\n')
+  const content = [
+    'BT',
+    '/F1 12 Tf',
+    '50 780 Td',
+    '16 TL',
+    ...lines.map((line) => `(${sanitize(line)}) Tj T*`),
+    'ET'
+  ].join('\n')
 
   const objects = [
     '<< /Type /Catalog /Pages 2 0 R >>',

@@ -2,8 +2,6 @@ import { z } from 'zod'
 import { selectSchema, wholeNumberSchema } from '@/schemas/helpers'
 import type { ProductCategory } from '@/types/product'
 
-const PRICE_MESSAGE = 'Price must be between 0.01 and 99999.99, with at most 2 decimal places'
-
 export const productSchema = z.object({
   ref: z
     .string()
@@ -21,8 +19,11 @@ export const productSchema = z.object({
   price: z
     .string()
     .trim()
-    .regex(/^\d{1,5}([.,]\d{1,2})?$/, PRICE_MESSAGE)
-    .refine((price) => Number(price.replace(',', '.')) >= 0.01, PRICE_MESSAGE),
+    .regex(/^\d{1,5}([.,]\d{1,2})?$/, 'Price must be between 0.01 and 99999.99, with at most 2 decimal places')
+    .refine(
+      (price) => Number(price.replace(',', '.')) >= 0.01,
+      'Price must be between 0.01 and 99999.99, with at most 2 decimal places'
+    ),
   discountPercentage: wholeNumberSchema('Discount must be a whole number between 0 and 100', 0, 100),
   category: selectSchema<ProductCategory>('Select a category'),
   featuredSlot: z.enum(['', 'LEFT', 'RIGHT'])

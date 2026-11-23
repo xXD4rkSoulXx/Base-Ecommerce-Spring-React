@@ -13,6 +13,7 @@ import { useShippingRates } from '@/hooks/useShippingRates'
 import { checkoutAddressSchema, type CheckoutAddressForm } from '@/schemas/checkout'
 import type { CheckoutAddressRequest } from '@/types/checkout'
 import { getErrorMessage } from '@/utils/error'
+import { toInternationalPhone } from '@/utils/phone'
 
 type Step = 1 | 2 | 3
 
@@ -26,11 +27,13 @@ const EMPTY_ADDRESS: CheckoutAddressForm = {
   state: '',
   postalCode: '',
   country: 'PT',
+  phoneCountry: 'PT',
   phone: ''
 }
 
-const toRequest = (address: CheckoutAddressForm): CheckoutAddressRequest => ({
+const toRequest = ({ phoneCountry, phone, ...address }: CheckoutAddressForm): CheckoutAddressRequest => ({
   ...address,
+  phone: toInternationalPhone(phoneCountry, phone),
   addressLine2: address.addressLine2 || undefined,
   state: address.state || undefined
 })
@@ -48,7 +51,8 @@ export const Checkout = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors }
+    setValue,
+    formState: { errors, dirtyFields }
   } = useForm<CheckoutAddressForm>({
     resolver: zodResolver(checkoutAddressSchema),
     defaultValues: EMPTY_ADDRESS
@@ -60,6 +64,12 @@ export const Checkout = () => {
 
   const selectedRate = shippingRates.find((rate) => rate.rateId === selectedRateId)
   const hasUnavailableItems = items.some((item) => item.available === false)
+
+  const syncPhoneCountry = (country: string) => {
+    if (!dirtyFields.phoneCountry) {
+      setValue('phoneCountry', country)
+    }
+  }
 
   const submitAddress = (data: CheckoutAddressForm) =>
     getShippingRates(toRequest(data), {
@@ -112,6 +122,7 @@ export const Checkout = () => {
               register={register}
               errors={errors}
               error={shippingRatesError ? getErrorMessage(shippingRatesError, 'Could not load shipping rates') : null}
+              onCountryChange={syncPhoneCountry}
             />
           )}
           {step === 2 && (

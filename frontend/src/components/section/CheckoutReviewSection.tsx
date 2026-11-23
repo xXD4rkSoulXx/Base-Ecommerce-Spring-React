@@ -2,6 +2,7 @@ import { FormError } from '@/components/ui/FormError'
 import type { CheckoutAddressForm } from '@/schemas/checkout'
 import type { ShippingRateResponse } from '@/types/checkout'
 import { formatCountry, formatPrice } from '@/utils/format'
+import { toInternationalPhone } from '@/utils/phone'
 
 interface CheckoutReviewSectionProps {
   address: CheckoutAddressForm
@@ -24,7 +25,7 @@ export const CheckoutReviewSection = ({ address, rate, error }: CheckoutReviewSe
         {' · '}
         {formatCountry(address.country)}
       </p>
-      <p className="text-sm text-muted-foreground">{address.phone}</p>
+      <p className="text-sm text-muted-foreground">{toInternationalPhone(address.phoneCountry, address.phone)}</p>
     </div>
     <div className="border border-border bg-card p-4">
       <p className="font-mono text-[10px] uppercase tracking-widest text-neon-cyan">Shipping method</p>
