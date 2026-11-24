@@ -1,3 +1,5 @@
+import type { Schema } from '@/types/schema'
+
 export interface CreateOrderRequest {
   address: CheckoutAddressRequest
   rateId: string
@@ -14,15 +16,6 @@ export interface CheckoutAddressRequest {
   phone: string
 }
 
-export interface ShippingRateResponse {
-  rateId: string
-  carrier: string
-  service: string
-  amount: number
-  currency: string
-  estimatedDays: string
-}
+export type ShippingRateResponse = Schema<'ShippingRateResponse'>
 
-export interface CheckoutSessionResponse {
-  url: string
-}
+export type CheckoutSessionResponse = Schema<'CheckoutSessionResponse'>

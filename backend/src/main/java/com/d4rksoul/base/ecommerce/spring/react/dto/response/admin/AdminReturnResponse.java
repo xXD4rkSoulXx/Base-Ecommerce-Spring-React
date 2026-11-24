@@ -3,6 +3,7 @@ package com.d4rksoul.base.ecommerce.spring.react.dto.response.admin;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ReturnReason;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ReturnStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.annotation.Nullable;
 import lombok.Builder;
 
 import java.math.BigDecimal;
@@ -24,15 +25,15 @@ public record AdminReturnResponse(
 
     ReturnReason reason,
 
-    String comment,
+    @Nullable String comment,
 
-    BigDecimal refundAmount,
+    @Nullable BigDecimal refundAmount,
 
-    String rejectionReason,
+    @Nullable String rejectionReason,
 
     Instant createdAt,
 
-    Instant refundedAt,
+    @Nullable Instant refundedAt,
 
     List<AdminReturnItemResponse> items
 ) {}

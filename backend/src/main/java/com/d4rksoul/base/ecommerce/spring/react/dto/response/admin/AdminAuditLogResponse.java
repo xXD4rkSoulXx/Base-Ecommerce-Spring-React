@@ -3,6 +3,7 @@ package com.d4rksoul.base.ecommerce.spring.react.dto.response.admin;
 import com.d4rksoul.base.ecommerce.spring.react.enums.AuditAction;
 import com.d4rksoul.base.ecommerce.spring.react.enums.AuditEntityType;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.annotation.Nullable;
 import lombok.Builder;
 
 import java.time.Instant;
@@ -22,7 +23,7 @@ public record AdminAuditLogResponse(
 
     String entityLabel,
 
-    String details,
+    @Nullable String details,
 
     Instant createdAt
 ) {}

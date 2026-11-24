@@ -6,6 +6,9 @@ interface OrderStatusBadgeProps {
 }
 
 const ORDER_STATUS_COLORS: Record<OrderStatus, string> = {
+  PENDING: 'text-muted-foreground',
+  CANCELED: 'text-muted-foreground',
+  FAILED: 'text-muted-foreground',
   PAID: 'text-neon-pink',
   PROCESSING: 'text-neon-pink',
   SHIPPED: 'text-neon-cyan',

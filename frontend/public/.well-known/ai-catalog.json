@@ -1,0 +1,20 @@
+{
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "VELO_CITI"
+  },
+  "entries": [
+    {
+      "identifier": "urn:air:example.com:api:store-catalog",
+      "displayName": "VELO_CITI store catalog API",
+      "type": "application/openapi+json",
+      "url": "https://example.com/openapi.json",
+      "description": "Browse and search the VELO_CITI product catalog: products, details, reviews, deals and best sellers.",
+      "representativeQueries": [
+        "search streetwear products",
+        "show the best selling jackets",
+        "get reviews for a product"
+      ]
+    }
+  ]
+}

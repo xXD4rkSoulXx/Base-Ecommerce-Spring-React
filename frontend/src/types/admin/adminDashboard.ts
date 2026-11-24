@@ -1,90 +1,29 @@
 import type { AdminAuditLogResponse } from '@/types/admin/adminAuditLog'
-import type { OrderStatus, ReturnStatus } from '@/types/order'
-import type { ProductCategory, ProductColor, ProductSize } from '@/types/product'
+import type { Schema } from '@/types/schema'
 
-export interface AdminDashboardSummaryResponse {
-  netRevenue: number
-  previousNetRevenue: number
-  refunded: number
-  previousRefunded: number
-  orders: number
-  previousOrders: number
-  averageOrderValue: number
-  previousAverageOrderValue: number
-}
+export type AdminDashboardSummaryResponse = Schema<'AdminDashboardSummaryResponse'>
 
-export interface AdminDashboardSalesPointResponse {
-  date: string
-  sales: number
-  refunds: number
-  orders: number
-}
+export type AdminDashboardSalesPointResponse = Schema<'AdminDashboardSalesPointResponse'>
 
-export interface AdminDashboardCountResponse {
-  count: number
-}
+export type AdminDashboardCountResponse = Schema<'AdminDashboardCountResponse'>
 
-export interface AdminDashboardStatusCountResponse {
-  status: OrderStatus
-  count: number
-}
+export type AdminDashboardStatusCountResponse = Schema<'AdminDashboardStatusCountResponse'>
 
-export interface AdminDashboardCategoryUnitsResponse {
-  category: ProductCategory
-  unitsSold: number
-}
+export type AdminDashboardCategoryUnitsResponse = Schema<'AdminDashboardCategoryUnitsResponse'>
 
-export interface AdminDashboardTopProductResponse {
-  productId: number
-  ref: string
-  name: string
-  cover?: string
-  unitsSold: number
-}
+export type AdminDashboardTopProductResponse = Schema<'AdminDashboardTopProductResponse'>
 
-export interface AdminDashboardDiscountCodeResponse {
-  code: string
-  orders: number
-}
+export type AdminDashboardDiscountCodeResponse = Schema<'AdminDashboardDiscountCodeResponse'>
 
-export interface AdminDashboardRecentOrderResponse {
-  id: number
-  customerName: string
-  status: OrderStatus
-  totalAmount: number
-  createdAt: string
-}
+export type AdminDashboardRecentOrderResponse = Schema<'AdminDashboardRecentOrderResponse'>
 
-export interface AdminDashboardReturnResponse {
-  id: number
-  orderId: number
-  customerName: string
-  status: ReturnStatus
-  createdAt: string
-}
+export type AdminDashboardReturnResponse = Schema<'AdminDashboardReturnResponse'>
 
-export interface AdminDashboardLowStockResponse {
-  skuId: number
-  productId: number
-  productName: string
-  ref: string
-  size: ProductSize
-  color: ProductColor
-  stock: number
-}
+export type AdminDashboardLowStockResponse = Schema<'AdminDashboardLowStockResponse'>
 
-export interface AdminDashboardCustomersResponse {
-  newCustomers: number
-  previousNewCustomers: number
-  totalCustomers: number
-}
+export type AdminDashboardCustomersResponse = Schema<'AdminDashboardCustomersResponse'>
 
-export interface AdminDashboardReviewsResponse {
-  newReviews: number
-  previousNewReviews: number
-  averageRating?: number
-  previousAverageRating?: number
-}
+export type AdminDashboardReviewsResponse = Schema<'AdminDashboardReviewsResponse'>
 
 export interface AdminDashboardEndpoints {
   summary: AdminDashboardSummaryResponse

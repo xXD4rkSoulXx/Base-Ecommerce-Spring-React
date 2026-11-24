@@ -1,4 +1,4 @@
-import type { ProductColor, ProductSize } from '@/types/product'
+import type { Schema } from '@/types/schema'
 
 export interface AddToCartRequest {
   productSkuId: number
@@ -22,24 +22,6 @@ export interface UpdateCartItemRequest {
   quantity: number
 }
 
-export interface CartResponse {
-  items: CartItemResponse[]
-  discountCode?: string
-  discountPercentage: number
-}
+export type CartResponse = Schema<'CartResponse'>
 
-export interface CartItemResponse {
-  id: number
-  productSkuId: number
-  productId: number
-  productName: string
-  productRef: string
-  size: ProductSize
-  color: ProductColor
-  cover?: string
-  price: number
-  discountPercentage: number
-  stock: number
-  quantity: number
-  available: boolean
-}
+export type CartItemResponse = Schema<'CartItemResponse'>

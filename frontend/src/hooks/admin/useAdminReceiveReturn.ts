@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from '@/queryKeys'
 import { adminReturnService } from '@/services/admin/adminReturn.service'
 
 export const useAdminReceiveReturn = () => {
@@ -7,12 +8,12 @@ export const useAdminReceiveReturn = () => {
   return useMutation({
     mutationFn: (id: number) => adminReturnService.receive(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'returns'] })
-      queryClient.invalidateQueries({ queryKey: ['admin', 'order'] })
-      queryClient.invalidateQueries({ queryKey: ['admin', 'products'] })
-      queryClient.invalidateQueries({ queryKey: ['admin', 'product-skus'] })
-      queryClient.invalidateQueries({ queryKey: ['admin', 'stock'] })
-      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.returns.all })
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.order.all })
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.products.all })
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.productSkus.all })
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.stock.all })
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.dashboard.all })
     }
   })
 }

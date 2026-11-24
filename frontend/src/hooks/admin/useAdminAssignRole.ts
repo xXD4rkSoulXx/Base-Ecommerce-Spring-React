@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from '@/queryKeys'
 import { adminTeamService } from '@/services/admin/adminTeam.service'
 
 export const useAdminAssignRole = () => {
@@ -7,9 +8,9 @@ export const useAdminAssignRole = () => {
   return useMutation({
     mutationFn: adminTeamService.assignRole,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'team'] })
-      queryClient.invalidateQueries({ queryKey: ['admin', 'customers'] })
-      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.team })
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.customers.all })
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.dashboard.all })
     }
   })
 }

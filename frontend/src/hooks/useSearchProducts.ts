@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'react-router-dom'
 import { PRODUCT_PAGE_SIZE } from '@/constants'
 import { usePageParams } from '@/hooks/usePageParams'
+import { queryKeys } from '@/queryKeys'
 import { productService } from '@/services/product.service'
 
 export const useSearchProducts = () => {
@@ -10,7 +11,7 @@ export const useSearchProducts = () => {
   const q = searchParams.get('q') || ''
 
   return useQuery({
-    queryKey: ['products-search', { q, page, size }],
+    queryKey: queryKeys.productsSearch({ q, page, size }),
     queryFn: () =>
       productService.searchProducts({
         q,

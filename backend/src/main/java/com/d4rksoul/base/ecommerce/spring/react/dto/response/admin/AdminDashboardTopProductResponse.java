@@ -1,6 +1,7 @@
 package com.d4rksoul.base.ecommerce.spring.react.dto.response.admin;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.annotation.Nullable;
 import lombok.Builder;
 
 @Builder
@@ -12,7 +13,7 @@ public record AdminDashboardTopProductResponse(
 
     String name,
 
-    String cover,
+    @Nullable String cover,
 
     long unitsSold
 ) {}

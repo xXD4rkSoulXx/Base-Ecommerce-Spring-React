@@ -1,4 +1,5 @@
-import type { OrderDetailsResponse, OrderStatus, ShipmentStatus } from '@/types/order'
+import type { OrderStatus, ShipmentStatus } from '@/types/order'
+import type { Schema } from '@/types/schema'
 
 export interface AdminOrderSearchRequest {
   q?: string
@@ -18,20 +19,6 @@ export interface AdminUpdateShipmentStatusRequest {
   status: ShipmentStatus
 }
 
-export interface AdminOrderSummaryResponse {
-  id: number
-  status: OrderStatus
-  createdAt: string
-  totalAmount: number
-  currency: string
-  customerEmail: string
-  recipientName: string
-}
+export type AdminOrderSummaryResponse = Schema<'AdminOrderSummaryResponse'>
 
-export interface AdminOrderDetailsResponse {
-  customerEmail: string
-  customerName: string
-  nextStatus?: OrderStatus
-  shipmentActions: Record<number, ShipmentStatus[]>
-  order: OrderDetailsResponse
-}
+export type AdminOrderDetailsResponse = Schema<'AdminOrderDetailsResponse'>

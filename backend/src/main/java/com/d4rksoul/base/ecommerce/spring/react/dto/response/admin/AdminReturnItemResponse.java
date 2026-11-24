@@ -3,6 +3,7 @@ package com.d4rksoul.base.ecommerce.spring.react.dto.response.admin;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ProductColor;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ProductSize;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.annotation.Nullable;
 import lombok.Builder;
 
 @Builder
@@ -16,7 +17,7 @@ public record AdminReturnItemResponse(
 
     ProductSize size,
 
-    String imagePath,
+    @Nullable String imagePath,
 
     int quantity
 ) {}

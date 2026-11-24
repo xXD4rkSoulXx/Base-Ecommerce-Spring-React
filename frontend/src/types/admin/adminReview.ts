@@ -1,3 +1,5 @@
+import type { Schema } from '@/types/schema'
+
 export interface AdminReviewSearchRequest {
   q?: string
   hidden?: boolean
@@ -5,16 +7,4 @@ export interface AdminReviewSearchRequest {
   size: number
 }
 
-export interface AdminReviewResponse {
-  id: number
-  productId: number
-  productName: string
-  productRef: string
-  customerName: string
-  customerEmail: string
-  rating: number
-  title: string
-  description: string
-  hidden: boolean
-  createdAt: string
-}
+export type AdminReviewResponse = Schema<'AdminReviewResponse'>

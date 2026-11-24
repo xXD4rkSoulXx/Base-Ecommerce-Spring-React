@@ -1,6 +1,7 @@
 import { useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { usePageParams } from '@/hooks/usePageParams'
+import { queryKeys } from '@/queryKeys'
 import { adminProductService } from '@/services/admin/adminProduct.service'
 import type { ProductCategory } from '@/types/product'
 
@@ -12,7 +13,7 @@ export const useAdminProducts = () => {
   const lowStock = searchParams.get('lowStock') === 'true'
 
   return useQuery({
-    queryKey: ['admin', 'products', { q, category, lowStock, page, size }],
+    queryKey: queryKeys.admin.products.list({ q, category, lowStock, page, size }),
     queryFn: () =>
       adminProductService.getProducts({
         q: q || undefined,

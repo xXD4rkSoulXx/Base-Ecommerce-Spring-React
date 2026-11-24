@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'react-router-dom'
 import { ALL_FILTER, TODO_FILTER } from '@/constants'
 import { usePageParams } from '@/hooks/usePageParams'
+import { queryKeys } from '@/queryKeys'
 import { adminReturnService } from '@/services/admin/adminReturn.service'
 import type { ReturnStatus } from '@/types/order'
 
@@ -13,7 +14,7 @@ export const useAdminReturns = () => {
   const status = pending || filter === ALL_FILTER ? undefined : (filter as ReturnStatus)
 
   return useQuery({
-    queryKey: ['admin', 'returns', { filter, page, size }],
+    queryKey: queryKeys.admin.returns.list({ filter, page, size }),
     queryFn: () => adminReturnService.getReturns({ pending, status, page: page - 1, size }),
     placeholderData: (previousData) => previousData
   })

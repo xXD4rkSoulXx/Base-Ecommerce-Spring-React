@@ -4,6 +4,7 @@ import com.d4rksoul.base.ecommerce.spring.react.dto.response.OrderDetailsRespons
 import com.d4rksoul.base.ecommerce.spring.react.enums.OrderStatus;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ShipmentStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.annotation.Nullable;
 import lombok.Builder;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public record AdminOrderDetailsResponse(
 
     String customerName,
 
-    OrderStatus nextStatus,
+    @Nullable OrderStatus nextStatus,
 
     Map<Long, List<ShipmentStatus>> shipmentActions,
 

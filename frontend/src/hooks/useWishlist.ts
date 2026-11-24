@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from '@/queryKeys'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useWishlistStore } from '@/store/useWishlistStore'
 import { wishlistService } from '@/services/wishlist.service'
@@ -18,12 +19,12 @@ export const useWishlist = () => {
     isLoading,
     isError
   } = useQuery({
-    queryKey: ['wishlist'],
+    queryKey: queryKeys.wishlist,
     queryFn: () => wishlistService.getWishlist(),
     enabled: isAuthenticated
   })
 
-  const invalidateWishlist = () => queryClient.invalidateQueries({ queryKey: ['wishlist'] })
+  const invalidateWishlist = () => queryClient.invalidateQueries({ queryKey: queryKeys.wishlist })
 
   const addMutation = useMutation({
     mutationFn: (productId: number) => wishlistService.addToWishlist(productId),

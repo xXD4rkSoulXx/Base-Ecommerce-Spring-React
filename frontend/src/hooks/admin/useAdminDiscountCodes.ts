@@ -1,6 +1,7 @@
 import { useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { usePageParams } from '@/hooks/usePageParams'
+import { queryKeys } from '@/queryKeys'
 import { adminDiscountCodeService } from '@/services/admin/adminDiscountCode.service'
 
 export const useAdminDiscountCodes = () => {
@@ -11,7 +12,7 @@ export const useAdminDiscountCodes = () => {
   const active = activeParam ? activeParam === 'true' : undefined
 
   return useQuery({
-    queryKey: ['admin', 'discount-codes', { q, active, page, size }],
+    queryKey: queryKeys.admin.discountCodes.list({ q, active, page, size }),
     queryFn: () =>
       adminDiscountCodeService.getDiscountCodes({
         q: q || undefined,

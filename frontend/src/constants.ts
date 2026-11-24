@@ -29,6 +29,9 @@ export const PRODUCT_CATEGORIES: ProductCategory[] = [
 ]
 
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
+  PENDING: 'Pending',
+  CANCELED: 'Canceled (unpaid)',
+  FAILED: 'Failed',
   PAID: 'Paid',
   PROCESSING: 'Processing',
   SHIPPED: 'Shipped',
@@ -37,6 +40,16 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   REFUNDED: 'Refunded',
   CANCELED_REFUNDED: 'Canceled'
 }
+
+export const VISIBLE_ORDER_STATUSES: OrderStatus[] = [
+  'PAID',
+  'PROCESSING',
+  'SHIPPED',
+  'DELIVERED',
+  'RETURN_REQUESTED',
+  'REFUNDED',
+  'CANCELED_REFUNDED'
+]
 
 export const SHIPMENT_STATUS_LABELS: Record<ShipmentStatus, string> = {
   PRE_TRANSIT: 'Pre-transit',

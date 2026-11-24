@@ -1,39 +1,18 @@
-export type UserRole = 'CUSTOMER' | 'ADMIN' | 'MANAGER' | 'MERCHANDISER' | 'FULFILLMENT' | 'SUPPORT' | 'DEMO'
+import type { Schema } from '@/types/schema'
 
-export type Permission =
-  | 'DASHBOARD_READ'
-  | 'PRODUCTS_READ'
-  | 'PRODUCTS_WRITE'
-  | 'STOCK_READ'
-  | 'STOCK_WRITE'
-  | 'ORDERS_READ'
-  | 'ORDERS_WRITE'
-  | 'RETURNS_READ'
-  | 'RETURNS_WRITE'
-  | 'DISCOUNTS_READ'
-  | 'DISCOUNTS_WRITE'
-  | 'CUSTOMERS_READ'
-  | 'REVIEWS_READ'
-  | 'REVIEWS_WRITE'
-  | 'TEAM_READ'
-  | 'TEAM_WRITE'
-  | 'AUDIT_READ'
+export type Permission = Schema<'UserResponse'>['permissions'][number]
+
+export type UserRole = Schema<'UserResponse'>['role'] | 'DEMO'
 
 export interface UpdateProfileRequest {
   firstName: string
   lastName: string
 }
 
-export interface UserResponse {
-  email: string
-  firstName: string
-  lastName: string
+export interface UserResponse extends Omit<Schema<'UserResponse'>, 'role'> {
   role: UserRole
-  permissions: Permission[]
 }
 
-export interface ProfileResponse {
+export interface ProfileResponse extends Omit<Schema<'ProfileResponse'>, 'user'> {
   user: UserResponse
-  createdAt: string
-  totalOrders: number
 }

@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { ALL_FILTER, DEFAULT_SORT } from '@/constants'
+import { queryKeys } from '@/queryKeys'
 import { productService } from '@/services/product.service'
 
 export const useNewArrivals = () =>
   useQuery({
-    queryKey: ['products-new-arrivals'],
+    queryKey: queryKeys.newArrivals,
     queryFn: () =>
       productService.getProducts({
         category: ALL_FILTER,

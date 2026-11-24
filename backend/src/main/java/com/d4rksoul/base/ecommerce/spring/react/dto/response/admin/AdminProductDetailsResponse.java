@@ -3,6 +3,7 @@ package com.d4rksoul.base.ecommerce.spring.react.dto.response.admin;
 import com.d4rksoul.base.ecommerce.spring.react.enums.FeaturedSlot;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ProductCategory;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.annotation.Nullable;
 import lombok.Builder;
 
 import java.math.BigDecimal;
@@ -24,7 +25,7 @@ public record AdminProductDetailsResponse(
 
     ProductCategory category,
 
-    FeaturedSlot featuredSlot,
+    @Nullable FeaturedSlot featuredSlot,
 
     boolean active
 ) {}

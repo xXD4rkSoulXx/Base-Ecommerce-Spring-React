@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
+import { queryKeys } from '@/queryKeys'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useWishlistStore } from '@/store/useWishlistStore'
 import { useCartStore } from '@/store/useCartStore'
@@ -58,8 +59,8 @@ export const useLogin = () => {
         }
       }
 
-      queryClient.invalidateQueries({ queryKey: ['wishlist'] })
-      queryClient.invalidateQueries({ queryKey: ['cart'] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.wishlist })
+      queryClient.invalidateQueries({ queryKey: queryKeys.cart })
       navigate(from, { replace: true })
     }
   })

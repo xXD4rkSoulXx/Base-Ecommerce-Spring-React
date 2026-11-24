@@ -1,6 +1,7 @@
 import { useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { usePageParams } from '@/hooks/usePageParams'
+import { queryKeys } from '@/queryKeys'
 import { adminReviewService } from '@/services/admin/adminReview.service'
 
 export const useAdminReviews = () => {
@@ -11,7 +12,7 @@ export const useAdminReviews = () => {
   const hidden = hiddenParam ? hiddenParam === 'true' : undefined
 
   return useQuery({
-    queryKey: ['admin', 'reviews', { q, hidden, page, size }],
+    queryKey: queryKeys.admin.reviews.list({ q, hidden, page, size }),
     queryFn: () =>
       adminReviewService.getReviews({
         q: q || undefined,

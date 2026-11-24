@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'react-router-dom'
 import { usePageParams } from '@/hooks/usePageParams'
+import { queryKeys } from '@/queryKeys'
 import { orderService } from '@/services/order.service'
 
 const toInstant = (date: string, time: string) => {
@@ -21,7 +22,7 @@ export const useOrders = () => {
   const to = searchParams.get('to') || ''
 
   return useQuery({
-    queryKey: ['orders', { q, from, to, page, size }],
+    queryKey: queryKeys.orders.list({ q, from, to, page, size }),
     queryFn: () =>
       orderService.getOrders({
         q: q || undefined,

@@ -1,4 +1,5 @@
 import type { ProductColor, ProductSize } from '@/types/product'
+import type { Schema } from '@/types/schema'
 
 export interface AdminCreateProductSkuRequest extends AdminUpdateProductSkuRequest {
   size: ProductSize
@@ -13,16 +14,4 @@ export interface AdminUpdateProductSkuRequest {
   discountPercentage: number
 }
 
-export interface AdminProductSkuResponse {
-  id: number
-  size: ProductSize
-  color: ProductColor
-  cover?: string
-  stock: number
-  weightGrams: number
-  lengthCm: number
-  widthCm: number
-  heightCm: number
-  discountPercentage: number
-  active: boolean
-}
+export type AdminProductSkuResponse = Schema<'AdminProductSkuResponse'>

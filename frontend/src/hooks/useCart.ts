@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from '@/queryKeys'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useCartStore, type GuestCartItem } from '@/store/useCartStore'
 import { cartService } from '@/services/cart.service'
@@ -25,12 +26,12 @@ export const useCart = () => {
   const guestClear = useCartStore((state) => state.clearCart)
 
   const { data: serverCart } = useQuery({
-    queryKey: ['cart'],
+    queryKey: queryKeys.cart,
     queryFn: () => cartService.getCart(),
     enabled: isAuthenticated
   })
 
-  const invalidateCart = () => queryClient.invalidateQueries({ queryKey: ['cart'] })
+  const invalidateCart = () => queryClient.invalidateQueries({ queryKey: queryKeys.cart })
 
   const addMutation = useMutation({
     mutationFn: (item: { productSkuId: number; quantity: number }) => cartService.addToCart(item),

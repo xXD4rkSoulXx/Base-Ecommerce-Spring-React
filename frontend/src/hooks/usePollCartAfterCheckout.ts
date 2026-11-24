@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from '@/queryKeys'
 
 const POLL_INTERVAL_MS = 2000
 const MAX_POLLS = 5
@@ -9,7 +10,7 @@ export const usePollCartAfterCheckout = () => {
 
   useEffect(() => {
     let polls = 0
-    const refreshCart = () => queryClient.invalidateQueries({ queryKey: ['cart'] })
+    const refreshCart = () => queryClient.invalidateQueries({ queryKey: queryKeys.cart })
 
     refreshCart()
 

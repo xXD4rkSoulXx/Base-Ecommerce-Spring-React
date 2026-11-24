@@ -1,3 +1,4 @@
+import type { Schema } from '@/types/schema'
 import type { UserRole } from '@/types/user'
 
 export interface AdminAssignRoleRequest {
@@ -5,11 +6,6 @@ export interface AdminAssignRoleRequest {
   role: UserRole
 }
 
-export interface AdminTeamMemberResponse {
-  id: number
-  email: string
-  firstName: string
-  lastName: string
+export interface AdminTeamMemberResponse extends Omit<Schema<'AdminTeamMemberResponse'>, 'role'> {
   role: UserRole
-  createdAt: string
 }

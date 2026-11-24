@@ -1,4 +1,6 @@
-export type ReviewEligibility = 'ELIGIBLE' | 'NOT_PURCHASED' | 'ALREADY_REVIEWED'
+import type { Schema } from '@/types/schema'
+
+export type ReviewEligibility = Schema<'ReviewEligibilityResponse'>['status']
 
 export interface ReviewRequest {
   rating: number
@@ -6,17 +8,8 @@ export interface ReviewRequest {
   description: string
 }
 
-export interface ReviewResponse {
-  id: number
-  title: string
-  description: string
-  rating: number
-  userFullName: string
-  createdAt: string
-}
+export type ReviewResponse = Schema<'ReviewResponse'>
 
-export interface ReviewEligibilityResponse {
-  status: ReviewEligibility
-}
+export type ReviewEligibilityResponse = Schema<'ReviewEligibilityResponse'>
 
 export type ReviewLockReason = 'GUEST' | Exclude<ReviewEligibility, 'ELIGIBLE'>

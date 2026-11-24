@@ -1,6 +1,7 @@
 import { useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { usePageParams } from '@/hooks/usePageParams'
+import { queryKeys } from '@/queryKeys'
 import { adminAuditLogService } from '@/services/admin/adminAuditLog.service'
 import type { AuditAction, AuditEntityType } from '@/types/admin/adminAuditLog'
 
@@ -12,7 +13,7 @@ export const useAdminAuditLogs = () => {
   const action = (searchParams.get('action') as AuditAction | null) || undefined
 
   return useQuery({
-    queryKey: ['admin', 'audit-logs', { q, entityType, action, page, size }],
+    queryKey: queryKeys.admin.auditLogs({ q, entityType, action, page, size }),
     queryFn: () =>
       adminAuditLogService.getAuditLogs({
         q: q || undefined,

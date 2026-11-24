@@ -1,3 +1,5 @@
+import type { Schema } from '@/types/schema'
+
 export interface AdminCustomerSearchRequest {
   q?: string
   page: number
@@ -9,12 +11,4 @@ export interface AdminCustomerOrderSearchRequest {
   size: number
 }
 
-export interface AdminCustomerResponse {
-  id: number
-  email: string
-  firstName: string
-  lastName: string
-  createdAt: string
-  orders: number
-  lastOrderAt?: string
-}
+export type AdminCustomerResponse = Schema<'AdminCustomerResponse'>

@@ -1,4 +1,5 @@
 import type { FeaturedSlot, ProductCategory } from '@/types/product'
+import type { Schema } from '@/types/schema'
 
 export interface AdminProductRequest {
   ref: string
@@ -18,29 +19,6 @@ export interface AdminProductSearchRequest {
   size?: number
 }
 
-export interface AdminProductSummaryResponse {
-  id: number
-  ref: string
-  name: string
-  category: ProductCategory
-  price: number
-  discountPercentage: number
-  featuredSlot?: FeaturedSlot
-  active: boolean
-  cover?: string
-  totalStock: number
-  skuCount: number
-  lowStockSkus: number
-}
+export type AdminProductSummaryResponse = Schema<'AdminProductSummaryResponse'>
 
-export interface AdminProductDetailsResponse {
-  id: number
-  ref: string
-  name: string
-  description: string
-  price: number
-  discountPercentage: number
-  category: ProductCategory
-  featuredSlot?: FeaturedSlot
-  active: boolean
-}
+export type AdminProductDetailsResponse = Schema<'AdminProductDetailsResponse'>

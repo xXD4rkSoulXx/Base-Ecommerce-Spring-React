@@ -1,6 +1,7 @@
 import { useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { usePageParams } from '@/hooks/usePageParams'
+import { queryKeys } from '@/queryKeys'
 import { adminStockService } from '@/services/admin/adminStock.service'
 
 export const useAdminStock = () => {
@@ -10,7 +11,7 @@ export const useAdminStock = () => {
   const lowStock = searchParams.get('lowStock') === 'true'
 
   return useQuery({
-    queryKey: ['admin', 'stock', { q, lowStock, page, size }],
+    queryKey: queryKeys.admin.stock.list({ q, lowStock, page, size }),
     queryFn: () =>
       adminStockService.getStock({
         q: q || undefined,

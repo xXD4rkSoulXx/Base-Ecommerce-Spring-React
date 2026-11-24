@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from '@/queryKeys'
 import { adminReturnService } from '@/services/admin/adminReturn.service'
 
 export const useAdminApproveReturn = () => {
@@ -7,10 +8,10 @@ export const useAdminApproveReturn = () => {
   return useMutation({
     mutationFn: (id: number) => adminReturnService.approve(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'returns'] })
-      queryClient.invalidateQueries({ queryKey: ['admin', 'orders'] })
-      queryClient.invalidateQueries({ queryKey: ['admin', 'order'] })
-      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.returns.all })
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.orders.all })
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.order.all })
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.dashboard.all })
     }
   })
 }

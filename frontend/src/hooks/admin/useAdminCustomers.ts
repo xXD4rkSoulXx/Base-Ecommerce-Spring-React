@@ -1,6 +1,7 @@
 import { useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { usePageParams } from '@/hooks/usePageParams'
+import { queryKeys } from '@/queryKeys'
 import { adminCustomerService } from '@/services/admin/adminCustomer.service'
 
 export const useAdminCustomers = () => {
@@ -9,7 +10,7 @@ export const useAdminCustomers = () => {
   const q = searchParams.get('q') || ''
 
   return useQuery({
-    queryKey: ['admin', 'customers', { q, page, size }],
+    queryKey: queryKeys.admin.customers.list({ q, page, size }),
     queryFn: () =>
       adminCustomerService.getCustomers({
         q: q || undefined,

@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from '@/queryKeys'
 import { adminStockService } from '@/services/admin/adminStock.service'
 
 interface AdjustStockVariables {
@@ -12,10 +13,10 @@ export const useAdminAdjustStock = () => {
   return useMutation({
     mutationFn: ({ skuId, delta }: AdjustStockVariables) => adminStockService.adjustStock(skuId, { delta }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'stock'] })
-      queryClient.invalidateQueries({ queryKey: ['admin', 'products'] })
-      queryClient.invalidateQueries({ queryKey: ['admin', 'product-skus'] })
-      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.stock.all })
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.products.all })
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.productSkus.all })
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.dashboard.all })
     }
   })
 }

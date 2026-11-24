@@ -1,3 +1,4 @@
+import type { Schema } from '@/types/schema'
 import type { UserResponse } from '@/types/user'
 
 export interface RegisterRequest {
@@ -17,7 +18,6 @@ export interface ChangePasswordRequest {
   newPassword: string
 }
 
-export interface LoginResponse {
+export interface LoginResponse extends Omit<Schema<'LoginResponse'>, 'user'> {
   user: UserResponse
-  accessToken: string
 }

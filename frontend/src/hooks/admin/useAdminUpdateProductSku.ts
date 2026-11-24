@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from '@/queryKeys'
 import { adminProductSkuService } from '@/services/admin/adminProductSku.service'
 import type { AdminUpdateProductSkuRequest } from '@/types/admin/adminProductSku'
 
@@ -14,8 +15,8 @@ export const useAdminUpdateProductSku = (productId: number) => {
     mutationFn: ({ skuId, request }: UpdateProductSkuVariables) =>
       adminProductSkuService.updateSku(productId, skuId, request),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'product-skus', productId] })
-      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.productSkus.byProduct(productId) })
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.dashboard.all })
     }
   })
 }

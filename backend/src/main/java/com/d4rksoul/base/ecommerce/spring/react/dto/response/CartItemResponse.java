@@ -3,6 +3,7 @@ package com.d4rksoul.base.ecommerce.spring.react.dto.response;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ProductColor;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ProductSize;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.annotation.Nullable;
 import lombok.Builder;
 
 import java.math.BigDecimal;
@@ -24,7 +25,7 @@ public record CartItemResponse(
 
     ProductColor color,
 
-    String cover,
+    @Nullable String cover,
 
     BigDecimal price,
 

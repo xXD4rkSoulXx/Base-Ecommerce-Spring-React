@@ -1,3 +1,5 @@
+import type { Schema } from '@/types/schema'
+
 export interface AdminCreateDiscountCodeRequest extends AdminUpdateDiscountCodeRequest {
   code: string
 }
@@ -13,11 +15,4 @@ export interface AdminDiscountCodeSearchRequest {
   size: number
 }
 
-export interface AdminDiscountCodeResponse {
-  id: number
-  code: string
-  discountPercentage: number
-  active: boolean
-  orders: number
-  createdAt: string
-}
+export type AdminDiscountCodeResponse = Schema<'AdminDiscountCodeResponse'>

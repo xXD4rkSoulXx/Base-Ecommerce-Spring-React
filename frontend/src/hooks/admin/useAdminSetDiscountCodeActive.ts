@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from '@/queryKeys'
 import { adminDiscountCodeService } from '@/services/admin/adminDiscountCode.service'
 
 interface SetDiscountCodeActiveVariables {
@@ -13,8 +14,8 @@ export const useAdminSetDiscountCodeActive = () => {
     mutationFn: ({ id, active }: SetDiscountCodeActiveVariables) =>
       active ? adminDiscountCodeService.activateDiscountCode(id) : adminDiscountCodeService.deactivateDiscountCode(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'discount-codes'] })
-      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.discountCodes.all })
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.dashboard.all })
     }
   })
 }

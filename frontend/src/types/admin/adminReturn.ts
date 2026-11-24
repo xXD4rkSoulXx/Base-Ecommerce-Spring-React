@@ -1,5 +1,5 @@
-import type { ReturnReason, ReturnStatus, ShippingAddress } from '@/types/order'
-import type { ProductColor, ProductSize } from '@/types/product'
+import type { ReturnStatus } from '@/types/order'
+import type { Schema } from '@/types/schema'
 
 export interface AdminReturnSearchRequest {
   status?: ReturnStatus
@@ -12,26 +12,6 @@ export interface AdminRejectReturnRequest {
   reason: string
 }
 
-export interface AdminReturnResponse {
-  id: number
-  orderId: number
-  customerEmail: string
-  address: ShippingAddress
-  status: ReturnStatus
-  reason: ReturnReason
-  comment?: string
-  refundAmount?: number
-  rejectionReason?: string
-  createdAt: string
-  refundedAt?: string
-  items: AdminReturnItemResponse[]
-}
+export type AdminReturnResponse = Schema<'AdminReturnResponse'>
 
-export interface AdminReturnItemResponse {
-  ref: string
-  productName: string
-  color: ProductColor
-  size: ProductSize
-  imagePath?: string
-  quantity: number
-}
+export type AdminReturnItemResponse = Schema<'AdminReturnItemResponse'>

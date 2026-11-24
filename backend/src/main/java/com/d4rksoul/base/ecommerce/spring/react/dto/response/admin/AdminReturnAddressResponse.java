@@ -1,6 +1,7 @@
 package com.d4rksoul.base.ecommerce.spring.react.dto.response.admin;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.annotation.Nullable;
 import lombok.Builder;
 
 @Builder
@@ -10,11 +11,11 @@ public record AdminReturnAddressResponse(
 
     String addressLine1,
 
-    String addressLine2,
+    @Nullable String addressLine2,
 
     String city,
 
-    String state,
+    @Nullable String state,
 
     String postalCode,
 
