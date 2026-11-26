@@ -103,11 +103,13 @@ public class AdminDiscountCodeService {
         return pageMapper.toDto(responsePage);
     }
 
-    @Transactional
-    public AdminDiscountCodeResponse updateDiscountCode(Long id, AdminUpdateDiscountCodeRequest request) {
+    public AdminDiscountCodeResponse updateDiscountCode(
+        Long id, AdminUpdateDiscountCodeRequest request
+    ) {
         DiscountCode discountCode = discountCodeRepository.findById(id)
             .orElseThrow(() -> new DiscountCodeNotFoundException("Discount code not found with id: " + id));
 
+        int previousPercentage = discountCode.getDiscountPercentage();
         discountCode.setDiscountPercentage(request.discountPercentage());
 
         adminAuditLogService.register(
@@ -115,7 +117,7 @@ public class AdminDiscountCodeService {
             AuditEntityType.DISCOUNT_CODE,
             id,
             discountCode.getCode(),
-            discountCode.getDiscountPercentage() + "% → " + request.discountPercentage() + "%"
+            previousPercentage + "% → " + request.discountPercentage() + "%"
         );
 
         return adminDiscountCodeMapper.toDto(discountCode, orderRepository.countByDiscountCodeId(id));
