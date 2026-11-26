@@ -23,7 +23,7 @@ import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.sku;
 import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.user;
 import static org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase.Replace.NONE;
 
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @AutoConfigureTestDatabase(replace = NONE)
 @TestPropertySource(properties = "spring.jpa.hibernate.ddl-auto=validate")
 public abstract class AbstractIntegrationTest {

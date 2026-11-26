@@ -11,6 +11,7 @@ export const LEGAL_LAST_UPDATED = 'November 22, 2026'
 
 export const MAX_CART_ITEM_QUANTITY = 10
 export const MAX_CART_LINES = 20
+export const MAX_GUEST_WISHLIST_ITEMS = 100
 
 export const TODO_FILTER = 'TODO'
 export const ALL_FILTER = 'ALL'

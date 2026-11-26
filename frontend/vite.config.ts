@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
@@ -14,5 +14,12 @@ export default defineConfig(({ mode }) => ({
     alias: {
       '@': path.resolve(import.meta.dirname, './src')
     }
+  },
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.ts'],
+    include: ['src/**/*.test.{ts,tsx}'],
+    css: false,
+    env: { TZ: 'UTC', VITE_API_URL: 'http://api.test' }
   }
 }))

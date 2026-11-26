@@ -31,6 +31,7 @@ const STACK = [
   'TypeScript',
   'TanStack Query',
   'Zustand',
+  'Zod',
   'Tailwind',
   'Vercel',
   'Render',

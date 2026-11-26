@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { ProductResponse } from '@/types/product'
+import { MAX_GUEST_WISHLIST_ITEMS } from '@/constants'
 
 interface WishlistState {
   items: ProductResponse[]
@@ -9,8 +10,6 @@ interface WishlistState {
   removeFromWishlist: (productId: number) => void
   clearWishlist: () => void
 }
-
-const MAX_GUEST_WISHLIST_ITEMS = 100
 
 export const useWishlistStore = create<WishlistState>()(
   persist(
