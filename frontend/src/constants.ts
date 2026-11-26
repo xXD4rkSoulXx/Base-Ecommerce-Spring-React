@@ -3,6 +3,8 @@ import type { ProductCategory, ProductSort } from '@/types/product'
 import type { OrderStatus, ReturnReason, ReturnStatus, ShipmentStatus } from '@/types/order'
 
 export const APP_NAME = 'VELO_CITI'
+export const CONTACT_EMAIL = 'support@velociti.demo'
+
 export const MAIN_CONTENT_ID = 'main-content'
 
 export const LEGAL_LAST_UPDATED = 'November 22, 2026'

@@ -208,6 +208,7 @@ class AuthenticationControllerTest extends ControllerSecurityTestBase {
     void refreshRequiresXhrHeader() throws Exception {
         mockMvc.perform(
             post("/api/auth/refresh")
+                .servletPath("/api/auth/refresh")
                 .cookie(new Cookie(REFRESH_COOKIE, "old-token"))
         ).andExpect(status().isForbidden());
 

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { APP_NAME, PRODUCT_CATEGORIES } from '@/constants'
+import { APP_NAME, CONTACT_EMAIL, PRODUCT_CATEGORIES } from '@/constants'
 import { formatCategory } from '@/utils/format'
 
 interface FooterLink {
@@ -52,6 +52,12 @@ export const Footer = () => (
           <p className="mt-4 max-w-md text-sm text-muted-foreground">
             {APP_NAME} is a portfolio project, not a real store. Payments run in Stripe test mode, shipping labels and
             tracking are simulated, and no order will ever be shipped.
+          </p>
+          <p className="mt-4 text-sm text-muted-foreground">
+            Contact:{' '}
+            <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-neon-cyan">
+              {CONTACT_EMAIL}
+            </a>
           </p>
         </div>
         {FOOTER_COLUMNS.map((column) => (

@@ -31,3 +31,12 @@ jobs:
       - name: Build with Maven
         working-directory: ./backend
         run: ./mvnw clean verify -B
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: test-reports
+          path: |
+            backend/target/surefire-reports
+            backend/target/failsafe-reports
