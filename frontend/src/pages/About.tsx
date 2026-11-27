@@ -34,7 +34,7 @@ const STACK = [
   'Zod',
   'Tailwind',
   'Vercel',
-  'Render',
+  'Railway',
   'Cloudinary',
   'Neon'
 ]
