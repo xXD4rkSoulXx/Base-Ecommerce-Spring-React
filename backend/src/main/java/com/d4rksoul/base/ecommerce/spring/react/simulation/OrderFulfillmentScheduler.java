@@ -28,9 +28,14 @@ public class OrderFulfillmentScheduler {
     private final OrderShipmentService orderShipmentService;
     private final OrderStatusEventService orderStatusEventService;
     private final ShipmentTrackingEventService shipmentTrackingEventService;
+    private final SimulationActivityFilter activityFilter;
 
     @Scheduled(fixedDelay = SimulationConstants.TICK_MS)
     public void advanceOrders() {
+        if (!activityFilter.isActive()) {
+            return;
+        }
+
         Instant limit = Instant.now().minus(SimulationConstants.PAID_TO_PROCESSING_DELAY);
 
         List<Order> orders = orderRepository

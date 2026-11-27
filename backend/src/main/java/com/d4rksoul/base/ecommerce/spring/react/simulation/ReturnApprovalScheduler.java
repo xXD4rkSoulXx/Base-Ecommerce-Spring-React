@@ -41,9 +41,14 @@ public class ReturnApprovalScheduler {
     private final AdminReturnService adminReturnService;
     private final StripeApiClient stripeApiClient;
     private final TransactionTemplate transactionTemplate;
+    private final SimulationActivityFilter activityFilter;
 
     @Scheduled(fixedDelay = SimulationConstants.TICK_MS)
     public void processReturns() {
+        if (!activityFilter.isActive()) {
+            return;
+        }
+
         Instant limit = Instant.now().minus(SimulationConstants.RETURN_APPROVAL_DELAY);
 
         List<OrderReturn> requestedReturns = orderReturnRepository

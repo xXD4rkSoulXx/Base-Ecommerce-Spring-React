@@ -9,6 +9,7 @@ import java.time.Duration;
 final class SimulationConstants {
 
     static final long TICK_MS = 30_000;
+    static final Duration ACTIVE_WINDOW = Duration.ofMinutes(5);
 
     static final Duration PAID_TO_PROCESSING_DELAY = Duration.ofMinutes(1);
     static final Duration PROCESSING_TO_SHIPPED_DELAY = Duration.ofMinutes(5);
