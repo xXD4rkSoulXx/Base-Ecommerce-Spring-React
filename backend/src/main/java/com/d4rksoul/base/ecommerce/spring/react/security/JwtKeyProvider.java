@@ -1,5 +1,6 @@
 package com.d4rksoul.base.ecommerce.spring.react.security;
 
+import com.d4rksoul.base.ecommerce.spring.react.config.JwtProperties;
 import com.d4rksoul.base.ecommerce.spring.react.exception.KeyInitializationException;
 import org.springframework.stereotype.Component;
 
@@ -17,14 +18,21 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
+import static org.springframework.util.StringUtils.hasText;
+
 @Component
 public class JwtKeyProvider {
 
+    private static final String PUBLIC_KEY_LABEL = "PUBLIC KEY";
+    private static final String PRIVATE_KEY_LABEL = "PRIVATE KEY";
+
+    private final JwtProperties properties;
     private final Path keysPath;
     private final Path publicKeyPath;
     private final Path privateKeyPath;
 
-    public JwtKeyProvider() {
+    public JwtKeyProvider(JwtProperties properties) {
+        this.properties = properties;
         this.keysPath = Paths.get("keys/");
         this.publicKeyPath = keysPath.resolve("public.pem");
         this.privateKeyPath = keysPath.resolve("private.pem");
@@ -32,17 +40,18 @@ public class JwtKeyProvider {
 
     public KeyPair getOrInitializeKeyPair() {
         try {
+            if (hasText(properties.privateKey()) && hasText(properties.publicKey())) {
+                return toKeyPair(
+                    decodePem(properties.publicKey(), PUBLIC_KEY_LABEL),
+                    decodePem(properties.privateKey(), PRIVATE_KEY_LABEL)
+                );
+            }
+
             if (Files.exists(publicKeyPath) && Files.exists(privateKeyPath)) {
-                KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-
-                PublicKey publicKey = keyFactory.generatePublic(
-                    new X509EncodedKeySpec(readPem(publicKeyPath, "PUBLIC KEY"))
+                return toKeyPair(
+                    decodePem(Files.readString(publicKeyPath), PUBLIC_KEY_LABEL),
+                    decodePem(Files.readString(privateKeyPath), PRIVATE_KEY_LABEL)
                 );
-                PrivateKey privateKey = keyFactory.generatePrivate(
-                    new PKCS8EncodedKeySpec(readPem(privateKeyPath, "PRIVATE KEY"))
-                );
-
-                return new KeyPair(publicKey, privateKey);
             }
 
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
@@ -51,19 +60,30 @@ public class JwtKeyProvider {
 
             Files.createDirectories(keysPath);
 
-            writePem(publicKeyPath, "PUBLIC KEY", keyPair.getPublic().getEncoded());
-            writePem(privateKeyPath, "PRIVATE KEY", keyPair.getPrivate().getEncoded());
+            writePem(publicKeyPath, PUBLIC_KEY_LABEL, keyPair.getPublic().getEncoded());
+            writePem(privateKeyPath, PRIVATE_KEY_LABEL, keyPair.getPrivate().getEncoded());
 
             return keyPair;
-        } catch (GeneralSecurityException | IOException e) {
+        } catch (GeneralSecurityException | IOException | IllegalArgumentException e) {
             throw new KeyInitializationException(
                 "Could not configure cryptographic keys due to a security error. ", e
             );
         }
     }
 
-    private byte[] readPem(Path path, String label) throws IOException {
-        String base64 = Files.readString(path)
+    private KeyPair toKeyPair(
+        byte[] publicKeyBytes, byte[] privateKeyBytes
+    ) throws GeneralSecurityException {
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+
+        PublicKey publicKey = keyFactory.generatePublic(new X509EncodedKeySpec(publicKeyBytes));
+        PrivateKey privateKey = keyFactory.generatePrivate(new PKCS8EncodedKeySpec(privateKeyBytes));
+
+        return new KeyPair(publicKey, privateKey);
+    }
+
+    private byte[] decodePem(String pem, String label) {
+        String base64 = pem
             .replace("-----BEGIN " + label + "-----", "")
             .replace("-----END " + label + "-----", "")
             .replaceAll("\\s", "");

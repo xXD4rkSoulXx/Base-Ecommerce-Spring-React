@@ -36,7 +36,7 @@ const STACK = [
   'Vercel',
   'Render',
   'Cloudinary',
-  'Supabase'
+  'Neon'
 ]
 
 export const About = () => (
