@@ -1,4 +1,4 @@
-package com.d4rksoul.base.ecommerce.spring.react.integration;
+package com.d4rksoul.base.ecommerce.spring.react.persistence;
 
 import com.d4rksoul.base.ecommerce.spring.react.entity.DiscountCode;
 import com.d4rksoul.base.ecommerce.spring.react.repository.DiscountCodeRepository;
@@ -14,7 +14,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.discountCode;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.discountCode;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DiscountCodeRepositoryIT extends AbstractIntegrationTest {

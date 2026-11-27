@@ -1,4 +1,4 @@
-package com.d4rksoul.base.ecommerce.spring.react.integration;
+package com.d4rksoul.base.ecommerce.spring.react.persistence;
 
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.DisplayName;

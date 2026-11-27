@@ -27,6 +27,9 @@ public final class Constants {
     public static final Duration SHIPPO_CONNECT_TIMEOUT = Duration.ofSeconds(5);
     public static final Duration SHIPPO_READ_TIMEOUT = Duration.ofSeconds(15);
 
+    public static final Duration CLOUDINARY_CONNECT_TIMEOUT = Duration.ofSeconds(5);
+    public static final Duration CLOUDINARY_READ_TIMEOUT = Duration.ofSeconds(30);
+
     public static final int IMAGE_MAX_WIDTH = 1200;
     public static final long IMAGE_MAX_SOURCE_PIXELS = 40_000_000L;
     public static final float IMAGE_JPEG_QUALITY = 0.85f;

@@ -1,4 +1,4 @@
-package com.d4rksoul.base.ecommerce.spring.react.integration;
+package com.d4rksoul.base.ecommerce.spring.react.persistence;
 
 import com.d4rksoul.base.ecommerce.spring.react.entity.Order;
 import com.d4rksoul.base.ecommerce.spring.react.entity.OrderItem;
@@ -16,11 +16,11 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.order;
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.orderItem;
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.product;
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.sku;
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.user;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.order;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.orderItem;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.product;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.sku;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.user;
 import static org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase.Replace.NONE;
 
 @DataJpaTest(showSql = false)

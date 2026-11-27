@@ -1,4 +1,4 @@
-package com.d4rksoul.base.ecommerce.spring.react.integration;
+package com.d4rksoul.base.ecommerce.spring.react.persistence;
 
 import com.d4rksoul.base.ecommerce.spring.react.entity.User;
 import com.d4rksoul.base.ecommerce.spring.react.enums.UserRole;

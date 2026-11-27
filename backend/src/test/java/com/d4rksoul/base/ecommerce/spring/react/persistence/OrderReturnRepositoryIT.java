@@ -1,4 +1,4 @@
-package com.d4rksoul.base.ecommerce.spring.react.integration;
+package com.d4rksoul.base.ecommerce.spring.react.persistence;
 
 import com.d4rksoul.base.ecommerce.spring.react.dto.projection.ReturnedQuantityProjection;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Order;
@@ -28,8 +28,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.orderReturn;
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.orderReturnItem;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.orderReturn;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.orderReturnItem;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
