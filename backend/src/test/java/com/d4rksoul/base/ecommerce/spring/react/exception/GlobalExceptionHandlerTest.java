@@ -105,6 +105,11 @@ class GlobalExceptionHandlerTest {
                 502,
                 "Shipping options are temporarily unavailable. Please try again in a moment."
             ),
+            arguments(
+                new ImageStorageException("internal cloudinary detail"),
+                502,
+                "Image storage is temporarily unavailable. Please try again in a moment."
+            ),
 
             arguments(
                 new IllegalStateException("internal detail that must not leak"),

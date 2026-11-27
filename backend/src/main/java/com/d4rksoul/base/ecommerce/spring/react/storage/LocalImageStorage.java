@@ -1,6 +1,8 @@
 package com.d4rksoul.base.ecommerce.spring.react.storage;
 
+import com.d4rksoul.base.ecommerce.spring.react.config.BackendProperties;
 import com.d4rksoul.base.ecommerce.spring.react.config.StorageProperties;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -10,14 +12,17 @@ import java.nio.file.Path;
 import java.util.UUID;
 
 @Component
+@ConditionalOnProperty(name = "app.storage.provider", havingValue = "local", matchIfMissing = true)
 public class LocalImageStorage implements ImageStorage {
 
     private final Path root;
     private final String urlPrefix;
 
-    public LocalImageStorage(StorageProperties properties) {
+    public LocalImageStorage(
+        StorageProperties properties, BackendProperties backendProperties
+    ) {
         this.root = Path.of(properties.uploadDir()).toAbsolutePath().normalize();
-        this.urlPrefix = properties.publicBaseUrl() + "/uploads/";
+        this.urlPrefix = backendProperties.url() + "/uploads/";
     }
 
     @Override

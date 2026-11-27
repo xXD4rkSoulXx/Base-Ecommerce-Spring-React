@@ -1,4 +1,4 @@
-package com.d4rksoul.base.ecommerce.spring.react.integration;
+package com.d4rksoul.base.ecommerce.spring.react.persistence;
 
 import com.d4rksoul.base.ecommerce.spring.react.entity.DiscountCode;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Order;
@@ -25,11 +25,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.discountCode;
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.order;
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.orderItem;
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.shipment;
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.user;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.discountCode;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.order;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.orderItem;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.shipment;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.user;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class OrderRepositoryIT extends AbstractIntegrationTest {

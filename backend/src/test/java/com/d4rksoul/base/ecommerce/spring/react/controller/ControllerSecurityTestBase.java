@@ -47,10 +47,7 @@ import static org.mockito.Mockito.when;
 @WebMvcTest
 @Import({SecurityConfig.class, CorsConfig.class})
 @EnableConfigurationProperties({StorageProperties.class, CorsProperties.class})
-@TestPropertySource(properties = {
-    "CORS_ALLOWED_ORIGINS=http://localhost:5173",
-    "STORAGE_PUBLIC_BASE_URL=http://localhost:8080/uploads"
-})
+@TestPropertySource(properties = "CORS_ALLOWED_ORIGINS=http://localhost:5173")
 abstract class ControllerSecurityTestBase {
 
     @Autowired

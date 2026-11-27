@@ -1,4 +1,4 @@
-package com.d4rksoul.base.ecommerce.spring.react.integration;
+package com.d4rksoul.base.ecommerce.spring.react.persistence;
 
 import com.d4rksoul.base.ecommerce.spring.react.dto.projection.CategoryUnitsProjection;
 import com.d4rksoul.base.ecommerce.spring.react.dto.projection.CustomerOrderStatsProjection;
@@ -38,12 +38,12 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.discountCode;
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.order;
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.orderItem;
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.orderReturn;
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.review;
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.user;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.discountCode;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.order;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.orderItem;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.orderReturn;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.review;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.user;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 

@@ -87,7 +87,10 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler({InvalidCredentialsException.class, UserNotAuthenticatedException.class})
+    @ExceptionHandler({
+        InvalidCredentialsException.class,
+        UserNotAuthenticatedException.class
+    })
     public ResponseEntity<ApiError> handleUnauthorized(RuntimeException exception) {
         return buildResponse(HttpStatus.UNAUTHORIZED, exception.getMessage());
     }
@@ -147,6 +150,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     public ResponseEntity<ApiError> handleMediaTypeNotSupported() {
         return buildResponse(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Unsupported content type");
+    }
+
+    @ExceptionHandler(ImageStorageException.class)
+    public ResponseEntity<ApiError> handleImageStorageException() {
+        return buildResponse(
+            HttpStatus.BAD_GATEWAY,
+            "Image storage is temporarily unavailable. Please try again in a moment."
+        );
     }
 
     @ExceptionHandler(NoUnifiedCarrierException.class)

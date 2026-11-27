@@ -1,4 +1,4 @@
-package com.d4rksoul.base.ecommerce.spring.react.integration;
+package com.d4rksoul.base.ecommerce.spring.react.persistence;
 
 import com.d4rksoul.base.ecommerce.spring.react.entity.Product;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Review;
@@ -19,7 +19,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.review;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.review;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ReviewRepositoryIT extends AbstractIntegrationTest {

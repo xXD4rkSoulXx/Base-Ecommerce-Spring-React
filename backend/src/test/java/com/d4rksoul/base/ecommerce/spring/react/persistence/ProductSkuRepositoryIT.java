@@ -1,4 +1,4 @@
-package com.d4rksoul.base.ecommerce.spring.react.integration;
+package com.d4rksoul.base.ecommerce.spring.react.persistence;
 
 import com.d4rksoul.base.ecommerce.spring.react.dto.projection.ProductStockProjection;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Product;
@@ -21,7 +21,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.List;
 import java.util.Optional;
 
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.sku;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.sku;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;

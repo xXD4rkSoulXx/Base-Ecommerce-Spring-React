@@ -1,4 +1,4 @@
-package com.d4rksoul.base.ecommerce.spring.react.integration;
+package com.d4rksoul.base.ecommerce.spring.react.persistence;
 
 import com.d4rksoul.base.ecommerce.spring.react.dto.projection.RatingStatsProjection;
 import com.d4rksoul.base.ecommerce.spring.react.entity.Order;
@@ -28,11 +28,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.order;
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.orderItem;
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.product;
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.review;
-import static com.d4rksoul.base.ecommerce.spring.react.integration.TestData.user;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.order;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.orderItem;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.product;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.review;
+import static com.d4rksoul.base.ecommerce.spring.react.persistence.TestData.user;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
