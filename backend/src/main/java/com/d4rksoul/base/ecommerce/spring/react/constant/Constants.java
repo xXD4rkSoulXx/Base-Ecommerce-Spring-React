@@ -24,6 +24,8 @@ public final class Constants {
     public static final Duration PENDING_ORDER_TIMEOUT = Duration.ofMinutes(10);
     public static final Duration CHECKOUT_SESSION_DURATION = Duration.ofMinutes(31);
 
+    public static final Duration SCHEDULER_ACTIVE_WINDOW = Duration.ofMinutes(5);
+
     public static final Duration SHIPPO_CONNECT_TIMEOUT = Duration.ofSeconds(5);
     public static final Duration SHIPPO_READ_TIMEOUT = Duration.ofSeconds(15);
 

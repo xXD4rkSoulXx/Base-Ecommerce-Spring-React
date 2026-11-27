@@ -12,6 +12,7 @@ import com.d4rksoul.base.ecommerce.spring.react.integration.stripe.StripeApiClie
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderReturnItemRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderReturnRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.ProductSkuRepository;
+import com.d4rksoul.base.ecommerce.spring.react.scheduler.RequestActivityFilter;
 import com.d4rksoul.base.ecommerce.spring.react.service.OrderStatusEventService;
 import com.d4rksoul.base.ecommerce.spring.react.service.admin.AdminReturnService;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +42,7 @@ public class ReturnApprovalScheduler {
     private final AdminReturnService adminReturnService;
     private final StripeApiClient stripeApiClient;
     private final TransactionTemplate transactionTemplate;
-    private final SimulationActivityFilter activityFilter;
+    private final RequestActivityFilter activityFilter;
 
     @Scheduled(fixedDelay = SimulationConstants.TICK_MS)
     public void processReturns() {

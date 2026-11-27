@@ -1,11 +1,11 @@
-package com.d4rksoul.base.ecommerce.spring.react.simulation;
+package com.d4rksoul.base.ecommerce.spring.react.scheduler;
 
+import com.d4rksoul.base.ecommerce.spring.react.constant.Constants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.NonNull;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -14,9 +14,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicReference;
 
-@ConditionalOnProperty(prefix = "app.simulation", name = "enabled", havingValue = "true")
 @Component
-public class SimulationActivityFilter extends OncePerRequestFilter {
+public class RequestActivityFilter extends OncePerRequestFilter {
 
     private final AtomicReference<Instant> lastActivity = new AtomicReference<>(Instant.now());
 
@@ -41,7 +40,7 @@ public class SimulationActivityFilter extends OncePerRequestFilter {
 
     boolean isActiveAt(Instant now) {
         return Duration.between(lastActivity.get(), now)
-            .compareTo(SimulationConstants.ACTIVE_WINDOW) < 0;
+            .compareTo(Constants.SCHEDULER_ACTIVE_WINDOW) < 0;
     }
 
     Instant lastActivity() {

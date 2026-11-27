@@ -30,6 +30,8 @@ class OrderExpirationSchedulerTest {
     private OrderRepository orderRepository;
     @Mock
     private StripeApiClient stripeApiClient;
+    @Mock
+    private RequestActivityFilter activityFilter;
 
     @InjectMocks
     private OrderExpirationScheduler scheduler;
@@ -37,6 +39,7 @@ class OrderExpirationSchedulerTest {
     @Test
     @DisplayName("expire: expires the Stripe session of every stale pending order")
     void expiresSessionOfEachStaleOrder() {
+        when(activityFilter.isActive()).thenReturn(true);
         when(orderRepository.findByStatusAndStripeCheckoutSessionIdNotNullAndCreatedAtBefore(
             any(OrderStatus.class), any(Instant.class)
         )).thenReturn(List.of(order("cs_1"), order("cs_2")));
@@ -50,6 +53,7 @@ class OrderExpirationSchedulerTest {
     @Test
     @DisplayName("expire: a failure on one order does not stop the others")
     void failureOnOneOrderDoesNotStopTheOthers() {
+        when(activityFilter.isActive()).thenReturn(true);
         when(orderRepository.findByStatusAndStripeCheckoutSessionIdNotNullAndCreatedAtBefore(
             any(OrderStatus.class), any(Instant.class)
         )).thenReturn(List.of(order("cs_1"), order("cs_2")));
@@ -64,6 +68,7 @@ class OrderExpirationSchedulerTest {
     @Test
     @DisplayName("expire: with no stale orders Stripe is never contacted")
     void doesNothingWithoutStaleOrders() {
+        when(activityFilter.isActive()).thenReturn(true);
         when(orderRepository.findByStatusAndStripeCheckoutSessionIdNotNullAndCreatedAtBefore(
             any(OrderStatus.class), any(Instant.class)
         )).thenReturn(List.of());
@@ -76,6 +81,7 @@ class OrderExpirationSchedulerTest {
     @Test
     @DisplayName("expire: only looks at PENDING orders older than the pending order timeout")
     void looksOnlyAtPendingOrdersOlderThanTimeout() {
+        when(activityFilter.isActive()).thenReturn(true);
         ArgumentCaptor<Instant> limitCaptor = ArgumentCaptor.forClass(Instant.class);
         when(orderRepository.findByStatusAndStripeCheckoutSessionIdNotNullAndCreatedAtBefore(
             any(OrderStatus.class), any(Instant.class)
@@ -93,6 +99,16 @@ class OrderExpirationSchedulerTest {
             before.minus(Constants.PENDING_ORDER_TIMEOUT),
             after.minus(Constants.PENDING_ORDER_TIMEOUT)
         );
+    }
+
+    @Test
+    @DisplayName("expire: does nothing while there has been no recent activity")
+    void doesNothingWithoutRecentActivity() {
+        when(activityFilter.isActive()).thenReturn(false);
+
+        scheduler.expireStaleOrders();
+
+        verifyNoInteractions(orderRepository, stripeApiClient);
     }
 
     private Order order(String sessionId) {
