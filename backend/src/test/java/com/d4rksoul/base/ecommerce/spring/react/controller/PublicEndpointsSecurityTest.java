@@ -37,6 +37,7 @@ class PublicEndpointsSecurityTest extends ControllerSecurityTestBase {
             arguments(HttpMethod.GET, "/uploads/photo.jpg"),
             arguments(HttpMethod.GET, "/v3/api-docs"),
             arguments(HttpMethod.GET, "/swagger-ui/index.html"),
+            arguments(HttpMethod.GET, "/actuator/health/liveness"),
             arguments(HttpMethod.POST, "/api/auth/register"),
             arguments(HttpMethod.POST, "/api/auth/login"),
             arguments(HttpMethod.POST, "/api/auth/refresh"),
@@ -72,7 +73,8 @@ class PublicEndpointsSecurityTest extends ControllerSecurityTestBase {
             arguments(HttpMethod.POST, "/api/products/1/review"),
             arguments(HttpMethod.GET, "/api/products/1/review/eligibility"),
             arguments(HttpMethod.PUT, "/api/auth/password"),
-            arguments(HttpMethod.DELETE, "/api/auth/logout-all")
+            arguments(HttpMethod.DELETE, "/api/auth/logout-all"),
+            arguments(HttpMethod.GET, "/actuator/env")
         );
     }
 

@@ -78,3 +78,17 @@ shipping:
         length-cm: 45
         width-cm: 35
         height-cm: 25
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+  health:
+    db:
+      enabled: false
