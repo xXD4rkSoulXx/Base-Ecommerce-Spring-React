@@ -32,6 +32,9 @@ app:
     url: ${FRONTEND_URL}
   backend:
     url: ${BACKEND_URL}
+  jwt:
+    private-key: ${JWT_PRIVATE_KEY:}
+    public-key: ${JWT_PUBLIC_KEY:}
   storage:
     upload-dir: uploads
     public-base-url: ${STORAGE_PUBLIC_BASE_URL}

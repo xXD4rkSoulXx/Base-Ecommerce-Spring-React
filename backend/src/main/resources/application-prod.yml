@@ -3,3 +3,8 @@ springdoc:
     enabled: false
   swagger-ui:
     enabled: false
+
+app:
+  jwt:
+    private-key: ${JWT_PRIVATE_KEY}
+    public-key: ${JWT_PUBLIC_KEY}
