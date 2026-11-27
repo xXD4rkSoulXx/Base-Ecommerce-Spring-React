@@ -1,5 +1,6 @@
-package com.d4rksoul.base.ecommerce.spring.react.simulation;
+package com.d4rksoul.base.ecommerce.spring.react.scheduler;
 
+import com.d4rksoul.base.ecommerce.spring.react.constant.Constants;
 import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,9 +13,9 @@ import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class SimulationActivityFilterTest {
+class RequestActivityFilterTest {
 
-    private final SimulationActivityFilter filter = new SimulationActivityFilter();
+    private final RequestActivityFilter filter = new RequestActivityFilter();
 
     @Test
     @DisplayName("isActive: is active right after startup")
@@ -25,7 +26,7 @@ class SimulationActivityFilterTest {
     @Test
     @DisplayName("isActiveAt: is inactive once the window has passed without requests")
     void isInactiveOnceTheWindowHasPassedWithoutRequests() {
-        Instant afterWindow = filter.lastActivity().plus(SimulationConstants.ACTIVE_WINDOW);
+        Instant afterWindow = filter.lastActivity().plus(Constants.SCHEDULER_ACTIVE_WINDOW);
 
         assertThat(filter.isActiveAt(afterWindow)).isFalse();
     }
@@ -33,7 +34,7 @@ class SimulationActivityFilterTest {
     @Test
     @DisplayName("isActiveAt: is still active just inside the window")
     void isStillActiveJustInsideTheWindow() {
-        Instant insideWindow = filter.lastActivity().plus(SimulationConstants.ACTIVE_WINDOW)
+        Instant insideWindow = filter.lastActivity().plus(Constants.SCHEDULER_ACTIVE_WINDOW)
             .minusSeconds(1);
 
         assertThat(filter.isActiveAt(insideWindow)).isTrue();

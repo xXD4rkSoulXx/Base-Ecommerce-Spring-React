@@ -18,13 +18,18 @@ public class OrderExpirationScheduler {
 
     private final OrderRepository orderRepository;
     private final StripeApiClient stripeApiClient;
+    private final RequestActivityFilter activityFilter;
 
     @Scheduled(fixedDelay = 60_000)
     public void expireStaleOrders() {
+        if (!activityFilter.isActive()) {
+            return;
+        }
+
         Instant limit = Instant.now().minus(Constants.PENDING_ORDER_TIMEOUT);
 
         List<Order> staleOrders = orderRepository
-                .findByStatusAndStripeCheckoutSessionIdNotNullAndCreatedAtBefore(OrderStatus.PENDING, limit);
+            .findByStatusAndStripeCheckoutSessionIdNotNullAndCreatedAtBefore(OrderStatus.PENDING, limit);
         for (Order order : staleOrders) {
             try {
                 stripeApiClient.expireSession(order.getStripeCheckoutSessionId());

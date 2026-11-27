@@ -6,6 +6,7 @@ import com.d4rksoul.base.ecommerce.spring.react.enums.OrderStatus;
 import com.d4rksoul.base.ecommerce.spring.react.enums.ShipmentStatus;
 import com.d4rksoul.base.ecommerce.spring.react.repository.OrderRepository;
 import com.d4rksoul.base.ecommerce.spring.react.repository.ShipmentTrackingEventRepository;
+import com.d4rksoul.base.ecommerce.spring.react.scheduler.RequestActivityFilter;
 import com.d4rksoul.base.ecommerce.spring.react.service.OrderShipmentService;
 import com.d4rksoul.base.ecommerce.spring.react.service.OrderStatusEventService;
 import com.d4rksoul.base.ecommerce.spring.react.service.ShipmentTrackingEventService;
@@ -28,7 +29,7 @@ public class OrderFulfillmentScheduler {
     private final OrderShipmentService orderShipmentService;
     private final OrderStatusEventService orderStatusEventService;
     private final ShipmentTrackingEventService shipmentTrackingEventService;
-    private final SimulationActivityFilter activityFilter;
+    private final RequestActivityFilter activityFilter;
 
     @Scheduled(fixedDelay = SimulationConstants.TICK_MS)
     public void advanceOrders() {
