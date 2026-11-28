@@ -7,7 +7,7 @@ export const CONTACT_EMAIL = 'support@velociti.demo'
 
 export const MAIN_CONTENT_ID = 'main-content'
 
-export const LEGAL_LAST_UPDATED = 'November 22, 2026'
+export const LEGAL_LAST_UPDATED = 'November 28, 2026'
 
 export const MAX_CART_ITEM_QUANTITY = 10
 export const MAX_CART_LINES = 20
