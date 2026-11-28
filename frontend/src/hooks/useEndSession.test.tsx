@@ -2,11 +2,17 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { renderHook, act } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { MemoryRouter, useLocation } from 'react-router-dom'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { isDemoSession, markDemoSession } from '@/demo/demoSession'
+import { stopDemo } from '@/demo/startDemo'
 import { useEndSession } from '@/hooks/useEndSession'
 import { queryKeys } from '@/queryKeys'
 import { useAuthStore } from '@/store/useAuthStore'
 import { buildUser } from '@/test/builders'
+
+vi.mock('@/demo/startDemo', () => ({
+  stopDemo: vi.fn()
+}))
 
 const initialState = useAuthStore.getInitialState()
 
@@ -26,6 +32,8 @@ describe('useEndSession', () => {
   beforeEach(() => {
     useAuthStore.setState(initialState, true)
     localStorage.clear()
+    sessionStorage.clear()
+    vi.clearAllMocks()
   })
 
   it('clears the authentication', () => {
@@ -54,5 +62,15 @@ describe('useEndSession', () => {
     act(() => result.current.endSession())
 
     expect(result.current.location.pathname).toBe('/login')
+  })
+
+  it('stops the demo and forgets the demo session so the next login is a real one', () => {
+    markDemoSession()
+    const { result } = renderEndSession()
+
+    act(() => result.current.endSession())
+
+    expect(stopDemo).toHaveBeenCalledOnce()
+    expect(isDemoSession()).toBe(false)
   })
 })

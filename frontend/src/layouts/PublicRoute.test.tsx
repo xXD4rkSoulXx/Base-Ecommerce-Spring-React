@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { Route, Routes } from 'react-router-dom'
+import { markDemoSession } from '@/demo/demoSession'
 import { PublicRoute } from '@/layouts/PublicRoute'
 import { useAuthStore } from '@/store/useAuthStore'
 import { buildUser } from '@/test/builders'
@@ -13,6 +14,7 @@ const renderRoute = (entry: Parameters<typeof renderWithProviders>[1] = ['/login
     <Routes>
       <Route path="/" element={<p>Home page</p>} />
       <Route path="/orders" element={<p>Orders page</p>} />
+      <Route path="/admin" element={<p>Admin page</p>} />
       <Route element={<PublicRoute />}>
         <Route path="/login" element={<p>Login page</p>} />
       </Route>
@@ -24,6 +26,7 @@ describe('PublicRoute', () => {
   beforeEach(() => {
     useAuthStore.setState(initialState, true)
     localStorage.clear()
+    sessionStorage.clear()
   })
 
   it('shows the page to a visitor', () => {
@@ -54,5 +57,14 @@ describe('PublicRoute', () => {
     renderRoute([{ pathname: '/login', state: { from: { pathname: '/orders' } } }])
 
     expect(screen.getByText('Orders page')).toBeInTheDocument()
+  })
+
+  it('sends a demo user to the admin area', () => {
+    markDemoSession()
+    useAuthStore.getState().setAuth(buildUser(), 'token')
+
+    renderRoute()
+
+    expect(screen.getByText('Admin page')).toBeInTheDocument()
   })
 })
