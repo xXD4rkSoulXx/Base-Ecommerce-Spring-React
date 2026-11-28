@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
+import { unmarkDemoSession } from '@/demo/demoSession'
+import { stopDemo } from '@/demo/startDemo'
 import { useAuthStore } from '@/store/useAuthStore'
 
 export const useEndSession = () => {
@@ -8,6 +10,8 @@ export const useEndSession = () => {
   const queryClient = useQueryClient()
 
   return () => {
+    stopDemo()
+    unmarkDemoSession()
     clearAuth()
     queryClient.clear()
     navigate('/login', { replace: true })

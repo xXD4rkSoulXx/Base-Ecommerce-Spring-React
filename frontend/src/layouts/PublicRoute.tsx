@@ -1,4 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { isDemoSession } from '@/demo/demoSession'
 import { useAuthStore } from '@/store/useAuthStore'
 
 interface LocationState {
@@ -13,7 +14,7 @@ export const PublicRoute = () => {
   const location = useLocation()
 
   if (user && accessToken) {
-    const from = (location.state as LocationState | null)?.from?.pathname || '/'
+    const from = (location.state as LocationState | null)?.from?.pathname || (isDemoSession() ? '/admin' : '/')
 
     return <Navigate to={from} replace />
   }
